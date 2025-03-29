@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "personal-finance"
+version = "0.1.0"
+description = "A personal finance management tool"
+readme = "README.md"
+authors = [
+    {name = "Mauricio Silva", email = "maugx3@gmail.com"}
+]
+license = "CC0-1.0"
+keywords = ["finance", "personal finance", "investment", "stocks", "bonds", "etfs"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "pandas",
+    "matplotlib",
+    "numpy",
+    "seaborn",
+    "yfinance",
+    "stockdex",
+    "requests",
+    "beautifulsoup4",
+    "yahoofinancials",
+    "alpha_vantage",
+    "plotly",
+    "dash",
+    "pandas-datareader",
+    "fredapi",
+    "quantstats",
+    "scikit-learn",
+    "statsmodels",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "black>=22.1.0",
+    "flake8>=4.0.1",
+    "isort>=5.10.1",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["personal_finance"]
+
+[tool.black]
+line-length = 79
+target-version = ["py37"]
+
+[tool.isort]
+profile = "black"
