@@ -35,6 +35,9 @@ dependencies = [
     "quantstats",
     "scikit-learn",
     "statsmodels",
+    "psycopg2-binary",
+    "sqlalchemy",
+    "alembic",
 ]
 
 [project.optional-dependencies]
@@ -43,6 +46,7 @@ dev = [
     "black>=22.1.0",
     "flake8>=4.0.1",
     "isort>=5.10.1",
+    "alembic>=1.10"
 ]
 
 [tool.setuptools]
