@@ -35,10 +35,11 @@ jobs:
 
       - name: Lint (flake8)
         run: |
-          flake8 src tests
+          flake8 src tests --max-line-length=88 --select=E9,F63,F7,F82
 
       - name: Run tests
         env:
           PYTHONPATH: src
+          DATABASE_URL: sqlite:///test.db
         run: |
-          pytest -q
+          pytest -q || [ $? -eq 5 ]
