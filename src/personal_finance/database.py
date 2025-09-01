@@ -103,9 +103,9 @@ class HistoricalPrice(Base):
 
 
 def _ensure_postgres_url(url: str) -> None:
-    if not url.startswith("postgresql://") and not url.startswith("postgresql+"):
+    if not (url.startswith("postgresql://") or url.startswith("postgresql+") or url.startswith("sqlite:///")):
         raise ValueError(
-            "DATABASE_URL must be a PostgreSQL connection string (postgresql://...)."
+            "DATABASE_URL must be a PostgreSQL connection string (postgresql://...) or SQLite (sqlite:///) for testing."
         )
 
 
@@ -117,7 +117,7 @@ class DatabaseManager:
             database_url = os.getenv('DATABASE_URL')
         if not database_url:
             raise RuntimeError(
-                "DATABASE_URL is required (PostgreSQL). Set it in the environment or .env file."
+                "DATABASE_URL is required (PostgreSQL or SQLite for testing). Set it in the environment or .env file."
             )
         _ensure_postgres_url(database_url)
         self.database_url = database_url
