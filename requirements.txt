@@ -1,0 +1,23 @@
+fastapi
+uvicorn[standard]
+# runtime deps (copied from pyproject)
+pandas
+matplotlib
+numpy
+seaborn
+yfinance
+stockdex
+requests
+beautifulsoup4
+yahoofinancials
+alpha_vantage
+plotly
+dash
+pandas-datareader
+fredapi
+quantstats
+scikit-learn
+statsmodels
+psycopg2-binary
+sqlalchemy
+alembic

@@ -1,0 +1,56 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-and-deploy:
+    name: Test and deploy to Render
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: |
+          pytest -q
+
+      - name: Trigger Render deploy
+        if: success()
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ]; then
+            echo "Missing Render secrets (RENDER_API_KEY/RENDER_SERVICE_ID). Skipping deploy.";
+            exit 0;
+          fi
+          echo "Triggering deploy for service $RENDER_SERVICE_ID"
+          curl -X POST "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            -o /tmp/render-deploy-resp.json -w "\nHTTP_STATUS:%{http_code}\n"
+          cat /tmp/render-deploy-resp.json

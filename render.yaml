@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: personal-finance-web
+    env: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn personal_finance.web_gui:app --host 0.0.0.0 --port $PORT
+    # Note: Do NOT store secrets in this file. Set DATABASE_URL and other secrets
+    # in the Render dashboard for the service (Dashboard -> Environment).
