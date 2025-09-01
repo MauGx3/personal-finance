@@ -1,0 +1,25 @@
+{
+  "name": "personal-finance (devcontainer)",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "python.pythonPath": "/usr/local/bin/python"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-ossdata.vscode-postgresql",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens"
+      ]
+    }
+  },
+  "postStartCommand": "bash .devcontainer/postCreateCommand.sh",
+  "forwardPorts": [5432],
+  "remoteUser": "vscode"
+}
