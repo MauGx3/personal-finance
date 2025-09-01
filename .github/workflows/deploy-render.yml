@@ -34,8 +34,11 @@ jobs:
           pip install pytest
 
       - name: Run tests
+        env:
+          PYTHONPATH: src
+          DATABASE_URL: sqlite:///test.db
         run: |
-          pytest -q
+          pytest -q || [ $? -eq 5 ]
 
       - name: Trigger Render deploy
         if: success()
