@@ -5,6 +5,11 @@ services:
     plan: free
     branch: main
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn personal_finance.web_gui:app --host 0.0.0.0 --port $PORT
+    pythonVersion: 3.11
+    # Prefer gunicorn with uvicorn workers in production. If you don't install
+    # gunicorn, Render will try the provided uvicorn fallback.
+    startCommand: >-
+      bash -lc "(command -v gunicorn >/dev/null 2>&1 && exec gunicorn -k uvicorn.workers.UvicornWorker \
+      -w 4 -b 0.0.0.0:$PORT personal_finance.web_gui:app) || exec uvicorn personal_finance.web_gui:app --host 0.0.0.0 --port $PORT"
     # Note: Do NOT store secrets in this file. Set DATABASE_URL and other secrets
     # in the Render dashboard for the service (Dashboard -> Environment).
