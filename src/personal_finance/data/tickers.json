@@ -1,0 +1,14 @@
+{
+    "tickers": [
+        {
+            "symbol": "AAPL",
+            "name": "Apple Inc.",
+            "price": 150.00
+        },
+        {
+            "symbol": "GOOGL",
+            "name": "Alphabet Inc.",
+            "price": 2800.00
+        }
+    ]
+}
