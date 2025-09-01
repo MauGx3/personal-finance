@@ -1,7 +1,6 @@
 from unittest.mock import Mock, patch
 import pytest
-from . import portfolio
-from portfolio import PortfolioManager
+from personal_finance.portfolio import PortfolioManager
 
 
 class TestPortfolioManager:
