@@ -1,10 +1,10 @@
  # Minimum safe versions (use '>=' to avoid installing insecure older releases).
  # Review and update regularly; run `pip-audit` in CI to catch vulnerable packages.
- fastapi>=0.95.0
+ fastapi>=0.116.1
  uvicorn[standard]>=0.20.0
 
  # runtime deps (copied from pyproject)
- requests>=2.32.4
+requests==2.32.3
  setuptools>=78.1.1
  pandas>=2.0.0
  matplotlib>=3.6.0
