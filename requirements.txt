@@ -12,7 +12,6 @@
  seaborn>=0.13.0
  yfinance>=0.2.65
  stockdex>=1.2.0
- requests>=2.28.0
  beautifulsoup4>=4.11.0
  yahoofinancials>=1.20
  alpha_vantage>=3.0.0
