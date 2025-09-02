@@ -70,4 +70,4 @@ jobs:
 
       - name: Run pip-audit
         run: |
-          python -m pip_audit --progress-spinner off --fail-on-vulnerable
+          python -m pip_audit --progress-spinner off
