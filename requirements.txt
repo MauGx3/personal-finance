@@ -4,6 +4,8 @@
  uvicorn[standard]>=0.20.0
 
  # runtime deps (copied from pyproject)
+ requests>=2.32.4
+ setuptools>=78.1.1
  pandas>=2.0.0
  matplotlib>=3.6.0
  numpy>=1.24.0
