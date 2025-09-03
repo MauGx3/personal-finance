@@ -1,6 +1,6 @@
 import os
 import importlib
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 from fastapi.testclient import TestClient
@@ -29,7 +29,7 @@ def test_create_and_list_position(tmp_db_path, monkeypatch):
         "name": "Test Corp",
         "quantity": 10.5,
         "buy_price": 12.34,
-        "buy_date": datetime.utcnow().strftime("%Y-%m-%dT00:00:00")
+        "buy_date": datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00")
     }
 
     # Create position

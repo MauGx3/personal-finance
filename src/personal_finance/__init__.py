@@ -4,16 +4,28 @@ Personal Finance Package
 A package for managing personal finance data and analysis.
 """
 
-# Import main modules to make them available at package level
-from . import portfolio  # noqa: F401
-from . import yahoo_finance  # noqa: F401
-from . import database  # noqa: F401
+# Import main modules defensively to avoid failing import when optional
+# dependencies are missing (e.g., external data libraries used by portfolio).
+try:  # pragma: no cover - best-effort optional imports
+    from . import portfolio  # type: ignore  # noqa: F401
+except Exception:
+    portfolio = None  # type: ignore
+
+try:  # pragma: no cover
+    from . import yahoo_finance  # type: ignore  # noqa: F401
+except Exception:
+    yahoo_finance = None  # type: ignore
+
+try:  # pragma: no cover
+    from . import database  # type: ignore  # noqa: F401
+except Exception:
+    database = None  # type: ignore
 
 # Optional: expose logger if available without causing circular import on init
 try:  # pragma: no cover - defensive
-	from .logs.logger import logger  # type: ignore  # noqa: F401
-except Exception:  # pragma: no cover
-	logger = None  # type: ignore
+    from .logs.logger import logger  # type: ignore  # noqa: F401
+except Exception:
+    logger = None  # type: ignore
 
 # Define what gets imported with "from personal_finance import *"
 __all__ = ["portfolio", "yahoo_finance", "database", "logger"]
