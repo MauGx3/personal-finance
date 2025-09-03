@@ -42,11 +42,12 @@ def startup_check():  # pragma: no cover - runtime environment dependent
     health/info pages even if the DB is misconfigured.
     """
     db_host = _extract_db_host(getattr(service.db, 'database_url', None))
-    if os.getenv("RUN_MIGRATIONS_ON_START") == "1":
+    # Avoid duplicate migrations when entrypoint already applied them.
+    if os.getenv("RUN_MIGRATIONS_IN_APP_WORKER") == "1":
         try:
             service.db.run_migrations()
             print(f"[startup] Alembic migrations applied (host={db_host})")
-        except Exception as exc:
+        except Exception as exc:  # pragma: no cover - runtime
             print(f"[startup][warning] Migration failed: {exc}")
     # Quick connectivity probe
     try:

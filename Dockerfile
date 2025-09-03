@@ -54,7 +54,8 @@ COPY requirements.txt constraints.txt requirements.lock* ./
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-RUN adduser --system --disabled-password --gecos "" appuser \
+RUN addgroup --system appuser \
+    && adduser --system --ingroup appuser --disabled-password --gecos "" appuser \
     && chown -R appuser:appuser /app
 USER appuser
 

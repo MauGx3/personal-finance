@@ -140,9 +140,29 @@ class DatabaseManager:
                     "install project with dev extras: 'pip install .[dev]' to run migrations."
                 ) from ie
 
-            alembic_cfg = Config(os.path.join(os.path.dirname(__file__), '..', '..', 'alembic.ini'))
-            # Ensure consistent path resolution
-            script_location = os.path.join(os.path.dirname(__file__), '..', '..', 'alembic')
+            # Candidate locations to search for alembic scripts (ordered)
+            candidates = []
+            pkg_dir = os.path.dirname(os.path.abspath(__file__))
+            candidates.append(os.path.abspath(os.path.join(pkg_dir, '..', '..')))  # source layout
+            candidates.append(os.getenv('APP_ROOT', '/app'))  # container app root
+            candidates.append(os.getcwd())  # current working directory
+
+            script_location = None
+            ini_path = None
+            for root in candidates:
+                if not root:
+                    continue
+                cand_script = os.path.join(root, 'alembic')
+                cand_ini = os.path.join(root, 'alembic.ini')
+                if os.path.isdir(cand_script) and os.path.isfile(cand_ini):
+                    script_location = cand_script
+                    ini_path = cand_ini
+                    break
+
+            if not script_location or not ini_path:
+                raise RuntimeError("Alembic scripts directory not found in searched locations: " + ", ".join(candidates))
+
+            alembic_cfg = Config(ini_path)
             alembic_cfg.set_main_option('script_location', os.path.abspath(script_location))
             # Override URL dynamically
             alembic_cfg.set_main_option('sqlalchemy.url', self.database_url)
