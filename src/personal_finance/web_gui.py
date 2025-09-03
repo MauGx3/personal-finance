@@ -10,17 +10,70 @@ you can pass a sqlite URL by instantiating GUIService(database_url=...) in code.
 from typing import List, Optional
 import os
 from urllib.parse import urlparse
-from datetime import datetime
+from datetime import datetime, timezone
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, Response, JSONResponse
-from sqlalchemy import text
 from pydantic import BaseModel
 
 from .gui_service import GUIService
 
-app = FastAPI(title="Personal Finance GUI")
-service = GUIService()  # uses env DATABASE_URL by default
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """Lifespan context to run startup-like actions without deprecated on_event.
+
+    This replaces the deprecated @app.on_event("startup") usage and runs
+    migrations/connectivity checks during app startup.
+    """
+    # If a module-global `service` was created at import time (for tests), reuse it.
+    svc = globals().get('service')
+    if svc is None:
+        svc = GUIService()  # uses env DATABASE_URL by default
+        # Update the module-global reference as well for backwards compatibility
+        globals()['service'] = svc
+
+    # Attach service to app state so route handlers can access it
+    app.state.service = svc
+
+    db_host = _extract_db_host(getattr(service.db, 'database_url', None))
+    if os.getenv("RUN_MIGRATIONS_IN_APP_WORKER") == "1":
+        try:
+            service.db.run_migrations()
+            print(f"[startup] Alembic migrations applied (host={db_host})")
+        except Exception as exc:  # pragma: no cover - runtime
+            print(f"[startup][warning] Migration failed: {exc}")
+    try:
+        if service.db.ping():
+            print(f"[startup] DB connectivity OK (host={db_host})")
+        else:
+            print(f"[startup][warning] DB ping failed (host={db_host})")
+    except Exception as exc:
+        print(f"[startup][warning] DB connectivity failed (host={db_host}) -> {exc}")
+
+    try:
+        yield
+    finally:
+        # Optional cleanup for service/db clients
+        try:
+            svc = getattr(app.state, 'service', None)
+            if svc and getattr(svc.db, '_mongo_client', None):
+                svc.db._mongo_client.close()
+        except Exception:
+            pass
+
+
+app = FastAPI(title="Personal Finance GUI", lifespan=_lifespan)
+# Backwards-compatible reference used by tests and other modules.
+# Create a module-global service at import time when DATABASE_URL is set so
+# tests that import this module can access web_gui.service immediately.
+service = None
+if os.getenv("DATABASE_URL"):
+    try:
+        service = GUIService()
+    except Exception:
+        # Defer failures to runtime checks; keep import-time robust for tests.
+        service = None
 
 
 def _extract_db_host(dsn: Optional[str]) -> Optional[str]:
@@ -33,29 +86,7 @@ def _extract_db_host(dsn: Optional[str]) -> Optional[str]:
         return None
 
 
-@app.on_event("startup")
-def startup_check():  # pragma: no cover - runtime environment dependent
-    """Optional auto-migration & connectivity check at startup.
-
-    Set RUN_MIGRATIONS_ON_START=1 to automatically apply Alembic migrations.
-    Logs warnings instead of failing hard so the service can still serve
-    health/info pages even if the DB is misconfigured.
-    """
-    db_host = _extract_db_host(getattr(service.db, 'database_url', None))
-    # Avoid duplicate migrations when entrypoint already applied them.
-    if os.getenv("RUN_MIGRATIONS_IN_APP_WORKER") == "1":
-        try:
-            service.db.run_migrations()
-            print(f"[startup] Alembic migrations applied (host={db_host})")
-        except Exception as exc:  # pragma: no cover - runtime
-            print(f"[startup][warning] Migration failed: {exc}")
-    # Quick connectivity probe
-    try:
-        with service.db.get_session() as session:
-            session.execute(text("SELECT 1"))
-        print(f"[startup] DB connectivity OK (host={db_host})")
-    except Exception as exc:
-        print(f"[startup][warning] DB connectivity failed (host={db_host}) -> {exc}")
+# Lifespan handler above performs startup checks and attaches service to app.state
 
 
 class TickerIn(BaseModel):
@@ -161,20 +192,37 @@ def list_positions():
 @app.post("/positions")
 def create_position(payload: PositionIn):
     p = service.add_position(payload.symbol.upper(), payload.name, payload.quantity, payload.buy_price, payload.buy_date)
-    # p may be an ORM instance or a plain mapping; normalize to dict
+    # p may be None, an ORM instance, or a plain mapping; normalize to dict
+    if p is None:
+        raise HTTPException(status_code=400, detail="Could not create position")
+
+    # If the service returned a plain mapping (e.g., Mongo SimpleNamespace -> dict), accept it
+    if isinstance(p, dict):
+        return p
+
+    # Try to read attributes from ORM-like object safely
+    symbol = getattr(p, 'symbol', None)
+    name = getattr(p, 'name', None)
+    quantity = getattr(p, 'quantity', None)
+    buy_price = getattr(p, 'buy_price', None)
+    buy_date_val = getattr(p, 'buy_date', None)
+
+    # Format buy_date if it's a datetime; if it's already a string, leave as-is
     try:
-        return {
-            "symbol": p.symbol,
-            "name": p.name,
-            "quantity": p.quantity,
-            "buy_price": p.buy_price,
-            "buy_date": p.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(p, 'buy_date', None) else None,
-        }
+        if hasattr(buy_date_val, 'strftime'):
+            buy_date = buy_date_val.strftime("%Y-%m-%dT%H:%M:%S")
+        else:
+            buy_date = buy_date_val
     except Exception:
-        # Fallback: if service returned a mapping
-        if isinstance(p, dict):
-            return p
-        return JSONResponse(status_code=201, content={})
+        buy_date = None
+
+    return {
+        "symbol": symbol,
+        "name": name,
+        "quantity": quantity,
+        "buy_price": buy_price,
+        "buy_date": buy_date,
+    }
 
 
 @app.post("/prices")
@@ -404,18 +452,26 @@ def health():
     dsn = getattr(service.db, 'database_url', None)
     host = _extract_db_host(dsn)
     try:
-        with service.db.get_session() as session:
-            session.execute(text("SELECT 1"))
-        return JSONResponse(status_code=200, content={
-            "status": "ok",
-            "db": "ok",
-            "db_host": host,
-        })
+        ok = service.db.ping()
+        if ok:
+            return JSONResponse(status_code=200, content={
+                "status": "ok",
+                "db": "ok",
+                "db_host": host,
+            })
+        else:
+            return JSONResponse(status_code=503, content={
+                "status": "fail",
+                "db": "error",
+                "db_host": host,
+                "detail": "Ping failed",
+                "hint": "Check DATABASE_URL — ensure it is reachable."
+            })
     except Exception as exc:  # pragma: no cover
         return JSONResponse(status_code=503, content={
             "status": "fail",
             "db": "error",
             "db_host": host,
             "detail": str(exc),
-            "hint": "Check DATABASE_URL env var (must point to reachable Postgres host, not localhost on Render)."
+            "hint": "Check DATABASE_URL — ensure it is reachable."
         })

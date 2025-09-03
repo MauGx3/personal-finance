@@ -38,6 +38,7 @@ dependencies = [
     "psycopg2-binary",
     "sqlalchemy",
     "alembic",
+    "pymongo",
 ]
 
 [project.optional-dependencies]
