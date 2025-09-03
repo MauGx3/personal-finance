@@ -8,6 +8,8 @@ Ensure DATABASE_URL is exported for PostgreSQL in production. For local testing
 you can pass a sqlite URL by instantiating GUIService(database_url=...) in code.
 """
 from typing import List, Optional
+import os
+from urllib.parse import urlparse
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
@@ -19,6 +21,40 @@ from .gui_service import GUIService
 
 app = FastAPI(title="Personal Finance GUI")
 service = GUIService()  # uses env DATABASE_URL by default
+
+
+def _extract_db_host(dsn: Optional[str]) -> Optional[str]:
+    if not dsn:
+        return None
+    try:
+        parsed = urlparse(dsn)
+        return parsed.hostname
+    except Exception:  # pragma: no cover - defensive
+        return None
+
+
+@app.on_event("startup")
+def startup_check():  # pragma: no cover - runtime environment dependent
+    """Optional auto-migration & connectivity check at startup.
+
+    Set RUN_MIGRATIONS_ON_START=1 to automatically apply Alembic migrations.
+    Logs warnings instead of failing hard so the service can still serve
+    health/info pages even if the DB is misconfigured.
+    """
+    db_host = _extract_db_host(getattr(service.db, 'database_url', None))
+    if os.getenv("RUN_MIGRATIONS_ON_START") == "1":
+        try:
+            service.db.run_migrations()
+            print(f"[startup] Alembic migrations applied (host={db_host})")
+        except Exception as exc:
+            print(f"[startup][warning] Migration failed: {exc}")
+    # Quick connectivity probe
+    try:
+        with service.db.get_session() as session:
+            session.execute(text("SELECT 1"))
+        print(f"[startup] DB connectivity OK (host={db_host})")
+    except Exception as exc:
+        print(f"[startup][warning] DB connectivity failed (host={db_host}) -> {exc}")
 
 
 class TickerIn(BaseModel):
@@ -47,7 +83,10 @@ class PriceIn(BaseModel):
 
 @app.get("/tickers")
 def list_tickers():
-    return service.list_tickers()
+    try:
+        return service.list_tickers()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
 
 
 @app.get("/", include_in_schema=False)
@@ -101,7 +140,10 @@ def create_ticker(payload: TickerIn):
 
 @app.get("/positions")
 def list_positions():
-    return service.list_positions()
+    try:
+        return service.list_positions()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
 
 
 @app.post("/positions")
@@ -322,11 +364,21 @@ def health():
     Returns 200 with {status: 'ok', db: 'ok'} when a simple SELECT 1 succeeds.
     Returns 503 with error details if the DB check fails.
     """
+    dsn = getattr(service.db, 'database_url', None)
+    host = _extract_db_host(dsn)
     try:
-        # Perform a minimal DB round-trip to ensure connectivity and basic query ability.
         with service.db.get_session() as session:
             session.execute(text("SELECT 1"))
-        return JSONResponse(status_code=200, content={"status": "ok", "db": "ok"})
-    except Exception as exc:  # pragma: no cover - runtime failure path
-        # Don't leak internal stack but include the exception message for diagnostics.
-        return JSONResponse(status_code=503, content={"status": "fail", "db": "error", "detail": str(exc)})
+        return JSONResponse(status_code=200, content={
+            "status": "ok",
+            "db": "ok",
+            "db_host": host,
+        })
+    except Exception as exc:  # pragma: no cover
+        return JSONResponse(status_code=503, content={
+            "status": "fail",
+            "db": "error",
+            "db_host": host,
+            "detail": str(exc),
+            "hint": "Check DATABASE_URL env var (must point to reachable Postgres host, not localhost on Render)."
+        })
