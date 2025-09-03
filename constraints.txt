@@ -6,12 +6,12 @@
 fastapi==0.116.1
 uvicorn==0.34.3
 pydantic==2.11.6
-## NOTE: fastapi 0.116.x requires starlette < 0.47.0; pin to a compatible 0.46.x
-starlette==0.46.4
+## NOTE: fastapi 0.116.x requires starlette >=0.47.0,<0.48.0; pin to latest compatible 0.47.x
+starlette==0.47.2
 anyio==4.9.0
 
 # HTTP
-requests==2.32.4
+requests==2.32.3  # pinned to satisfy stockdex==1.2.0 requirement (Requests==2.32.3)
 urllib3==2.4.0
 charset-normalizer==3.4.2
 idna==3.9
