@@ -142,7 +142,18 @@ def create_ticker(payload: TickerIn):
 @app.get("/positions")
 def list_positions():
     try:
-        return service.list_positions()
+        positions = service.list_positions()
+        # Serialize SQLAlchemy objects to plain dicts for JSON responses
+        result = []
+        for p in positions:
+            result.append({
+                "symbol": p.symbol,
+                "name": p.name,
+                "quantity": p.quantity,
+                "buy_price": p.buy_price,
+                "buy_date": p.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(p, 'buy_date', None) else None,
+            })
+        return result
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
 
@@ -150,7 +161,20 @@ def list_positions():
 @app.post("/positions")
 def create_position(payload: PositionIn):
     p = service.add_position(payload.symbol.upper(), payload.name, payload.quantity, payload.buy_price, payload.buy_date)
-    return p
+    # p may be an ORM instance or a plain mapping; normalize to dict
+    try:
+        return {
+            "symbol": p.symbol,
+            "name": p.name,
+            "quantity": p.quantity,
+            "buy_price": p.buy_price,
+            "buy_date": p.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(p, 'buy_date', None) else None,
+        }
+    except Exception:
+        # Fallback: if service returned a mapping
+        if isinstance(p, dict):
+            return p
+        return JSONResponse(status_code=201, content={})
 
 
 @app.post("/prices")
@@ -168,7 +192,13 @@ def get_position(symbol: str):
     position = service.db.get_portfolio_position(symbol)  # type: ignore[attr-defined]
     if not position:
         raise HTTPException(status_code=404, detail="Position not found")
-    return position
+    return {
+        "symbol": position.symbol,
+        "name": position.name,
+        "quantity": position.quantity,
+        "buy_price": position.buy_price,
+        "buy_date": position.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(position, 'buy_date', None) else None,
+    }
 
 
 @app.put("/positions/{symbol}")
@@ -177,7 +207,13 @@ def update_position(symbol: str, payload: PositionIn):
     updated = service.update_position(symbol, payload.quantity, payload.buy_price, payload.buy_date)
     if not updated:
         raise HTTPException(status_code=404, detail="Position not found")
-    return updated
+    return {
+        "symbol": updated.symbol,
+        "name": updated.name,
+        "quantity": updated.quantity,
+        "buy_price": updated.buy_price,
+        "buy_date": updated.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(updated, 'buy_date', None) else None,
+    }
 
 
 @app.delete("/positions/{symbol}")
