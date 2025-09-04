@@ -1,14 +1,10 @@
-"""Backward-compatible shim for personal_finance.yahoo_finance
-Re-exports functions from personal_finance.assets.yahoo_finance
-"""
-from .assets.yahoo_finance import *  # noqa: F401,F403
 import yfinance
 import logging
 import requests
 import json
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List
-from .database import DatabaseManager
+from ..database import DatabaseManager
 
 logger = logging.getLogger(__name__)
 
