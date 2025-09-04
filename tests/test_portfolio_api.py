@@ -1,5 +1,5 @@
-import os
 import importlib
+import sys
 from datetime import datetime, timezone
 
 import pytest
@@ -13,11 +13,14 @@ def tmp_db_path(tmp_path):
 
 
 def test_create_and_list_position(tmp_db_path, monkeypatch):
-    # Ensure DATABASE_URL is set before importing the web app (it creates a service at import)
+    # Set env before import (app + service constructed at import time)
     monkeypatch.setenv('DATABASE_URL', tmp_db_path)
 
-    # Import web_gui after setting env so it constructs GUIService with our test DB
-    web_gui = importlib.import_module('personal_finance.web_gui')
+    # Import (or reload) web_gui after setting env so service uses this test DB
+    if 'personal_finance.web_gui' in sys.modules:
+        web_gui = importlib.reload(sys.modules['personal_finance.web_gui'])
+    else:
+        web_gui = importlib.import_module('personal_finance.web_gui')
 
     # Create tables directly (tests don't run alembic)
     web_gui.service.db.create_tables()
