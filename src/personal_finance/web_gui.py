@@ -117,6 +117,110 @@ class PriceIn(BaseModel):
     volume: Optional[int] = None
 
 
+@app.get("/tickers/{symbol}")
+def get_ticker_detail(symbol: str):
+    symbol = symbol.upper()
+    try:
+        t = service.get_ticker(symbol)
+        if not t:
+            raise HTTPException(status_code=404, detail="Ticker not found")
+        return {
+            "symbol": t.symbol,
+            "name": t.name,
+            "price": getattr(t, 'price', None),
+            "last_updated": getattr(t, 'last_updated', None).strftime("%Y-%m-%dT%H:%M:%S")
+                if getattr(t, 'last_updated', None) and hasattr(getattr(t, 'last_updated'), 'strftime') else None,
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover - defensive
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+
+
+@app.get("/prices/{symbol}")
+def list_symbol_prices(symbol: str, limit: int = 60):
+    """Return up to `limit` most recent historical prices for the symbol.
+
+    * Caps limit between 1 and 500 to avoid accidental huge responses.
+    * Returns prices sorted descending by date (most recent first).
+    """
+    symbol = symbol.upper()
+    # Bound the limit defensively
+    if limit < 1:
+        limit = 1
+    elif limit > 500:
+        limit = 500
+    try:
+        prices = service.list_prices(symbol)
+        norm = []
+        for p in prices:
+            d = getattr(p, 'date', None)
+            norm.append(
+                {
+                    'date': (
+                        d.strftime('%Y-%m-%dT%H:%M:%S')
+                        if d and hasattr(d, 'strftime') else None
+                    ),
+                    'open': getattr(p, 'open_price', None),
+                    'high': getattr(p, 'high_price', None),
+                    'low': getattr(p, 'low_price', None),
+                    'close': getattr(p, 'close_price', None),
+                    'volume': getattr(p, 'volume', None),
+                }
+            )
+        norm.sort(key=lambda r: r['date'] or '', reverse=True)
+        return norm[:limit]
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(
+            status_code=503, detail=f"Database unavailable: {exc}"
+        )
+
+
+@app.get("/asset_summary/{symbol}")
+def asset_summary(symbol: str):
+    """Combined summary info for a symbol: ticker, position metrics."""
+    symbol = symbol.upper()
+    try:
+        ticker = service.get_ticker(symbol)
+        position = service.db.get_portfolio_position(symbol)  # type: ignore[attr-defined]
+        if not ticker and not position:
+            raise HTTPException(status_code=404, detail="Symbol not found")
+        price = getattr(ticker, 'price', None) if ticker else None
+        quantity = getattr(position, 'quantity', None) if position else None
+        buy_price = getattr(position, 'buy_price', None) if position else None
+        cost_basis = None
+        current_value = None
+        gain = None
+        gain_pct = None
+        if quantity is not None and buy_price is not None:
+            cost_basis = quantity * buy_price
+        if quantity is not None and price is not None:
+            current_value = quantity * price
+        if cost_basis is not None and current_value is not None:
+            gain = current_value - cost_basis
+            if cost_basis != 0:
+                gain_pct = (gain / cost_basis) * 100.0
+        return {
+            'symbol': symbol,
+            'name': getattr(ticker, 'name', None) or getattr(position, 'name', None),
+            'price': price,
+            'last_updated': getattr(ticker, 'last_updated', None).strftime('%Y-%m-%dT%H:%M:%S')
+                if ticker and getattr(ticker, 'last_updated', None) and hasattr(getattr(ticker, 'last_updated'), 'strftime') else None,
+            'quantity': quantity,
+            'buy_price': buy_price,
+            'buy_date': getattr(position, 'buy_date', None).strftime('%Y-%m-%dT%H:%M:%S')
+                if position and getattr(position, 'buy_date', None) and hasattr(getattr(position, 'buy_date'), 'strftime') else None,
+            'cost_basis': cost_basis,
+            'current_value': current_value,
+            'gain': gain,
+            'gain_pct': gain_pct,
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+
+
 @app.get("/tickers")
 def list_tickers():
     try:
@@ -399,7 +503,11 @@ def portfolio_page():
 
             function renderRow(p){
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.symbol}</td><td>${escapeHtml(p.name||'')}</td><td>${p.quantity}</td><td>${p.buy_price}</td><td>${p.buy_date ? p.buy_date.split('T')[0] : ''}</td><td class="actions"></td>`;
+                const symLink = `<a href="/asset/${p.symbol}">${p.symbol}</a>`;
+                tr.innerHTML = `<td>${symLink}</td><td>${escapeHtml(p.name||'')}</td>` +
+                    `<td>${p.quantity}</td><td>${p.buy_price}</td>` +
+                    `<td>${p.buy_date ? p.buy_date.split('T')[0] : ''}</td>` +
+                    `<td class="actions"></td>`;
                 const actionsTd = tr.querySelector('.actions');
                 const editBtn = document.createElement('button'); editBtn.textContent = 'Edit'; editBtn.type='button'; editBtn.onclick = () => startEdit(tr, p);
                 const delBtn = document.createElement('button'); delBtn.textContent = 'Delete'; delBtn.type='button'; delBtn.onclick = () => deletePosition(p.symbol);
@@ -522,6 +630,100 @@ def portfolio_page():
         </body>
         </html>
         """
+    return HTMLResponse(content=html, status_code=200)
+
+
+@app.get("/asset/{symbol}", include_in_schema=False)
+def asset_page(symbol: str):  # pragma: no cover - HTML route
+    symbol = symbol.upper()
+    template = """
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Asset __SYMBOL__</title>
+    <style>
+        body { font-family: system-ui,-apple-system,'Segoe UI',Roboto,Arial; margin:24px; }
+        h1 { margin-top:0; }
+        .grid { display:grid; gap:12px; max-width:640px; }
+        .card { border:1px solid #e2e8f0; padding:12px; border-radius:6px; }
+        table { border-collapse:collapse; width:100%; margin-top:12px; }
+        th,td { border:1px solid #e2e8f0; padding:4px 6px; text-align:left; }
+        th { background:#f1f5f9; }
+        .muted { color:#64748b; font-size:12px; }
+    </style>
+</head>
+<body>
+    <p><a href="/portfolio">&larr; Back to Portfolio</a></p>
+    <h1>Asset: __SYMBOL__</h1>
+    <div id="msg" class="muted"></div>
+    <div class="grid" id="summary"></div>
+    <h2>Recent Prices</h2>
+    <table aria-describedby="prices-desc">
+        <caption id="prices-desc" class="muted">Most recent historical prices.</caption>
+        <thead><tr><th>Date</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Vol</th></tr></thead>
+        <tbody id="prices-body"></tbody>
+    </table>
+    <script>
+    const sym = '__SYMBOL__';
+    async function loadSummary(){
+        const msg = document.getElementById('msg');
+        try {
+            const res = await fetch('/asset_summary/' + encodeURIComponent(sym));
+            if(!res.ok) throw new Error('Summary load failed');
+            const data = await res.json();
+            const grid = document.getElementById('summary');
+            grid.innerHTML = '';
+            const rows = [
+                ['Symbol', data.symbol],
+                ['Name', data.name||''],
+                ['Price', data.price!=null?data.price:''],
+                ['Quantity', data.quantity!=null?data.quantity:''],
+                ['Buy Price', data.buy_price!=null?data.buy_price:''],
+                ['Buy Date', data.buy_date?data.buy_date.split('T')[0]:''],
+                ['Cost Basis', data.cost_basis!=null?data.cost_basis:''],
+                ['Current Value', data.current_value!=null?data.current_value:''],
+                ['Gain', data.gain!=null?data.gain:''],
+                ['Gain %', data.gain_pct!=null?data.gain_pct.toFixed(2)+'%':''],
+            ];
+            rows.forEach(r => {
+                const div = document.createElement('div');
+                div.className='card';
+                div.innerHTML = '<strong>' + r[0] + ':</strong> ' + r[1];
+                grid.appendChild(div);
+            });
+        } catch(e){ msg.textContent = e.message; }
+    }
+    async function loadPrices(){
+        const body = document.getElementById('prices-body');
+        body.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+        try {
+            const res = await fetch('/prices/' + encodeURIComponent(sym) + '?limit=60');
+            if(!res.ok) throw new Error('Prices load failed');
+            const data = await res.json();
+            if(!Array.isArray(data) || data.length===0){
+                body.innerHTML = '<tr><td colspan="6">No data</td></tr>';
+                return;
+            }
+            body.innerHTML='';
+            data.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + (p.date? p.date.split('T')[0]:'') + '</td>' +
+                    '<td>' + (p.open??'') + '</td>' + '<td>' + (p.high??'') + '</td>' +
+                    '<td>' + (p.low??'') + '</td>' + '<td>' + (p.close??'') + '</td>' +
+                    '<td>' + (p.volume??'') + '</td>';
+                body.appendChild(tr);
+            });
+        } catch(e){ body.innerHTML = '<tr><td colspan="6">Error</td></tr>'; }
+    }
+    loadSummary();
+    loadPrices();
+    </script>
+</body>
+</html>
+"""
+    html = template.replace("__SYMBOL__", symbol)
     return HTMLResponse(content=html, status_code=200)
 
 

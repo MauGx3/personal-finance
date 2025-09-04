@@ -6,32 +6,36 @@ uvicorn[standard]>=0.20.0
 # runtime deps (copied from pyproject)
 requests>=2.32.3
 setuptools>=78.1.1
+beautifulsoup4>=4.11.0
+alpha_vantage>=3.0.0
+dash>=2.9.0
+fredapi>=0.5.0
+psycopg2-binary>=2.9.0
+# database
+sqlalchemy>=2.0.0
+pymongo>=4.0.0
+alembic>=1.11.0
+# GUI
+gunicorn>=20.1.0
+httpx>=0.24.0
+# finance specific
+yfinance>=0.2.65
+yahoofinancials>=1.20
+stockdex>=1.2.0
+financepy>=1.0.1
+# data analysis
 pandas>=2.0.0
 matplotlib>=3.6.0
 numpy>=1.24.0
 seaborn>=0.13.0
-yfinance>=0.2.65
-stockdex>=1.2.0
-beautifulsoup4>=4.11.0
-yahoofinancials>=1.20
-alpha_vantage>=3.0.0
-plotly>=5.13.0
-dash>=2.9.0
 pandas-datareader>=0.10.0
-fredapi>=0.5.0
 quantstats>=0.0.76
 scikit-learn>=1.2.0
 statsmodels>=0.14.0
-psycopg2-binary>=2.9.0
-sqlalchemy>=2.0.0
-alembic>=1.11.0
-gunicorn>=20.1.0
-httpx>=0.24.0
+plotly>=5.13.0
 
 # Optional: security tooling
 pip-audit>=2.0.0
 
-# MongoDB support
-pymongo>=4.0.0
 
 # If you use extra packages in pyproject, keep this file in sync.
