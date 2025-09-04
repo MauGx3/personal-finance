@@ -1,0 +1,46 @@
+[project]
+name = "ludic"
+version = "0.1.0"
+description = "ludic app"
+authors = [
+    { name = "maugx3", email ="maugx3@gmail.com" }
+]
+readme = "README.md"
+dependencies = [
+    "ludic[full]",
+    "uvicorn",
+]
+requires-python = ">=3.12"
+
+[tool.uv]
+dev-dependencies =[
+    "mypy",
+    "pytest",
+    "httpx",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "README.md", "pyproject.toml"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+disallow_subclassing_any = false
+plugins = "ludic.mypy_plugin"
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+norecursedirs = ".git docs .pytest_cache .mypy_cache .ruff_cache"
+filterwarnings = [
+    "ignore:The \\'app\\' shortcut is now deprecated. Use the explicit style \\'transport=WSGITransport\\(app=\\.\\.\\.\\)\\' instead\\.",
+]
