@@ -7,10 +7,11 @@ PYTHONPATH=src uvicorn personal_finance.web_gui:app --reload
 Ensure DATABASE_URL is exported for PostgreSQL in production. For local testing
 you can pass a sqlite URL by instantiating GUIService(database_url=...) in code.
 """
-from typing import List, Optional
+
+from typing import Optional
 import os
 from urllib.parse import urlparse
-from datetime import datetime, timezone
+from datetime import datetime
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -18,6 +19,7 @@ from fastapi.responses import HTMLResponse, Response, JSONResponse
 from pydantic import BaseModel
 
 from .gui_service import GUIService
+
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
@@ -27,16 +29,16 @@ async def _lifespan(app: FastAPI):
     migrations/connectivity checks during app startup.
     """
     # If a module-global `service` was created at import time (for tests), reuse it.
-    svc = globals().get('service')
+    svc = globals().get("service")
     if svc is None:
         svc = GUIService()  # uses env DATABASE_URL by default
         # Update the module-global reference as well for backwards compatibility
-        globals()['service'] = svc
+        globals()["service"] = svc
 
     # Attach service to app state so route handlers can access it
     app.state.service = svc
 
-    db_host = _extract_db_host(getattr(service.db, 'database_url', None))
+    db_host = _extract_db_host(getattr(service.db, "database_url", None))
     if os.getenv("RUN_MIGRATIONS_IN_APP_WORKER") == "1":
         try:
             service.db.run_migrations()
@@ -49,15 +51,17 @@ async def _lifespan(app: FastAPI):
         else:
             print(f"[startup][warning] DB ping failed (host={db_host})")
     except Exception as exc:
-        print(f"[startup][warning] DB connectivity failed (host={db_host}) -> {exc}")
+        print(
+            f"[startup][warning] DB connectivity failed (host={db_host}) -> {exc}"
+        )
 
     try:
         yield
     finally:
         # Optional cleanup for service/db clients
         try:
-            svc = getattr(app.state, 'service', None)
-            if svc and getattr(svc.db, '_mongo_client', None):
+            svc = getattr(app.state, "service", None)
+            if svc and getattr(svc.db, "_mongo_client", None):
                 svc.db._mongo_client.close()
         except Exception:
             pass
@@ -118,13 +122,15 @@ def list_tickers():
     try:
         return service.list_tickers()
     except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+        raise HTTPException(
+            status_code=503, detail=f"Database unavailable: {exc}"
+        )
 
 
 @app.get("/", include_in_schema=False)
 def landing():
-        """Serve a small landing page with links to the API docs and health check."""
-        html = """
+    """Serve a small landing page with links to the API docs and health check."""
+    html = """
         <!doctype html>
         <html lang="en">
         <head>
@@ -153,13 +159,13 @@ def landing():
         </body>
         </html>
         """
-        return HTMLResponse(content=html, status_code=200)
+    return HTMLResponse(content=html, status_code=200)
 
 
-@app.get('/favicon.ico', include_in_schema=False)
+@app.get("/favicon.ico", include_in_schema=False)
 def favicon():
-        """Return empty 204 so browsers don't hit a 404 for favicon requests."""
-        return Response(status_code=204)
+    """Return empty 204 so browsers don't hit a 404 for favicon requests."""
+    return Response(status_code=204)
 
 
 @app.post("/tickers")
@@ -177,39 +183,53 @@ def list_positions():
         # Serialize SQLAlchemy objects to plain dicts for JSON responses
         result = []
         for p in positions:
-            result.append({
-                "symbol": p.symbol,
-                "name": p.name,
-                "quantity": p.quantity,
-                "buy_price": p.buy_price,
-                "buy_date": p.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(p, 'buy_date', None) else None,
-            })
+            result.append(
+                {
+                    "symbol": p.symbol,
+                    "name": p.name,
+                    "quantity": p.quantity,
+                    "buy_price": p.buy_price,
+                    "buy_date": p.buy_date.strftime("%Y-%m-%dT%H:%M:%S")
+                    if getattr(p, "buy_date", None)
+                    else None,
+                }
+            )
         return result
     except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+        raise HTTPException(
+            status_code=503, detail=f"Database unavailable: {exc}"
+        )
 
 
 @app.post("/positions")
 def create_position(payload: PositionIn):
-    p = service.add_position(payload.symbol.upper(), payload.name, payload.quantity, payload.buy_price, payload.buy_date)
+    p = service.add_position(
+        payload.symbol.upper(),
+        payload.name,
+        payload.quantity,
+        payload.buy_price,
+        payload.buy_date,
+    )
     # p may be None, an ORM instance, or a plain mapping; normalize to dict
     if p is None:
-        raise HTTPException(status_code=400, detail="Could not create position")
+        raise HTTPException(
+            status_code=400, detail="Could not create position"
+        )
 
     # If the service returned a plain mapping (e.g., Mongo SimpleNamespace -> dict), accept it
     if isinstance(p, dict):
         return p
 
     # Try to read attributes from ORM-like object safely
-    symbol = getattr(p, 'symbol', None)
-    name = getattr(p, 'name', None)
-    quantity = getattr(p, 'quantity', None)
-    buy_price = getattr(p, 'buy_price', None)
-    buy_date_val = getattr(p, 'buy_date', None)
+    symbol = getattr(p, "symbol", None)
+    name = getattr(p, "name", None)
+    quantity = getattr(p, "quantity", None)
+    buy_price = getattr(p, "buy_price", None)
+    buy_date_val = getattr(p, "buy_date", None)
 
     # Format buy_date if it's a datetime; if it's already a string, leave as-is
     try:
-        if hasattr(buy_date_val, 'strftime'):
+        if hasattr(buy_date_val, "strftime"):
             buy_date = buy_date_val.strftime("%Y-%m-%dT%H:%M:%S")
         else:
             buy_date = buy_date_val
@@ -227,11 +247,20 @@ def create_position(payload: PositionIn):
 
 @app.post("/prices")
 def add_price(payload: PriceIn):
-    p = service.add_price(payload.symbol.upper(), payload.date, payload.open, payload.high, payload.low, payload.close, payload.volume)
+    p = service.add_price(
+        payload.symbol.upper(),
+        payload.date,
+        payload.open,
+        payload.high,
+        payload.low,
+        payload.close,
+        payload.volume,
+    )
     return p
 
 
 # --- Additional Portfolio CRUD Endpoints ---
+
 
 @app.get("/positions/{symbol}")
 def get_position(symbol: str):
@@ -245,14 +274,18 @@ def get_position(symbol: str):
         "name": position.name,
         "quantity": position.quantity,
         "buy_price": position.buy_price,
-        "buy_date": position.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(position, 'buy_date', None) else None,
+        "buy_date": position.buy_date.strftime("%Y-%m-%dT%H:%M:%S")
+        if getattr(position, "buy_date", None)
+        else None,
     }
 
 
 @app.put("/positions/{symbol}")
 def update_position(symbol: str, payload: PositionIn):
     symbol = symbol.upper()
-    updated = service.update_position(symbol, payload.quantity, payload.buy_price, payload.buy_date)
+    updated = service.update_position(
+        symbol, payload.quantity, payload.buy_price, payload.buy_date
+    )
     if not updated:
         raise HTTPException(status_code=404, detail="Position not found")
     return {
@@ -260,7 +293,9 @@ def update_position(symbol: str, payload: PositionIn):
         "name": updated.name,
         "quantity": updated.quantity,
         "buy_price": updated.buy_price,
-        "buy_date": updated.buy_date.strftime("%Y-%m-%dT%H:%M:%S") if getattr(updated, 'buy_date', None) else None,
+        "buy_date": updated.buy_date.strftime("%Y-%m-%dT%H:%M:%S")
+        if getattr(updated, "buy_date", None)
+        else None,
     }
 
 
@@ -275,13 +310,14 @@ def delete_position(symbol: str):
 
 # --- Portfolio Management Page (HTML + JS) ---
 
+
 @app.get("/portfolio", include_in_schema=False)
 def portfolio_page():
-        """Return an interactive HTML page to view/add/edit/delete portfolio assets.
+    """Return an interactive HTML page to view/add/edit/delete portfolio assets.
 
-        Uses fetch() against JSON endpoints so no server-side templates required.
-        """
-        html = """
+    Uses fetch() against JSON endpoints so no server-side templates required.
+    """
+    html = """
         <!doctype html>
         <html lang=\"en\">
         <head>
@@ -415,31 +451,78 @@ def portfolio_page():
                 } catch(e){ setMessage(e.message, 'error'); }
             }
 
-            document.getElementById('add-form').addEventListener('submit', async e => {
-                e.preventDefault();
-                const fd = new FormData(e.target);
-                const body = Object.fromEntries(fd.entries());
-                body.symbol = body.symbol.toUpperCase();
-                body.quantity = parseFloat(body.quantity);
-                body.buy_price = parseFloat(body.buy_price);
-                body.buy_date = body.buy_date ? body.buy_date + 'T00:00:00' : null;
-                try {
-                    const res = await fetch('/positions', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-                    if(!res.ok) throw new Error('Create failed');
-                    e.target.reset();
-                    setMessage('Added ' + body.symbol);
-                    loadPositions();
-                } catch (err){ setMessage(err.message, 'error'); }
-            });
+            document.getElementById('add-form').addEventListener('submit',
+                async e => {
+                    e.preventDefault();
+                    const fd = new FormData(e.target);
+                    const form = Object.fromEntries(fd.entries());
 
-            function escapeHtml(str){ return str.replace(/[&<>"]g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-            function escapeAttr(str){ return escapeHtml(str).replace(/'/g,'&#39;'); }
+                    // Support legacy field names: shares -> quantity,
+                    // avg_price -> buy_price, buyDate -> buy_date
+                    const qtyVal = form.quantity ?? form.shares ?? '';
+                    const priceVal = form.buy_price ?? form.avg_price ?? '';
+                    const dateVal = form.buy_date ?? form.buyDate ?? '';
+
+                    const body = {
+                        symbol: (form.symbol || '').toUpperCase(),
+                        name: form.name || form.title || '',
+                        quantity: qtyVal ? parseFloat(qtyVal) : null,
+                        buy_price: priceVal ? parseFloat(priceVal) : null,
+                        buy_date: dateVal ? (dateVal + 'T00:00:00') : null,
+                    };
+
+                    // Basic client-side validation to avoid 422s from API
+                    if(!body.symbol || !body.name || body.quantity == null ||
+                       body.buy_price == null || !body.buy_date){
+                        setMessage(
+                            'Please fill required fields: Symbol, Name, Quantity,' +
+                            ' Buy Price, Buy Date', 'error'
+                        );
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch('/positions',
+                            {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify(body),
+                            }
+                        );
+                        if(!res.ok){
+                            try { const j = await res.json(); setMessage(j.detail || 'Create failed', 'error'); }
+                            catch(_){ setMessage('Create failed', 'error'); }
+                            return;
+                        }
+                        e.target.reset();
+                        setMessage('Added ' + body.symbol);
+                        loadPositions();
+                    } catch (err){ setMessage(err.message, 'error'); }
+                }
+            );
+
+            function escapeHtml(str){
+                return String(str).replace(/[&<>"']/g, function(c){
+                    return {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;'
+                    }[c];
+                });
+            }
+
+            function escapeAttr(str){
+                return escapeHtml(str).replace(/'/g, '&#39;');
+            }
+
             loadPositions();
             </script>
         </body>
         </html>
         """
-        return HTMLResponse(content=html, status_code=200)
+    return HTMLResponse(content=html, status_code=200)
 
 
 @app.get("/health")
@@ -449,29 +532,38 @@ def health():
     Returns 200 with {status: 'ok', db: 'ok'} when a simple SELECT 1 succeeds.
     Returns 503 with error details if the DB check fails.
     """
-    dsn = getattr(service.db, 'database_url', None)
+    dsn = getattr(service.db, "database_url", None)
     host = _extract_db_host(dsn)
     try:
         ok = service.db.ping()
         if ok:
-            return JSONResponse(status_code=200, content={
-                "status": "ok",
-                "db": "ok",
-                "db_host": host,
-            })
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "status": "ok",
+                    "db": "ok",
+                    "db_host": host,
+                },
+            )
         else:
-            return JSONResponse(status_code=503, content={
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "fail",
+                    "db": "error",
+                    "db_host": host,
+                    "detail": "Ping failed",
+                    "hint": "Check DATABASE_URL — ensure it is reachable.",
+                },
+            )
+    except Exception as exc:  # pragma: no cover
+        return JSONResponse(
+            status_code=503,
+            content={
                 "status": "fail",
                 "db": "error",
                 "db_host": host,
-                "detail": "Ping failed",
-                "hint": "Check DATABASE_URL — ensure it is reachable."
-            })
-    except Exception as exc:  # pragma: no cover
-        return JSONResponse(status_code=503, content={
-            "status": "fail",
-            "db": "error",
-            "db_host": host,
-            "detail": str(exc),
-            "hint": "Check DATABASE_URL — ensure it is reachable."
-        })
+                "detail": str(exc),
+                "hint": "Check DATABASE_URL — ensure it is reachable.",
+            },
+        )
