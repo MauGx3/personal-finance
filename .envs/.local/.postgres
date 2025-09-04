@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=personal_finance
+POSTGRES_USER=YaxSsMXmNugNSxqpdTYFbbtfvPfjoJCt
+POSTGRES_PASSWORD=r8IqMe3zMOyaFZP3l3GMHZJUj39VJhoOhPBSDWcDD1jlD9UCE4mswtwh3QdIMfx1
