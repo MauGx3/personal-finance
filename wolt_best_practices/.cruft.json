@@ -1,0 +1,19 @@
+{
+  "template": "https://github.com/woltapp/wolt-python-package-cookiecutter",
+  "commit": "b25684a2c63387153b83a1cc03ea332be8c8279a",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "author_name": "maugx3",
+      "author_email": "maugx3@gmail.com",
+      "github_username": "maugx3",
+      "project_name": "wolt-best-practices",
+      "project_slug": "wolt_best_practices",
+      "package_name": "wolt_best_practices",
+      "project_short_description": "wolt",
+      "_template": "https://github.com/woltapp/wolt-python-package-cookiecutter",
+      "_commit": "b25684a2c63387153b83a1cc03ea332be8c8279a"
+    }
+  },
+  "directory": null
+}
