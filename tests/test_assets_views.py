@@ -62,8 +62,8 @@ def test_assets_view_renders_template():
 
 
 @pytest.mark.django_db
-def test_assets_page_contains_expected_elements():
-    """Test that the assets page contains expected UI elements."""
+def test_assets_page_displays_assets_list():
+    """Test that the assets page displays assets from the database."""
     # Create a user
     username_field = getattr(User, 'USERNAME_FIELD', 'username')
     kwargs = {'password': 'testpass123', 'email': 'test@example.com'}
@@ -72,11 +72,18 @@ def test_assets_page_contains_expected_elements():
     
     user = User.objects.create_user(**kwargs)
     
-    # Create a test asset
+    # Create test assets
     Asset.objects.create(
-        symbol='TEST',
-        name='Test Asset',
+        symbol='AAPL',
+        name='Apple Inc.',
         asset_type=Asset.ASSET_STOCK,
+        currency='USD',
+        exchange='NASDAQ'
+    )
+    Asset.objects.create(
+        symbol='BTC',
+        name='Bitcoin',
+        asset_type=Asset.ASSET_CRYPTO,
         currency='USD'
     )
     
@@ -88,12 +95,36 @@ def test_assets_page_contains_expected_elements():
     
     content = response.content.decode('utf-8')
     
-    # Check for key UI elements
-    assert 'Financial Assets' in content
-    assert 'Add Asset' in content
-    assert 'assetsTable' in content
-    assert '/api/assets/' in content  # API endpoint reference
-    assert 'loadAssets()' in content  # JavaScript function
+    # Check that assets are displayed
+    assert 'AAPL' in content
+    assert 'Apple Inc.' in content
+    assert 'BTC' in content
+    assert 'Bitcoin' in content
+    assert '2 total' in content  # Should show count of assets
+
+
+@pytest.mark.django_db
+def test_assets_page_shows_empty_state():
+    """Test that the assets page shows appropriate message when no assets exist."""
+    # Create a user
+    username_field = getattr(User, 'USERNAME_FIELD', 'username')
+    kwargs = {'password': 'testpass123', 'email': 'test@example.com'}
+    if username_field != 'email':
+        kwargs[username_field] = 'testuser'
+    
+    user = User.objects.create_user(**kwargs)
+    
+    client = Client()
+    client.force_login(user)
+    
+    url = reverse('assets:list')
+    response = client.get(url)
+    
+    content = response.content.decode('utf-8')
+    
+    # Check for empty state message
+    assert 'No assets found' in content
+    assert '0 total' in content
 
 
 @pytest.mark.django_db 

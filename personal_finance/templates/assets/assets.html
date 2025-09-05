@@ -3,397 +3,61 @@
 
 {% block title %}{{ title }} - {{ block.super }}{% endblock %}
 
-{% block css %}
-  {{ block.super }}
-  <style>
-    .asset-form {
-      display: none;
-    }
-    .asset-form.show {
-      display: block;
-    }
-    .table-responsive {
-      max-height: 600px;
-    }
-  </style>
-{% endblock %}
-
 {% block content %}
 <div class="row">
   <div class="col-12">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>{{ title }}</h2>
-      <button class="btn btn-primary" onclick="showAddForm()">
-        <i class="bi bi-plus-circle"></i> Add Asset
-      </button>
-    </div>
-
-    <!-- Add/Edit Asset Form -->
-    <div id="assetForm" class="asset-form card mb-4">
-      <div class="card-header">
-        <h5 id="formTitle">Add New Asset</h5>
-      </div>
-      <div class="card-body">
-        <form id="assetFormData">
-          <input type="hidden" id="assetId" name="id">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="symbol" class="form-label">Symbol *</label>
-                <input type="text" class="form-control" id="symbol" name="symbol" required>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="mb-3">
-                <label for="asset_type" class="form-label">Asset Type *</label>
-                <select class="form-select" id="asset_type" name="asset_type" required>
-                  <option value="">Select Asset Type</option>
-                  <option value="STOCK">Stock</option>
-                  <option value="BOND">Bond</option>
-                  <option value="CRYPTO">Crypto</option>
-                  <option value="CASH">Cash</option>
-                  <option value="FUND">Fund</option>
-                  <option value="ETF">ETF</option>
-                  <option value="FOREX">Forex</option>
-                  <option value="FOREIGN_STOCK">Foreign Stock</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="mb-3">
-                <label for="currency" class="form-label">Currency</label>
-                <input type="text" class="form-control" id="currency" name="currency" placeholder="USD">
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="mb-3">
-                <label for="exchange" class="form-label">Exchange</label>
-                <input type="text" class="form-control" id="exchange" name="exchange" placeholder="NYSE">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="isin" class="form-label">ISIN</label>
-                <input type="text" class="form-control" id="isin" name="isin">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="cusip" class="form-label">CUSIP</label>
-                <input type="text" class="form-control" id="cusip" name="cusip">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12">
-              <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
-                <label class="form-check-label" for="is_active">Active</label>
-              </div>
-            </div>
-          </div>
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success">Save Asset</button>
-            <button type="button" class="btn btn-secondary" onclick="hideForm()">Cancel</button>
-          </div>
-        </form>
-      </div>
     </div>
 
     <!-- Assets Table -->
     <div class="card">
       <div class="card-header">
-        <h5>All Assets</h5>
+        <h5>All Assets ({{ assets|length }} total)</h5>
       </div>
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped" id="assetsTable">
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Currency</th>
-                <th>Exchange</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="assetsTableBody">
-              <!-- Table content will be loaded here -->
-            </tbody>
-          </table>
-        </div>
-        <div id="loadingMessage" class="text-center py-4">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+        {% if assets %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Currency</th>
+                  <th>Exchange</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for asset in assets %}
+                <tr>
+                  <td><strong>{{ asset.symbol }}</strong></td>
+                  <td>{{ asset.name|default:"-" }}</td>
+                  <td>
+                    <span class="badge bg-info">{{ asset.get_asset_type_display }}</span>
+                  </td>
+                  <td>{{ asset.currency|default:"-" }}</td>
+                  <td>{{ asset.exchange|default:"-" }}</td>
+                  <td>
+                    {% if asset.is_active %}
+                      <span class="badge bg-success">Active</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
-          <p>Loading assets...</p>
-        </div>
-        <div id="emptyMessage" class="text-center py-4" style="display: none;">
-          <p>No assets found. <a href="#" onclick="showAddForm()">Add the first one</a>.</p>
-        </div>
+        {% else %}
+          <div class="text-center py-4">
+            <p class="text-muted">No assets found.</p>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block inline_javascript %}
-<script>
-// Global variables
-let isEditing = false;
-let currentAssetId = null;
-
-// CSRF token for API calls
-function getCsrfToken() {
-  return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-}
-
-// Get CSRF token from cookies
-function getCsrfTokenFromCookie() {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, 10) === 'csrftoken=') {
-        cookieValue = decodeURIComponent(cookie.substring(10));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-// API calls
-async function makeApiCall(url, method = 'GET', data = null) {
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  
-  // Add CSRF token for non-GET requests
-  if (method !== 'GET') {
-    headers['X-CSRFToken'] = getCsrfTokenFromCookie();
-  }
-
-  const config = {
-    method: method,
-    headers: headers,
-    credentials: 'same-origin'
-  };
-
-  if (data && method !== 'GET') {
-    config.body = JSON.stringify(data);
-  }
-
-  const response = await fetch(url, config);
-  
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`HTTP ${response.status}: ${error}`);
-  }
-  
-  if (response.status === 204) {
-    return null; // No content for DELETE requests
-  }
-  
-  return await response.json();
-}
-
-// Load all assets
-async function loadAssets() {
-  try {
-    showLoading(true);
-    const assets = await makeApiCall('/api/assets/');
-    displayAssets(assets);
-  } catch (error) {
-    console.error('Error loading assets:', error);
-    showError('Failed to load assets: ' + error.message);
-  } finally {
-    showLoading(false);
-  }
-}
-
-// Display assets in table
-function displayAssets(assets) {
-  const tbody = document.getElementById('assetsTableBody');
-  const emptyMessage = document.getElementById('emptyMessage');
-  
-  if (assets.length === 0) {
-    tbody.innerHTML = '';
-    emptyMessage.style.display = 'block';
-    return;
-  }
-  
-  emptyMessage.style.display = 'none';
-  
-  tbody.innerHTML = assets.map(asset => `
-    <tr>
-      <td><strong>${asset.symbol}</strong></td>
-      <td>${asset.name || '-'}</td>
-      <td><span class="badge bg-info">${asset.asset_type}</span></td>
-      <td>${asset.currency || '-'}</td>
-      <td>${asset.exchange || '-'}</td>
-      <td>
-        ${asset.is_active 
-          ? '<span class="badge bg-success">Active</span>' 
-          : '<span class="badge bg-secondary">Inactive</span>'
-        }
-      </td>
-      <td>
-        <button class="btn btn-sm btn-outline-primary" onclick="editAsset(${asset.id})">
-          Edit
-        </button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteAsset(${asset.id}, '${asset.symbol}')">
-          Delete
-        </button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// Show/hide form
-function showAddForm() {
-  isEditing = false;
-  currentAssetId = null;
-  document.getElementById('formTitle').textContent = 'Add New Asset';
-  document.getElementById('assetFormData').reset();
-  document.getElementById('assetId').value = '';
-  document.getElementById('is_active').checked = true;
-  document.getElementById('assetForm').classList.add('show');
-  document.getElementById('symbol').focus();
-}
-
-function showEditForm(asset) {
-  isEditing = true;
-  currentAssetId = asset.id;
-  document.getElementById('formTitle').textContent = 'Edit Asset';
-  
-  // Populate form fields
-  document.getElementById('assetId').value = asset.id;
-  document.getElementById('symbol').value = asset.symbol;
-  document.getElementById('name').value = asset.name || '';
-  document.getElementById('asset_type').value = asset.asset_type;
-  document.getElementById('currency').value = asset.currency || '';
-  document.getElementById('exchange').value = asset.exchange || '';
-  document.getElementById('isin').value = asset.isin || '';
-  document.getElementById('cusip').value = asset.cusip || '';
-  document.getElementById('is_active').checked = asset.is_active;
-  
-  document.getElementById('assetForm').classList.add('show');
-  document.getElementById('symbol').focus();
-}
-
-function hideForm() {
-  document.getElementById('assetForm').classList.remove('show');
-  isEditing = false;
-  currentAssetId = null;
-}
-
-// CRUD operations
-async function editAsset(assetId) {
-  try {
-    const asset = await makeApiCall(`/api/assets/${assetId}/`);
-    showEditForm(asset);
-  } catch (error) {
-    console.error('Error fetching asset:', error);
-    showError('Failed to load asset for editing: ' + error.message);
-  }
-}
-
-async function deleteAsset(assetId, symbol) {
-  if (confirm(`Are you sure you want to delete asset "${symbol}"?`)) {
-    try {
-      await makeApiCall(`/api/assets/${assetId}/`, 'DELETE');
-      showSuccess(`Asset "${symbol}" deleted successfully`);
-      await loadAssets();
-    } catch (error) {
-      console.error('Error deleting asset:', error);
-      showError('Failed to delete asset: ' + error.message);
-    }
-  }
-}
-
-// Form submission
-document.getElementById('assetFormData').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(this);
-  const data = {
-    symbol: formData.get('symbol'),
-    name: formData.get('name'),
-    asset_type: formData.get('asset_type'),
-    currency: formData.get('currency'),
-    exchange: formData.get('exchange'),
-    isin: formData.get('isin'),
-    cusip: formData.get('cusip'),
-    is_active: formData.get('is_active') === 'on'
-  };
-  
-  try {
-    if (isEditing) {
-      await makeApiCall(`/api/assets/${currentAssetId}/`, 'PUT', data);
-      showSuccess('Asset updated successfully');
-    } else {
-      await makeApiCall('/api/assets/', 'POST', data);
-      showSuccess('Asset created successfully');
-    }
-    
-    hideForm();
-    await loadAssets();
-  } catch (error) {
-    console.error('Error saving asset:', error);
-    showError('Failed to save asset: ' + error.message);
-  }
-});
-
-// Utility functions
-function showLoading(show) {
-  document.getElementById('loadingMessage').style.display = show ? 'block' : 'none';
-}
-
-function showError(message) {
-  showMessage(message, 'danger');
-}
-
-function showSuccess(message) {
-  showMessage(message, 'success');
-}
-
-function showMessage(message, type) {
-  // Create and show Bootstrap alert
-  const alertDiv = document.createElement('div');
-  alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-  alertDiv.innerHTML = `
-    ${message}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  `;
-  
-  const container = document.querySelector('.container');
-  container.insertBefore(alertDiv, container.firstChild);
-  
-  // Auto-remove after 5 seconds
-  setTimeout(() => {
-    if (alertDiv.parentNode) {
-      alertDiv.remove();
-    }
-  }, 5000);
-}
-
-// Initialize when page loads
-window.addEventListener('DOMContentLoaded', function() {
-  loadAssets();
-});
-</script>
 {% endblock %}
