@@ -24,14 +24,24 @@ def _update_or_create_site_with_sequence(site_model, connection, domain, name):
         # To avoid this, we need to manually update DB sequence and make sure it's
         # greater than the maximum value.
         max_id = site_model.objects.order_by("-id").first().id
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT last_value from django_site_id_seq")
-            (current_id,) = cursor.fetchone()
-            if current_id <= max_id:
-                cursor.execute(
-                    "alter sequence django_site_id_seq restart with %s",
-                    [max_id + 1],
-                )
+        # Updating DB sequences is backend-specific (Postgres has sequences,
+        # SQLite does not). Try to run the sequence adjustment and silently
+        # skip it if the database doesn't support it.
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT last_value from django_site_id_seq")
+                row = cursor.fetchone()
+                if not row:
+                    return
+                (current_id,) = row
+                if current_id <= max_id:
+                    cursor.execute(
+                        "alter sequence django_site_id_seq restart with %s",
+                        [max_id + 1],
+                    )
+        except Exception:
+            # Sequence adjustment not supported on this backend; skip.
+            return
 
 
 def update_site_forward(apps, schema_editor):
