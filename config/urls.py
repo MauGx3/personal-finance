@@ -23,6 +23,7 @@ urlpatterns = [
     path("users/", include("personal_finance.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
+    path("assets/", include("personal_finance.assets.urls", namespace="assets")),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
