@@ -1,0 +1,47 @@
+name: AquilaX Security Scan
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  ORG_ID: "68bc58deca42624d878782c0"
+  GROUP_ID: "jcHUSASBF8_AXfRhi0tRIgt5Z7XllZpNQufaqeu6gbgKgMXUfCbkkVz"
+
+jobs:
+  aquilax_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install AquilaX CLI
+        run: pip install aquilax
+
+      - name: AquilaX CI Scan
+        env:
+          AQUILAX_AUTH: ${{ secrets.AQUILAX_API_TOKEN }}
+        run: |
+          GIT_URL="https://github.com/${{ github.repository }}.git"
+          aquilax ci-scan \
+            "$GIT_URL" \
+            --org-id "$ORG_ID" \
+            --group-id "$GROUP_ID" \
+            --scanners sast_scanner iac_scanner secret_scanner \
+                   pii_scanner sca_scanner container_scanner cicd_scanner \
+            --fail-on-vulns  # use this if you want to fail your pipeline if any bug is found
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif

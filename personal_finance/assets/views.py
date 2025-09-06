@@ -22,24 +22,25 @@ class AssetDetailView(DetailView):
     context_object_name = "asset"
 
 
-class AssetCreateView(CreateView):
+class AssetCreateView(LoginRequiredMixin, CreateView):
     model = Asset
     form_class = AssetForm
     template_name = "assets/asset_form.html"
-    success_url = reverse_lazy("assets:asset_list")
+    success_url = reverse_lazy("assets:list")
+    login_url = reverse_lazy("account_login")
 
 
 class AssetUpdateView(UpdateView):
     model = Asset
     form_class = AssetForm
     template_name = "assets/asset_form.html"
-    success_url = reverse_lazy("assets:asset_list")
+    success_url = reverse_lazy("assets:list")
 
 
 class AssetDeleteView(DeleteView):
     model = Asset
     template_name = "assets/asset_confirm_delete.html"
-    success_url = reverse_lazy("assets:asset_list")
+    success_url = reverse_lazy("assets:list")
 
 
 class AssetsView(LoginRequiredMixin, ListView):
