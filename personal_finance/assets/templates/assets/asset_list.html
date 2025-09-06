@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Assets</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <a class="btn btn-primary" href="{% url 'assets:asset_add' %}">Add Asset</a>
+      <a class="btn btn-outline-primary" href="{% url 'assets:portfolio_list' %}">View Portfolios</a>
+      <a class="btn btn-outline-primary" href="{% url 'assets:holding_list' %}">View Holdings</a>
+    </div>
+  </div>
+  
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Currency</th>
+        <th>Exchange</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in assets %}
+        <tr>
+          <td>{{ asset.symbol }}</td>
+          <td>{{ asset.name }}</td>
+          <td>{{ asset.asset_type }}</td>
+          <td>{{ asset.currency }}</td>
+          <td>{{ asset.exchange }}</td>
+          <td>{% if asset.is_active %}Yes{% else %}No{% endif %}</td>
+          <td>
+            <a class="btn btn-sm btn-info" href="{% url 'assets:asset_detail' asset.pk %}">View</a>
+            <a class="btn btn-sm btn-secondary" href="{% url 'assets:asset_edit' asset.pk %}">Edit</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'assets:asset_delete' asset.pk %}">Delete</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">No assets found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
