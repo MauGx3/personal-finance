@@ -2,7 +2,9 @@
 
 {% block content %}
   <h1>Assets</h1>
-  <p><a class="btn btn-primary" href="{% url 'assets:asset_add' %}">Add asset</a></p>
+  <p>
+    <a class="btn btn-primary" href="{% url 'assets:asset_add' %}">Add asset</a>
+  </p>
   <table class="table table-striped">
     <thead>
       <tr>
@@ -23,16 +25,27 @@
           <td>{{ asset.asset_type }}</td>
           <td>{{ asset.currency }}</td>
           <td>{{ asset.exchange }}</td>
-          <td>{% if asset.is_active %}Yes{% else %}No{% endif %}</td>
           <td>
-            <a class="btn btn-sm btn-info" href="{% url 'assets:asset_detail' asset.pk %}">View</a>
-            <a class="btn btn-sm btn-secondary" href="{% url 'assets:asset_edit' asset.pk %}">Edit</a>
-            <a class="btn btn-sm btn-danger" href="{% url 'assets:asset_delete' asset.pk %}">Delete</a>
+            {% if asset.is_active %}
+              Yes
+            {% else %}
+              No
+            {% endif %}
+          </td>
+          <td>
+            <a class="btn btn-sm btn-info"
+               href="{% url 'assets:asset_detail' asset.pk %}">View</a>
+            <a class="btn btn-sm btn-secondary"
+               href="{% url 'assets:asset_edit' asset.pk %}">Edit</a>
+            <a class="btn btn-sm btn-danger"
+               href="{% url 'assets:asset_delete' asset.pk %}">Delete</a>
           </td>
         </tr>
       {% empty %}
-        <tr><td colspan="7">No assets found.</td></tr>
+        <tr>
+          <td colspan="7">No assets found.</td>
+        </tr>
       {% endfor %}
     </tbody>
   </table>
-{% endblock %}
+{% endblock content %}

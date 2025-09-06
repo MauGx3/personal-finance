@@ -4,8 +4,7 @@ from django.contrib.auth import get_user_model
 from personal_finance.assets.models import Asset
 from personal_finance.assets.serializers import AssetSerializer
 
-
-User = get_user_model()
+UserModel = get_user_model()
 
 
 @pytest.mark.django_db
@@ -13,7 +12,7 @@ def test_asset_serializer_basic():
     asset = Asset.objects.create(
         symbol="TEST",
         name="Test Asset",
-    asset_type="STOCK",
+        asset_type="STOCK",
         currency="USD",
         exchange="TESTEX",
         isin="US0000000000",

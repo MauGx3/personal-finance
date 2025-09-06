@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from personal_finance.assets.models import Asset, Portfolio, Holding
+from personal_finance.assets.models import Asset
+from personal_finance.assets.models import Holding
+from personal_finance.assets.models import Portfolio
 
-User = get_user_model()
+UserModel = get_user_model()
 
 
 class AssetSerializer(serializers.ModelSerializer):
@@ -28,7 +30,8 @@ class AssetSerializer(serializers.ModelSerializer):
 
 class PortfolioSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), default=serializers.CurrentUserDefault()
+        queryset=UserModel.objects.all(),
+        default=serializers.CurrentUserDefault(),
     )
 
     class Meta:
@@ -47,11 +50,14 @@ class PortfolioSerializer(serializers.ModelSerializer):
 
 class HoldingSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), default=serializers.CurrentUserDefault()
+        queryset=UserModel.objects.all(),
+        default=serializers.CurrentUserDefault(),
     )
     asset = serializers.PrimaryKeyRelatedField(queryset=Asset.objects.all())
     portfolio = serializers.PrimaryKeyRelatedField(
-        queryset=Portfolio.objects.all(), allow_null=True, required=False
+        queryset=Portfolio.objects.all(),
+        allow_null=True,
+        required=False,
     )
 
     class Meta:

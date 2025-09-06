@@ -1,11 +1,12 @@
-from rest_framework import viewsets, permissions
+from rest_framework import permissions
+from rest_framework import viewsets
 
-from personal_finance.assets.models import Asset, Portfolio, Holding
-from personal_finance.assets.serializers import (
-    AssetSerializer,
-    PortfolioSerializer,
-    HoldingSerializer,
-)
+from personal_finance.assets.models import Asset
+from personal_finance.assets.models import Holding
+from personal_finance.assets.models import Portfolio
+from personal_finance.assets.serializers import AssetSerializer
+from personal_finance.assets.serializers import HoldingSerializer
+from personal_finance.assets.serializers import PortfolioSerializer
 
 
 class AssetViewSet(viewsets.ModelViewSet):

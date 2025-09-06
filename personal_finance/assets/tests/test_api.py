@@ -1,19 +1,20 @@
 import json
+import os
+
 import pytest
-
 from django.contrib.auth import get_user_model
-
+from rest_framework import status
 from rest_framework.test import APIClient
 
-
-User = get_user_model()
+UserModel = get_user_model()
+TEST_PASSWORD = os.environ.get("TEST_PASSWORD", "testpass123")
 
 
 @pytest.mark.django_db
 def test_assets_list_public_ok():
     client = APIClient()
     resp = client.get("/api/assets/")
-    assert resp.status_code == 200
+    assert resp.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
@@ -22,7 +23,7 @@ def test_create_asset_requires_authentication():
     payload = {
         "symbol": "API1",
         "name": "API Asset",
-    "asset_type": "STOCK",
+        "asset_type": "STOCK",
         "currency": "USD",
     }
     resp = client.post("/api/assets/", payload, format="json")
@@ -32,7 +33,11 @@ def test_create_asset_requires_authentication():
 
 @pytest.mark.django_db
 def test_create_asset_authenticated():
-    user = User.objects.create_user(username="apiuser", email="api@example.com", password="secret")
+    user = UserModel.objects.create_user(
+        username="apiuser",
+        email="api@example.com",
+        password=TEST_PASSWORD,
+    )
     client = APIClient()
     client.force_authenticate(user=user)
     payload = {
@@ -42,7 +47,7 @@ def test_create_asset_authenticated():
         "currency": "USD",
     }
     resp = client.post("/api/assets/", payload, format="json")
-    assert resp.status_code == 201
+    assert resp.status_code == status.HTTP_201_CREATED
     data = resp.json()
     assert data.get("symbol") == "API2"
 
@@ -50,14 +55,20 @@ def test_create_asset_authenticated():
 @pytest.mark.django_db
 def test_openapi_schema_includes_assets():
     # schema endpoint may be permissioned; use a staff user to fetch
-    staff = User.objects.create_user(username="admin", email="admin@example.com", password="secret")
+    staff = UserModel.objects.create_user(
+        username="admin",
+        email="admin@example.com",
+        password=TEST_PASSWORD,
+    )
     staff.is_staff = True
     staff.save()
     client = APIClient()
     client.force_authenticate(user=staff)
     # Request JSON explicitly to ensure we receive a JSON payload
     resp = client.get("/api/schema/", HTTP_ACCEPT="application/json")
-    assert resp.status_code == 200, f"schema fetch failed: {resp.status_code} - {resp.content}"
+    assert resp.status_code == status.HTTP_200_OK, (
+        f"schema fetch failed: {resp.status_code} - {resp.content}"
+    )
     content_type = resp.headers.get("Content-Type", "")
     # schema should be JSON or OpenAPI vendor type
     assert (

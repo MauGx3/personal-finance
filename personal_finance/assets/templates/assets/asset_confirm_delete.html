@@ -6,6 +6,7 @@
   <form method="post">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Confirm delete</button>
-    <a href="{% url 'assets:asset_detail' asset.pk %}" class="btn btn-secondary">Cancel</a>
+    <a href="{% url 'assets:asset_detail' asset.pk %}"
+       class="btn btn-secondary">Cancel</a>
   </form>
-{% endblock %}
+{% endblock content %}

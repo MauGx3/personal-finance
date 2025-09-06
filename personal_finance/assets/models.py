@@ -1,7 +1,7 @@
 from decimal import Decimal
+
 from django.conf import settings
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 
 class Asset(models.Model):
@@ -29,7 +29,11 @@ class Asset(models.Model):
 
     symbol = models.CharField(max_length=64, db_index=True)
     name = models.CharField(max_length=255, blank=True)
-    asset_type = models.CharField(max_length=32, choices=ASSET_TYPE_CHOICES, db_index=True)
+    asset_type = models.CharField(
+        max_length=32,
+        choices=ASSET_TYPE_CHOICES,
+        db_index=True,
+    )
     currency = models.CharField(max_length=10, blank=True)
     exchange = models.CharField(max_length=64, blank=True)
     isin = models.CharField(max_length=32, blank=True, db_index=True)
@@ -42,7 +46,7 @@ class Asset(models.Model):
 
     class Meta:
         ordering = ["symbol", "name"]
-        indexes = [models.Index(fields=["symbol"]), models.Index(fields=["isin"]) ]
+        indexes = [models.Index(fields=["symbol"]), models.Index(fields=["isin"])]
 
     def __str__(self) -> str:
         return f"{self.symbol} — {self.name or self.asset_type}"
@@ -51,7 +55,11 @@ class Asset(models.Model):
 class Portfolio(models.Model):
     """A user-owned portfolio grouping (optional)."""
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="portfolios")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="portfolios",
+    )
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True)
     is_default = models.BooleanField(default=False)
@@ -69,12 +77,35 @@ class Portfolio(models.Model):
 class Holding(models.Model):
     """A user's holding / position in an asset (optionally attached to a portfolio)."""
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="holdings")
-    asset = models.ForeignKey("assets.Asset", on_delete=models.CASCADE, related_name="holdings")
-    portfolio = models.ForeignKey("assets.Portfolio", null=True, blank=True, on_delete=models.SET_NULL, related_name="holdings")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="holdings",
+    )
+    asset = models.ForeignKey(
+        "assets.Asset",
+        on_delete=models.CASCADE,
+        related_name="holdings",
+    )
+    portfolio = models.ForeignKey(
+        "assets.Portfolio",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="holdings",
+    )
 
-    quantity = models.DecimalField(max_digits=20, decimal_places=8, default=Decimal("0"))
-    average_price = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    quantity = models.DecimalField(
+        max_digits=20,
+        decimal_places=8,
+        default=Decimal("0"),
+    )
+    average_price = models.DecimalField(
+        max_digits=20,
+        decimal_places=8,
+        null=True,
+        blank=True,
+    )
     currency = models.CharField(max_length=10, blank=True)
 
     acquired_at = models.DateTimeField(null=True, blank=True)
@@ -87,7 +118,10 @@ class Holding(models.Model):
     class Meta:
         ordering = ["-created_at"]
         constraints = [
-            models.UniqueConstraint(fields=["user", "asset", "portfolio"], name="unique_user_asset_portfolio")
+            models.UniqueConstraint(
+                fields=["user", "asset", "portfolio"],
+                name="unique_user_asset_portfolio",
+            ),
         ]
 
     def __str__(self) -> str:
