@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Delete Portfolio</h1>
+  <p>Are you sure you want to delete "{{ portfolio.name }}"?</p>
+  {% if portfolio.holdings.all %}
+    <div class="alert alert-warning">
+      <strong>Warning:</strong> This portfolio contains {{ portfolio.holdings.count }} holding(s). 
+      Deleting this portfolio will set those holdings' portfolio to null.
+    </div>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirm delete</button>
+    <a href="{% url 'assets:portfolio_detail' portfolio.pk %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

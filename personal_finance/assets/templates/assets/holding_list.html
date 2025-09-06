@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Holdings</h1>
+  <p><a class="btn btn-primary" href="{% url 'assets:holding_add' %}">Add Holding</a></p>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Asset</th>
+        <th>Portfolio</th>
+        <th>Quantity</th>
+        <th>Avg Price</th>
+        <th>Currency</th>
+        <th>Acquired</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for holding in holdings %}
+        <tr>
+          <td>{{ holding.asset }}</td>
+          <td>{{ holding.portfolio|default:"None" }}</td>
+          <td>{{ holding.quantity }}</td>
+          <td>{{ holding.average_price|default:"N/A" }}</td>
+          <td>{{ holding.currency|default:"N/A" }}</td>
+          <td>{{ holding.acquired_at|date:"M d, Y"|default:"N/A" }}</td>
+          <td>{% if holding.in_portfolio %}Yes{% else %}No{% endif %}</td>
+          <td>
+            <a class="btn btn-sm btn-info" href="{% url 'assets:holding_detail' holding.pk %}">View</a>
+            <a class="btn btn-sm btn-secondary" href="{% url 'assets:holding_edit' holding.pk %}">Edit</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'assets:holding_delete' holding.pk %}">Delete</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8">No holdings found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
