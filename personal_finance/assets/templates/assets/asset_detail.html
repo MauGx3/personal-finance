@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ asset.name }} ({{ asset.symbol }})</h1>
+  <dl class="row">
+    <dt class="col-sm-3">Symbol</dt>
+    <dd class="col-sm-9">{{ asset.symbol }}</dd>
+
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">{{ asset.name }}</dd>
+
+    <dt class="col-sm-3">Type</dt>
+    <dd class="col-sm-9">{{ asset.asset_type }}</dd>
+
+    <dt class="col-sm-3">Currency</dt>
+    <dd class="col-sm-9">{{ asset.currency }}</dd>
+
+    <dt class="col-sm-3">Exchange</dt>
+    <dd class="col-sm-9">{{ asset.exchange }}</dd>
+
+    <dt class="col-sm-3">ISIN</dt>
+    <dd class="col-sm-9">{{ asset.isin }}</dd>
+
+    <dt class="col-sm-3">CUSIP</dt>
+    <dd class="col-sm-9">{{ asset.cusip }}</dd>
+
+    <dt class="col-sm-3">Active</dt>
+    <dd class="col-sm-9">{% if asset.is_active %}Yes{% else %}No{% endif %}</dd>
+  </dl>
+
+  <p>
+    <a class="btn btn-secondary" href="{% url 'assets:asset_edit' asset.pk %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'assets:asset_delete' asset.pk %}">Delete</a>
+    <a class="btn btn-link" href="{% url 'assets:asset_list' %}">Back to list</a>
+  </p>
+{% endblock %}
