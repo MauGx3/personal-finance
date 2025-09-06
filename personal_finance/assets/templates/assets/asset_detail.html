@@ -28,9 +28,39 @@
     <dd class="col-sm-9">{% if asset.is_active %}Yes{% else %}No{% endif %}</dd>
   </dl>
 
+  <h3>Holdings of this Asset</h3>
+  {% if asset.holdings.all %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Portfolio</th>
+          <th>Quantity</th>
+          <th>Average Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for holding in asset.holdings.all %}
+          <tr>
+            <td>{{ holding.user }}</td>
+            <td>{{ holding.portfolio|default:"None" }}</td>
+            <td>{{ holding.quantity }}</td>
+            <td>{{ holding.average_price|default:"N/A" }}</td>
+            <td>
+              <a class="btn btn-sm btn-info" href="{% url 'assets:holding_detail' holding.pk %}">View</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No holdings for this asset yet.</p>
+  {% endif %}
+
   <p>
     <a class="btn btn-secondary" href="{% url 'assets:asset_edit' asset.pk %}">Edit</a>
     <a class="btn btn-danger" href="{% url 'assets:asset_delete' asset.pk %}">Delete</a>
-    <a class="btn btn-link" href="{% url 'assets:asset_list' %}">Back to list</a>
+    <a class="btn btn-link" href="{% url 'assets:list' %}">Back to list</a>
   </p>
 {% endblock %}

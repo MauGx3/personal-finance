@@ -15,9 +15,11 @@ class AssetViewSet(viewsets.ModelViewSet):
 
 
 class PortfolioViewSet(viewsets.ModelViewSet):
-    queryset = Portfolio.objects.all()
     serializer_class = PortfolioSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Portfolio.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         # default to the requesting user if not provided
@@ -28,9 +30,11 @@ class PortfolioViewSet(viewsets.ModelViewSet):
 
 
 class HoldingViewSet(viewsets.ModelViewSet):
-    queryset = Holding.objects.all()
     serializer_class = HoldingSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Holding.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         if not serializer.validated_data.get("user"):

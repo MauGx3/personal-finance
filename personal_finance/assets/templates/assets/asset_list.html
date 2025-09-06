@@ -2,7 +2,14 @@
 
 {% block content %}
   <h1>Assets</h1>
-  <p><a class="btn btn-primary" href="{% url 'assets:asset_add' %}">Add asset</a></p>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <a class="btn btn-primary" href="{% url 'assets:asset_add' %}">Add Asset</a>
+      <a class="btn btn-outline-primary" href="{% url 'assets:portfolio_list' %}">View Portfolios</a>
+      <a class="btn btn-outline-primary" href="{% url 'assets:holding_list' %}">View Holdings</a>
+    </div>
+  </div>
+  
   <table class="table table-striped">
     <thead>
       <tr>
