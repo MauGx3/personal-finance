@@ -58,6 +58,7 @@ class HoldingSerializer(serializers.ModelSerializer):
         queryset=Portfolio.objects.all(),
         allow_null=True,
         required=False,
+        default=None,
     )
 
     class Meta:
