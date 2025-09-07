@@ -11,6 +11,7 @@ services:
     if [ -f requirements.lock ]; then python -m pip install -r requirements.lock; fi && \
     python -m pip install -e .
     pythonVersion: 3.11
+    healthCheckPath: /health
     # Prefer gunicorn with uvicorn workers in production. If you don't install
     # gunicorn, Render will try the provided uvicorn fallback.
     startCommand: >-

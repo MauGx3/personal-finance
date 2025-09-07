@@ -17,6 +17,41 @@ app = FastAPI()
 service = GUIService()
 
 
+@app.get("/")
+def root():
+    """Root endpoint with basic service information."""
+    return {
+        "service": "personal-finance",
+        "status": "running",
+        "endpoints": {
+            "health": "/health",
+            "positions": "/positions",
+            "portfolio": "/portfolio",
+            "assets": "/asset/{symbol}"
+        }
+    }
+
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring and deployment verification."""
+    try:
+        # Test database connectivity
+        db_healthy = service.db.ping()
+        return {
+            "status": "healthy" if db_healthy else "unhealthy",
+            "database": "connected" if db_healthy else "disconnected",
+            "service": "personal-finance"
+        }
+    except Exception as exc:
+        return {
+            "status": "unhealthy", 
+            "database": "error",
+            "service": "personal-finance",
+            "error": str(exc)
+        }
+
+
 def _pos_to_dict(p) -> Dict[str, Any]:
     return {
         "symbol": getattr(p, "symbol", None),
