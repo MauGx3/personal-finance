@@ -35,6 +35,10 @@ scikit-learn>=1.2.0
 statsmodels>=0.14.0
 plotly>=5.13.0
 
+# Testing and development tools
+pytest>=6.0
+flake8>=4.0.0
+
 # Optional: security tooling
 pip-audit>=2.0.0
 
