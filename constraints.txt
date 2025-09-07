@@ -11,7 +11,7 @@ starlette==0.47.2
 anyio==4.9.0
 
 # HTTP
-requests==2.32.3  # pinned to satisfy stockdex==1.2.0 requirement (Requests==2.32.3)
+requests==2.32.4  # updated to match requirements.txt minimum version
 urllib3==2.4.0
 charset-normalizer==3.4.2
 idna==3.9
