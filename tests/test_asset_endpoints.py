@@ -33,12 +33,12 @@ def _bootstrap_app(tmp_db_path, monkeypatch):
 def _seed_sample(web_gui):
     # Add ticker + position + a couple of prices
     svc = web_gui.service
-    svc.add_ticker("TEST", "Test Corp", 20.0)
+    svc.add_ticker("ASSET_TEST", "Asset Test Corp", 20.0)
     now = datetime.now(timezone.utc)
-    svc.add_position("TEST", "Test Corp", 5, 10.0, now)
+    svc.add_position("ASSET_TEST", "Asset Test Corp", 5, 10.0, now)
     # Two prices (yesterday, today)
-    svc.add_price("TEST", now - timedelta(days=1), 19, 21, 18, 20, 1000)
-    svc.add_price("TEST", now, 20, 22, 19, 21, 1100)
+    svc.add_price("ASSET_TEST", now - timedelta(days=1), 19, 21, 18, 20, 1000)
+    svc.add_price("ASSET_TEST", now, 20, 22, 19, 21, 1100)
 
 
 def test_asset_summary_and_prices(tmp_db_path, monkeypatch):
@@ -47,10 +47,10 @@ def test_asset_summary_and_prices(tmp_db_path, monkeypatch):
     client = TestClient(web_gui.app)
 
     # Summary endpoint
-    r = client.get("/asset_summary/TEST")
+    r = client.get("/asset_summary/ASSET_TEST")
     assert r.status_code == 200, r.text
     summary = r.json()
-    assert summary["symbol"] == "TEST"
+    assert summary["symbol"] == "ASSET_TEST"
     assert summary["quantity"] == 5
     # Accept either stored price or last price from history depending on timing
     assert summary["price"] in (20.0, 21.0)
@@ -59,7 +59,7 @@ def test_asset_summary_and_prices(tmp_db_path, monkeypatch):
     assert summary["current_value"] in (100.0, 105.0, 110.0, 21.0 * 5)
 
     # Prices endpoint (limit param + ordering)
-    r = client.get("/prices/TEST?limit=1")
+    r = client.get("/prices/ASSET_TEST?limit=1")
     assert r.status_code == 200
     prices = r.json()
     assert isinstance(prices, list) and len(prices) == 1
@@ -68,7 +68,7 @@ def test_asset_summary_and_prices(tmp_db_path, monkeypatch):
     assert latest is not None
 
     # Full list default
-    r = client.get("/prices/TEST")
+    r = client.get("/prices/ASSET_TEST")
     assert r.status_code == 200
     all_prices = r.json()
     assert len(all_prices) >= 2
