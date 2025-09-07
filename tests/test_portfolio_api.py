@@ -12,19 +12,26 @@ def tmp_db_path(tmp_path):
     return f"sqlite:///{dbfile}"
 
 
-def test_create_and_list_position(tmp_db_path, monkeypatch):
-    # Set env before import (app + service constructed at import time)
-    monkeypatch.setenv('DATABASE_URL', tmp_db_path)
+def _bootstrap_app(tmp_db_path, monkeypatch):
+    """Import (or reload) the web_gui module after setting DATABASE_URL.
 
-    # Import (or reload) web_gui after setting env so service uses this test DB
-    if 'personal_finance.web_gui' in sys.modules:
-        web_gui = importlib.reload(sys.modules['personal_finance.web_gui'])
+    Tests set DATABASE_URL per-test to isolate sqlite files. Because the
+    FastAPI app + GUIService are created at import time, we must reload the
+    module if it was previously imported so the service binds to the new
+    database URL instead of reusing a stale engine pointing at a different
+    temporary DB (which led to UNIQUE constraint violations across tests).
+    """
+    monkeypatch.setenv("DATABASE_URL", tmp_db_path)
+    if "personal_finance.web_gui" in sys.modules:
+        web_gui = importlib.reload(sys.modules["personal_finance.web_gui"])
     else:
-        web_gui = importlib.import_module('personal_finance.web_gui')
-
-    # Create tables directly (tests don't run alembic)
+        web_gui = importlib.import_module("personal_finance.web_gui")
     web_gui.service.db.create_tables()
+    return web_gui
 
+
+def test_create_and_list_position(tmp_db_path, monkeypatch):
+    web_gui = _bootstrap_app(tmp_db_path, monkeypatch)
     client = TestClient(web_gui.app)
 
     payload = {
