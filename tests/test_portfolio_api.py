@@ -34,9 +34,10 @@ def test_create_and_list_position(tmp_db_path, monkeypatch):
     web_gui = _bootstrap_app(tmp_db_path, monkeypatch)
     client = TestClient(web_gui.app)
 
+    # Use a unique symbol to avoid UNIQUE constraint violations across tests
     payload = {
-        "symbol": "TEST",
-        "name": "Test Corp",
+        "symbol": "PORTFOLIO_TEST",
+        "name": "Portfolio Test Corp", 
         "quantity": 10.5,
         "buy_price": 12.34,
         "buy_date": datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00")
@@ -52,4 +53,4 @@ def test_create_and_list_position(tmp_db_path, monkeypatch):
     data = resp.json()
     assert isinstance(data, list)
     symbols = [p.get('symbol') for p in data]
-    assert any(s == 'TEST' for s in symbols), f"Positions returned: {data}"
+    assert any(s == 'PORTFOLIO_TEST' for s in symbols), f"Positions returned: {data}"
