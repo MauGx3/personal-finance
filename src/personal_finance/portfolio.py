@@ -3,7 +3,10 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-import stockdex as sd
+try:
+    import stockdex as sd
+except ImportError:
+    sd = None  # stockdex not available
 from .database import DatabaseManager, PortfolioPosition
 
 # import yahoo_finance as yf
@@ -119,18 +122,22 @@ class PortfolioManager:
         for position in positions:
             try:
                 logging.debug("Fetching price for %s", position.symbol)
-                ticker = sd.Ticker(ticker=position.symbol)
-                price_data = ticker.yahoo_api_price(range="1d", dataGranularity="1d")
+                if sd is not None:
+                    ticker = sd.Ticker(ticker=position.symbol)
+                    price_data = ticker.yahoo_api_price(range="1d", dataGranularity="1d")
 
-                # Extract the latest price
-                if price_data and 'Close' in price_data:
-                    latest_price = price_data['Close'].iloc[-1]
-                    prices[position.symbol] = latest_price
+                    # Extract the latest price
+                    if price_data and 'Close' in price_data:
+                        latest_price = price_data['Close'].iloc[-1]
+                        prices[position.symbol] = latest_price
 
-                    # Update ticker price in database
-                    self.db_manager.add_or_update_ticker(
-                        position.symbol, position.name, latest_price
-                    )
+                        # Update ticker price in database
+                        self.db_manager.add_or_update_ticker(
+                            position.symbol, position.name, latest_price
+                        )
+                else:
+                    logging.warning("stockdex not available, cannot fetch price for %s", position.symbol)
+                    prices[position.symbol] = 0.0
 
             except Exception as e:
                 logging.error("Error fetching price for %s: %s", position.symbol, str(e))
@@ -160,22 +167,26 @@ class PortfolioManager:
 
         for position in positions:
             try:
-                ticker = sd.Ticker(position.symbol)
-                data = ticker.yahoo_api_price(range=period, dataGranularity="1d")
-                historical_data[position.symbol] = data
+                if sd is not None:
+                    ticker = sd.Ticker(position.symbol)
+                    data = ticker.yahoo_api_price(range=period, dataGranularity="1d")
+                    historical_data[position.symbol] = data
 
-                # Store historical data in database
-                if data is not None and not data.empty:
-                    for date, row in data.iterrows():
-                        self.db_manager.add_historical_price(
-                            symbol=position.symbol,
-                            date=date.to_pydatetime(),
-                            open_price=row.get('Open'),
-                            high_price=row.get('High'),
-                            low_price=row.get('Low'),
-                            close_price=row.get('Close'),
-                            volume=row.get('Volume')
-                        )
+                    # Store historical data in database
+                    if data is not None and not data.empty:
+                        for date, row in data.iterrows():
+                            self.db_manager.add_historical_price(
+                                symbol=position.symbol,
+                                date=date.to_pydatetime(),
+                                open_price=row.get('Open'),
+                                high_price=row.get('High'),
+                                low_price=row.get('Low'),
+                                close_price=row.get('Close'),
+                                volume=row.get('Volume')
+                            )
+                else:
+                    logging.warning("stockdex not available, cannot fetch historical data for %s", position.symbol)
+                    historical_data[position.symbol] = None
 
             except Exception as e:
                 logging.error(

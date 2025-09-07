@@ -21,7 +21,8 @@ httpx>=0.24.0
 # finance specific
 yfinance>=0.2.65
 yahoofinancials>=1.20
-stockdex>=1.2.0
+# stockdex>=1.2.0  # Temporarily disabled due to dependency conflict with requests>=2.32.4
+# TODO: Re-enable when stockdex supports requests>=2.32.4 or find alternative
 financepy>=1.0.1
 # data analysis
 pandas>=2.0.0
