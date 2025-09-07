@@ -68,4 +68,4 @@ jobs:
 
       - name: Run pip-audit
         run: |
-          python -m pip_audit --progress-spinner off
+          pip-audit --progress-spinner off
