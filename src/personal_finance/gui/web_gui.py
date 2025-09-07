@@ -114,12 +114,77 @@ def asset_summary(symbol: str):
         position = service.db.get_portfolio_position(symbol)
         if not ticker and not position:
             raise HTTPException(status_code=404, detail='Symbol not found')
+        
+        # Calculate cost_basis and current_value
+        cost_basis = None
+        current_value = None
+        if position:
+            cost_basis = position.quantity * position.buy_price
+            current_price = ticker.price if ticker else position.buy_price
+            current_value = position.quantity * current_price
+        
         return {
             'symbol': symbol,
             'name': getattr(ticker, 'name', None) or getattr(position, 'name', None),
             'price': getattr(ticker, 'price', None) if ticker else None,
             'quantity': getattr(position, 'quantity', None) if position else None,
             'buy_price': getattr(position, 'buy_price', None) if position else None,
+            'cost_basis': cost_basis,
+            'current_value': current_value,
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+
+
+@app.get('/prices/{symbol}')
+def get_prices(symbol: str, limit: int = None):
+    symbol = symbol.upper()
+    try:
+        prices = service.list_prices(symbol)
+        if not prices:
+            raise HTTPException(status_code=404, detail='No prices found for symbol')
+        
+        # Convert to dict format and sort by date (most recent first)
+        price_dicts = []
+        for price in prices:
+            price_dict = {
+                'date': price.date.isoformat() if price.date else None,
+                'open': price.open_price,
+                'high': price.high_price,
+                'low': price.low_price,
+                'close': price.close_price,
+                'volume': price.volume,
+            }
+            price_dicts.append(price_dict)
+        
+        # Sort by date descending (most recent first)
+        price_dicts.sort(key=lambda x: x['date'] or '', reverse=True)
+        
+        # Apply limit if specified
+        if limit is not None and limit > 0:
+            price_dicts = price_dicts[:limit]
+            
+        return price_dicts
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+
+
+@app.get('/tickers/{symbol}')
+def get_ticker(symbol: str):
+    symbol = symbol.upper()
+    try:
+        ticker = service.get_ticker(symbol)
+        if not ticker:
+            raise HTTPException(status_code=404, detail='Ticker not found')
+        
+        return {
+            'symbol': ticker.symbol,
+            'name': ticker.name,
+            'price': ticker.price,
         }
     except HTTPException:
         raise
