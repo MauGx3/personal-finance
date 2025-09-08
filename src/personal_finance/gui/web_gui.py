@@ -23,7 +23,9 @@ def _pos_to_dict(p) -> Dict[str, Any]:
         "name": getattr(p, "name", None),
         "quantity": getattr(p, "quantity", None),
         "buy_price": getattr(p, "buy_price", None),
-        "buy_date": getattr(p, "buy_date", None).strftime("%Y-%m-%dT%H:%M:%S") if getattr(p, "buy_date", None) else None,
+        "buy_date": getattr(p, "buy_date", None).strftime("%Y-%m-%dT%H:%M:%S")
+        if getattr(p, "buy_date", None)
+        else None,
     }
 
 
@@ -33,7 +35,9 @@ def list_positions():
         positions = service.list_positions()
         return [_pos_to_dict(p) for p in positions]
     except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+        raise HTTPException(
+            status_code=503, detail=f"Database unavailable: {exc}"
+        )
 
 
 @app.post("/positions")
@@ -55,7 +59,9 @@ def create_position(payload: Dict[str, Any]):
 
     created = service.add_position(sym, name, qty, buy_price, buy_date)
     if created is None:
-        raise HTTPException(status_code=400, detail="Could not create position")
+        raise HTTPException(
+            status_code=400, detail="Could not create position"
+        )
     if isinstance(created, dict):
         return created
     return _pos_to_dict(created)
@@ -103,18 +109,18 @@ def asset_page(symbol: str):
       </body>
     </html>
     """
-    return HTMLResponse(content=tpl.replace('__SYMBOL__', symbol))
+    return HTMLResponse(content=tpl.replace("__SYMBOL__", symbol))
 
 
-@app.get('/asset_summary/{symbol}')
+@app.get("/asset_summary/{symbol}")
 def asset_summary(symbol: str):
     symbol = symbol.upper()
     try:
         ticker = service.get_ticker(symbol)
         position = service.db.get_portfolio_position(symbol)
         if not ticker and not position:
-            raise HTTPException(status_code=404, detail='Symbol not found')
-        
+            raise HTTPException(status_code=404, detail="Symbol not found")
+
         # Calculate cost_basis and current_value
         cost_basis = None
         current_value = None
@@ -122,71 +128,84 @@ def asset_summary(symbol: str):
             cost_basis = position.quantity * position.buy_price
             current_price = ticker.price if ticker else position.buy_price
             current_value = position.quantity * current_price
-        
+
         return {
-            'symbol': symbol,
-            'name': getattr(ticker, 'name', None) or getattr(position, 'name', None),
-            'price': getattr(ticker, 'price', None) if ticker else None,
-            'quantity': getattr(position, 'quantity', None) if position else None,
-            'buy_price': getattr(position, 'buy_price', None) if position else None,
-            'cost_basis': cost_basis,
-            'current_value': current_value,
+            "symbol": symbol,
+            "name": getattr(ticker, "name", None)
+            or getattr(position, "name", None),
+            "price": getattr(ticker, "price", None) if ticker else None,
+            "quantity": getattr(position, "quantity", None)
+            if position
+            else None,
+            "buy_price": getattr(position, "buy_price", None)
+            if position
+            else None,
+            "cost_basis": cost_basis,
+            "current_value": current_value,
         }
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+        raise HTTPException(
+            status_code=503, detail=f"Database unavailable: {exc}"
+        )
 
 
-@app.get('/prices/{symbol}')
+@app.get("/prices/{symbol}")
 def get_prices(symbol: str, limit: int = None):
     symbol = symbol.upper()
     try:
         prices = service.list_prices(symbol)
         if not prices:
-            raise HTTPException(status_code=404, detail='No prices found for symbol')
-        
+            raise HTTPException(
+                status_code=404, detail="No prices found for symbol"
+            )
+
         # Convert to dict format and sort by date (most recent first)
         price_dicts = []
         for price in prices:
             price_dict = {
-                'date': price.date.isoformat() if price.date else None,
-                'open': price.open_price,
-                'high': price.high_price,
-                'low': price.low_price,
-                'close': price.close_price,
-                'volume': price.volume,
+                "date": price.date.isoformat() if price.date else None,
+                "open": price.open_price,
+                "high": price.high_price,
+                "low": price.low_price,
+                "close": price.close_price,
+                "volume": price.volume,
             }
             price_dicts.append(price_dict)
-        
+
         # Sort by date descending (most recent first)
-        price_dicts.sort(key=lambda x: x['date'] or '', reverse=True)
-        
+        price_dicts.sort(key=lambda x: x["date"] or "", reverse=True)
+
         # Apply limit if specified
         if limit is not None and limit > 0:
             price_dicts = price_dicts[:limit]
-            
+
         return price_dicts
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+        raise HTTPException(
+            status_code=503, detail=f"Database unavailable: {exc}"
+        )
 
 
-@app.get('/tickers/{symbol}')
+@app.get("/tickers/{symbol}")
 def get_ticker(symbol: str):
     symbol = symbol.upper()
     try:
         ticker = service.get_ticker(symbol)
         if not ticker:
-            raise HTTPException(status_code=404, detail='Ticker not found')
-        
+            raise HTTPException(status_code=404, detail="Ticker not found")
+
         return {
-            'symbol': ticker.symbol,
-            'name': ticker.name,
-            'price': ticker.price,
+            "symbol": ticker.symbol,
+            "name": ticker.name,
+            "price": ticker.price,
         }
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}")
+        raise HTTPException(
+            status_code=503, detail=f"Database unavailable: {exc}"
+        )

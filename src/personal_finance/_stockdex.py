@@ -11,7 +11,9 @@ from typing import Optional
 
 try:
     from stockdex import Ticker  # external package
-except Exception:  # pragma: no cover - runtime environment may not have stockdex
+except (
+    Exception
+):  # pragma: no cover - runtime environment may not have stockdex
     Ticker = None
 
 
@@ -28,7 +30,9 @@ def get_last_close(symbol: str) -> Optional[float]:
         t = Ticker(symbol)
         # The stockdex Ticker exposes a method to fetch prices; keep this
         # defensive to avoid raising on unexpected library changes.
-        series = t.yahoo_api_price(range="1d", dataGranularity="1d").get("close")
+        series = t.yahoo_api_price(range="1d", dataGranularity="1d").get(
+            "close"
+        )
         if series is None or len(series) == 0:
             return None
         return float(series.iloc[-1])

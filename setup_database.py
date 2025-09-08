@@ -14,8 +14,7 @@ from personal_finance.database import DatabaseManager
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 logger = logging.getLogger(__name__)
@@ -74,7 +73,9 @@ def main():
         tickers = db_manager.get_all_tickers()
         positions = db_manager.get_portfolio_positions()
 
-        logger.info(f"Database contains {len(tickers)} tickers and {len(positions)} portfolio positions")
+        logger.info(
+            f"Database contains {len(tickers)} tickers and {len(positions)} portfolio positions"
+        )
 
     except Exception as e:
         logger.error(f"Database setup failed: {e}")

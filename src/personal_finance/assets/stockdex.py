@@ -14,7 +14,9 @@ class Ticker:
     def get_last_close(self):
         # Placeholder implementation — original library may provide richer data
         # In the original _stockdex module this called into an external library
-        logger.debug(f"Ticker.get_last_close({self.symbol}) called — placeholder returning 0")
+        logger.debug(
+            f"Ticker.get_last_close({self.symbol}) called — placeholder returning 0"
+        )
         return 0
 
 

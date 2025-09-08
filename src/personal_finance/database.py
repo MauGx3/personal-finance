@@ -38,7 +38,7 @@ Base = declarative_base()
 class Ticker(Base):
     """Model for stock ticker information"""
 
-    __tablename__ = 'tickers'
+    __tablename__ = "tickers"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     symbol: Mapped[str] = mapped_column(
@@ -66,12 +66,10 @@ class PortfolioPosition(Base):
     Lots are not individually tracked yet.
     """
 
-    __tablename__ = 'portfolio_positions'
+    __tablename__ = "portfolio_positions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    symbol: Mapped[str] = mapped_column(
-        String(10), nullable=False, index=True
-    )
+    symbol: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     quantity: Mapped[float] = mapped_column(Float, nullable=False)
     buy_price: Mapped[float] = mapped_column(Float, nullable=False)
@@ -87,7 +85,7 @@ class PortfolioPosition(Base):
 
     # Data integrity: enforce single row per symbol (matches update logic)
     __table_args__ = (
-        UniqueConstraint('symbol', name='uq_portfolio_positions_symbol'),
+        UniqueConstraint("symbol", name="uq_portfolio_positions_symbol"),
     )
 
     def __repr__(self):  # pragma: no cover - simple repr
@@ -100,30 +98,18 @@ class PortfolioPosition(Base):
 class HistoricalPrice(Base):
     """Model for historical price data."""
 
-    __tablename__ = 'historical_prices'
+    __tablename__ = "historical_prices"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    symbol: Mapped[str] = mapped_column(
-        String(10), nullable=False, index=True
-    )
+    symbol: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     date: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, index=True
     )
-    open_price: Mapped[Optional[float]] = mapped_column(
-        Float, nullable=True
-    )
-    high_price: Mapped[Optional[float]] = mapped_column(
-        Float, nullable=True
-    )
-    low_price: Mapped[Optional[float]] = mapped_column(
-        Float, nullable=True
-    )
-    close_price: Mapped[Optional[float]] = mapped_column(
-        Float, nullable=True
-    )
-    volume: Mapped[Optional[int]] = mapped_column(
-        Integer, nullable=True
-    )
+    open_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    high_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    low_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    close_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    volume: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     last_updated: Mapped[datetime] = mapped_column(
         DateTime,
         default=lambda: datetime.now(timezone.utc),
@@ -132,9 +118,9 @@ class HistoricalPrice(Base):
 
     __table_args__ = (
         UniqueConstraint(
-            'symbol', 'date', name='uq_historical_prices_symbol_date'
+            "symbol", "date", name="uq_historical_prices_symbol_date"
         ),
-        Index('ix_historical_prices_symbol_date', 'symbol', 'date'),
+        Index("ix_historical_prices_symbol_date", "symbol", "date"),
     )
 
     def __repr__(self):  # pragma: no cover - simple repr
@@ -158,9 +144,10 @@ def _ensure_postgres_url(url: str) -> None:
 
 class DatabaseManager:
     """Manager class for database operations and migrations."""
+
     def __init__(self, database_url: Optional[str] = None, echo: bool = False):
         if database_url is None:
-            database_url = os.getenv('DATABASE_URL')
+            database_url = os.getenv("DATABASE_URL")
         if not database_url:
             raise RuntimeError(
                 "DATABASE_URL is required (Postgres, SQLite for testing, or "
@@ -168,12 +155,11 @@ class DatabaseManager:
             )
         self.database_url = database_url
         # Detect backend by scheme
-        if (
-            database_url.startswith("mongodb://")
-            or database_url.startswith("mongodb+srv://")
+        if database_url.startswith("mongodb://") or database_url.startswith(
+            "mongodb+srv://"
         ):
             # MongoDB backend
-            self.backend = 'mongodb'
+            self.backend = "mongodb"
             try:
                 from pymongo import MongoClient  # type: ignore
             except Exception as ie:  # pragma: no cover - environment dependent
@@ -185,20 +171,20 @@ class DatabaseManager:
             self._mongo_client = MongoClient(database_url)
             # If a DB name is present in the URL, use it; otherwise default to
             # 'personal_finance'. PyMongo parses the DB from the URI path.
-            parsed = database_url.split('/')
-            dbname = parsed[-1] or 'personal_finance'
+            parsed = database_url.split("/")
+            dbname = parsed[-1] or "personal_finance"
             self.mongo_db = self._mongo_client[dbname]
             self._mongo_collections = {
-                'tickers': self.mongo_db['tickers'],
-                'portfolio_positions': self.mongo_db['portfolio_positions'],
-                'historical_prices': self.mongo_db['historical_prices'],
+                "tickers": self.mongo_db["tickers"],
+                "portfolio_positions": self.mongo_db["portfolio_positions"],
+                "historical_prices": self.mongo_db["historical_prices"],
             }
             self.engine = None
             self.SessionLocal = None
         else:
             # Default: SQL (Postgres/SQLite)
             _ensure_postgres_url(database_url)
-            self.backend = 'sql'
+            self.backend = "sql"
             self.engine = create_engine(database_url, echo=echo, future=True)
             # Use default expire_on_commit behavior for production safety
             self.SessionLocal = sessionmaker(
@@ -210,7 +196,7 @@ class DatabaseManager:
             )
             self._mongo_client = None
 
-    def run_migrations(self, revision: str = 'head') -> None:
+    def run_migrations(self, revision: str = "head") -> None:
         """Run Alembic migrations up to the specified revision (default head).
 
         This allows programmatic control instead of relying on the CLI.
@@ -228,9 +214,9 @@ class DatabaseManager:
             # Candidate locations to search for alembic scripts (ordered)
             candidates = []
             pkg_dir = os.path.dirname(os.path.abspath(__file__))
-            source_layout = os.path.abspath(os.path.join(pkg_dir, '..', '..'))
+            source_layout = os.path.abspath(os.path.join(pkg_dir, "..", ".."))
             candidates.append(source_layout)
-            candidates.append(os.getenv('APP_ROOT', '/app'))
+            candidates.append(os.getenv("APP_ROOT", "/app"))
             candidates.append(os.getcwd())
 
             script_location = None
@@ -238,8 +224,8 @@ class DatabaseManager:
             for root in candidates:
                 if not root:
                     continue
-                cand_script = os.path.join(root, 'alembic')
-                cand_ini = os.path.join(root, 'alembic.ini')
+                cand_script = os.path.join(root, "alembic")
+                cand_ini = os.path.join(root, "alembic.ini")
                 if os.path.isdir(cand_script) and os.path.isfile(cand_ini):
                     script_location = cand_script
                     ini_path = cand_ini
@@ -252,18 +238,16 @@ class DatabaseManager:
                 )
                 raise RuntimeError(msg)
 
-            if self.backend == 'mongodb':
+            if self.backend == "mongodb":
                 # MongoDB: skip Alembic migrations
-                logger.info(
-                    "Skipping Alembic migrations for MongoDB backend"
-                )
+                logger.info("Skipping Alembic migrations for MongoDB backend")
                 return
 
             alembic_cfg = Config(ini_path)
             script_abs = os.path.abspath(script_location)
-            alembic_cfg.set_main_option('script_location', script_abs)
+            alembic_cfg.set_main_option("script_location", script_abs)
             # Override URL dynamically
-            alembic_cfg.set_main_option('sqlalchemy.url', self.database_url)
+            alembic_cfg.set_main_option("sqlalchemy.url", self.database_url)
 
             command.upgrade(alembic_cfg, revision)
             logger.info("Migrations applied up to revision %s", revision)
@@ -288,7 +272,7 @@ class DatabaseManager:
         contextmanager continues to work.
         """
         # Provide a compatible context manager for both SQL and MongoDB.
-        if self.backend == 'sql':
+        if self.backend == "sql":
             assert self.SessionLocal is not None
             session: Session = self.SessionLocal()
             try:
@@ -313,7 +297,7 @@ class DatabaseManager:
         self, symbol: str, name: str, price: Optional[float] = None
     ) -> Any:
         """Add or update a ticker."""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
                 ticker = (
                     session.query(Ticker)
@@ -343,14 +327,14 @@ class DatabaseManager:
         else:
             # MongoDB upsert
             doc = {
-                'symbol': symbol,
-                'name': name,
-                'price': price,
-                'last_updated': datetime.now(timezone.utc),
+                "symbol": symbol,
+                "name": name,
+                "price": price,
+                "last_updated": datetime.now(timezone.utc),
             }
-            res = self._mongo_collections['tickers'].find_one_and_update(
-                {'symbol': symbol},
-                {'$set': doc},
+            res = self._mongo_collections["tickers"].find_one_and_update(
+                {"symbol": symbol},
+                {"$set": doc},
                 upsert=True,
                 return_document=True,
             )
@@ -359,7 +343,7 @@ class DatabaseManager:
 
     def get_ticker(self, symbol: str) -> Optional[Any]:
         """Get ticker by symbol."""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
                 return (
                     session.query(Ticker)
@@ -367,18 +351,18 @@ class DatabaseManager:
                     .first()
                 )
         else:
-            doc = self._mongo_collections['tickers'].find_one(
-                {'symbol': symbol}
+            doc = self._mongo_collections["tickers"].find_one(
+                {"symbol": symbol}
             )
             return SimpleNamespace(**doc) if doc else None
 
     def get_all_tickers(self) -> List[Any]:
         """Get all tickers"""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
                 return session.query(Ticker).all()
         else:
-            coll = self._mongo_collections['tickers']
+            coll = self._mongo_collections["tickers"]
             docs = list(coll.find())
             return [SimpleNamespace(**d) for d in docs]
 
@@ -392,14 +376,14 @@ class DatabaseManager:
         buy_date: datetime,
     ) -> Any:
         """Add a portfolio position."""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
                 position = PortfolioPosition(
                     symbol=symbol,
                     name=name,
                     quantity=quantity,
                     buy_price=buy_price,
-                    buy_date=buy_date
+                    buy_date=buy_date,
                 )
                 session.add(position)
                 session.commit()
@@ -410,15 +394,15 @@ class DatabaseManager:
                 return position
         else:
             doc = {
-                'symbol': symbol,
-                'name': name,
-                'quantity': quantity,
-                'buy_price': buy_price,
-                'buy_date': buy_date,
-                'current_price': None,
-                'last_updated': datetime.now(timezone.utc),
+                "symbol": symbol,
+                "name": name,
+                "quantity": quantity,
+                "buy_price": buy_price,
+                "buy_date": buy_date,
+                "current_price": None,
+                "last_updated": datetime.now(timezone.utc),
             }
-            self._mongo_collections['portfolio_positions'].insert_one(doc)
+            self._mongo_collections["portfolio_positions"].insert_one(doc)
             return SimpleNamespace(**doc)
 
     def update_portfolio_position(
@@ -429,11 +413,13 @@ class DatabaseManager:
         buy_date: datetime,
     ) -> Optional[Any]:
         """Update an existing portfolio position."""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
-                position = session.query(PortfolioPosition).filter(
-                    PortfolioPosition.symbol == symbol
-                ).first()
+                position = (
+                    session.query(PortfolioPosition)
+                    .filter(PortfolioPosition.symbol == symbol)
+                    .first()
+                )
                 if position:
                     position.quantity = quantity
                     position.buy_price = buy_price
@@ -446,14 +432,16 @@ class DatabaseManager:
                         pass
                 return position
         else:
-            res = self._mongo_collections['portfolio_positions'].find_one_and_update(
-                {'symbol': symbol},
+            res = self._mongo_collections[
+                "portfolio_positions"
+            ].find_one_and_update(
+                {"symbol": symbol},
                 {
-                    '$set': {
-                        'quantity': quantity,
-                        'buy_price': buy_price,
-                        'buy_date': buy_date,
-                        'last_updated': datetime.now(timezone.utc),
+                    "$set": {
+                        "quantity": quantity,
+                        "buy_price": buy_price,
+                        "buy_date": buy_date,
+                        "last_updated": datetime.now(timezone.utc),
                     }
                 },
                 return_document=True,
@@ -462,44 +450,46 @@ class DatabaseManager:
 
     def get_portfolio_positions(self) -> List[Any]:
         """Get all portfolio positions"""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
                 return session.query(PortfolioPosition).all()
         else:
-            coll = self._mongo_collections['portfolio_positions']
+            coll = self._mongo_collections["portfolio_positions"]
             docs = list(coll.find())
             return [SimpleNamespace(**d) for d in docs]
 
-    def get_portfolio_position(
-        self, symbol: str
-    ) -> Optional[Any]:
+    def get_portfolio_position(self, symbol: str) -> Optional[Any]:
         """Get portfolio position by symbol"""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
-                return session.query(PortfolioPosition).filter(
-                    PortfolioPosition.symbol == symbol
-                ).first()
+                return (
+                    session.query(PortfolioPosition)
+                    .filter(PortfolioPosition.symbol == symbol)
+                    .first()
+                )
         else:
-            doc = self._mongo_collections['portfolio_positions'].find_one(
-                {'symbol': symbol}
+            doc = self._mongo_collections["portfolio_positions"].find_one(
+                {"symbol": symbol}
             )
             return SimpleNamespace(**doc) if doc else None
 
     def remove_portfolio_position(self, symbol: str) -> bool:
         """Remove a portfolio position"""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
-                position = session.query(PortfolioPosition).filter(
-                    PortfolioPosition.symbol == symbol
-                ).first()
+                position = (
+                    session.query(PortfolioPosition)
+                    .filter(PortfolioPosition.symbol == symbol)
+                    .first()
+                )
                 if position:
                     session.delete(position)
                     session.commit()
                     return True
                 return False
         else:
-            res = self._mongo_collections['portfolio_positions'].delete_one(
-                {'symbol': symbol}
+            res = self._mongo_collections["portfolio_positions"].delete_one(
+                {"symbol": symbol}
             )
             return res.deleted_count > 0
 
@@ -515,13 +505,17 @@ class DatabaseManager:
         volume: Optional[int] = None,
     ) -> Any:
         """Add historical price data."""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
                 # Check if entry already exists
-                existing = session.query(HistoricalPrice).filter(
-                    HistoricalPrice.symbol == symbol,
-                    HistoricalPrice.date == date
-                ).first()
+                existing = (
+                    session.query(HistoricalPrice)
+                    .filter(
+                        HistoricalPrice.symbol == symbol,
+                        HistoricalPrice.date == date,
+                    )
+                    .first()
+                )
 
                 if existing:
                     # Update existing entry
@@ -546,7 +540,7 @@ class DatabaseManager:
                         high_price=high_price,
                         low_price=low_price,
                         close_price=close_price,
-                        volume=volume
+                        volume=volume,
                     )
                     session.add(price_entry)
 
@@ -559,18 +553,18 @@ class DatabaseManager:
         else:
             # Upsert by symbol+date
             doc = {
-                'symbol': symbol,
-                'date': date,
-                'open_price': open_price,
-                'high_price': high_price,
-                'low_price': low_price,
-                'close_price': close_price,
-                'volume': volume,
-                'last_updated': datetime.now(timezone.utc),
+                "symbol": symbol,
+                "date": date,
+                "open_price": open_price,
+                "high_price": high_price,
+                "low_price": low_price,
+                "close_price": close_price,
+                "volume": volume,
+                "last_updated": datetime.now(timezone.utc),
             }
-            self._mongo_collections['historical_prices'].update_one(
-                {'symbol': symbol, 'date': date},
-                {'$set': doc},
+            self._mongo_collections["historical_prices"].update_one(
+                {"symbol": symbol, "date": date},
+                {"$set": doc},
                 upsert=True,
             )
             return SimpleNamespace(**doc)
@@ -582,11 +576,10 @@ class DatabaseManager:
         end_date: Optional[datetime] = None,
     ) -> List[Any]:
         """Get historical prices for a symbol."""
-        if self.backend == 'sql':
+        if self.backend == "sql":
             with self.get_session() as session:
-                query = (
-                    session.query(HistoricalPrice)
-                    .filter(HistoricalPrice.symbol == symbol)
+                query = session.query(HistoricalPrice).filter(
+                    HistoricalPrice.symbol == symbol
                 )
 
                 if start_date:
@@ -596,34 +589,34 @@ class DatabaseManager:
 
                 return query.order_by(HistoricalPrice.date).all()
         else:
-            q = {'symbol': symbol}
+            q = {"symbol": symbol}
             if start_date or end_date:
                 date_filter: dict = {}
                 if start_date:
-                    date_filter['$gte'] = start_date
+                    date_filter["$gte"] = start_date
                 if end_date:
-                    date_filter['$lte'] = end_date
-                q['date'] = date_filter
-            coll = self._mongo_collections['historical_prices']
-            docs = list(coll.find(q).sort('date', 1))
+                    date_filter["$lte"] = end_date
+                q["date"] = date_filter
+            coll = self._mongo_collections["historical_prices"]
+            docs = list(coll.find(q).sort("date", 1))
             return [SimpleNamespace(**d) for d in docs]
 
     def ping(self) -> bool:
         """Check DB connectivity for both backends."""
         try:
-            if self.backend == 'sql':
+            if self.backend == "sql":
                 with self.get_session() as session:
                     # simple no-op execute compatible with SQLAlchemy session
-                    session.execute(text('SELECT 1'))
+                    session.execute(text("SELECT 1"))
                 return True
             else:
                 # pymongo has a ping command
                 if self._mongo_client is None:
                     raise RuntimeError("Mongo client not initialized")
-                self._mongo_client.admin.command('ping')
+                self._mongo_client.admin.command("ping")
                 return True
         except Exception as exc:
-            logger.warning('DB ping failed: %s', exc)
+            logger.warning("DB ping failed: %s", exc)
             return False
 
     # Legacy JSON migration removed - use Alembic data migrations instead.

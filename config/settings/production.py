@@ -19,7 +19,9 @@ from .base import env
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["https://github.com/MauGx3"])
+ALLOWED_HOSTS = env.list(
+    "DJANGO_ALLOWED_HOSTS", default=["https://github.com/MauGx3"]
+)
 
 # DATABASES
 # ------------------------------------------------------------------------------
@@ -95,7 +97,9 @@ AWS_S3_MAX_MEMORY_SIZE = env.int(
 AWS_S3_REGION_NAME = env("DJANGO_AWS_S3_REGION_NAME", default=None)
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#cloudfront
 AWS_S3_CUSTOM_DOMAIN = env("DJANGO_AWS_S3_CUSTOM_DOMAIN", default=None)
-aws_s3_domain = AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+aws_s3_domain = (
+    AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+)
 # STATIC & MEDIA
 # ------------------------
 STORAGES = {
@@ -144,7 +148,9 @@ EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 ANYMAIL = {
     "MAILGUN_API_KEY": env("MAILGUN_API_KEY"),
     "MAILGUN_SENDER_DOMAIN": env("MAILGUN_DOMAIN"),
-    "MAILGUN_API_URL": env("MAILGUN_API_URL", default="https://api.mailgun.net/v3"),
+    "MAILGUN_API_URL": env(
+        "MAILGUN_API_URL", default="https://api.mailgun.net/v3"
+    ),
 }
 
 # django-compressor
@@ -154,7 +160,9 @@ COMPRESS_ENABLED = env.bool("COMPRESS_ENABLED", default=True)
 # https://django-compressor.readthedocs.io/en/latest/settings/#django.conf.settings.COMPRESS_URL
 COMPRESS_URL = STATIC_URL  # noqa: F405
 # https://django-compressor.readthedocs.io/en/latest/settings/#django.conf.settings.COMPRESS_OFFLINE
-COMPRESS_OFFLINE = True  # Offline compression is required when using Whitenoise
+COMPRESS_OFFLINE = (
+    True  # Offline compression is required when using Whitenoise
+)
 # https://django-compressor.readthedocs.io/en/latest/settings/#django.conf.settings.COMPRESS_FILTERS
 COMPRESS_FILTERS = {
     "css": [
@@ -193,7 +201,11 @@ LOGGING = {
             "propagate": False,
         },
         # Errors logged by the SDK itself
-        "sentry_sdk": {"level": "ERROR", "handlers": ["console"], "propagate": False},
+        "sentry_sdk": {
+            "level": "ERROR",
+            "handlers": ["console"],
+            "propagate": False,
+        },
         "django.security.DisallowedHost": {
             "level": "ERROR",
             "handlers": ["console"],
@@ -228,7 +240,10 @@ sentry_sdk.init(
 # -------------------------------------------------------------------------------
 # Tools that generate code samples can use SERVERS to point to the correct domain
 SPECTACULAR_SETTINGS["SERVERS"] = [
-    {"url": "https://https://github.com/MauGx3", "description": "Production server"},
+    {
+        "url": "https://https://github.com/MauGx3",
+        "description": "Production server",
+    },
 ]
 # Your stuff...
 # ------------------------------------------------------------------------------

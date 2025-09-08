@@ -11,7 +11,9 @@ from personal_finance.users.models import User
 from .serializers import UserSerializer
 
 
-class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+class UserViewSet(
+    RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet
+):
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = "username"

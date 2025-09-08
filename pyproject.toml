@@ -56,4 +56,6 @@ packages = ["personal_finance"]
 [tool.ruff]
 line-length = 79
 target-version = "py311"
+
+[tool.ruff.lint]
 extend-select = []

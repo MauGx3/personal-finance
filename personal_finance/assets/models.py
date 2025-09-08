@@ -46,7 +46,10 @@ class Asset(models.Model):
 
     class Meta:
         ordering = ["symbol", "name"]
-        indexes = [models.Index(fields=["symbol"]), models.Index(fields=["isin"])]
+        indexes = [
+            models.Index(fields=["symbol"]),
+            models.Index(fields=["isin"]),
+        ]
 
     def __str__(self) -> str:
         return f"{self.symbol} — {self.name or self.asset_type}"
