@@ -7,7 +7,8 @@ import os
 
 # Add the src directory to the path so we can import the package
 sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src"))
+)
 
 import personal_finance  # pylint: disable=wrong-import-position # noqa: E402
 from personal_finance.database import DatabaseManager
@@ -50,12 +51,13 @@ def main():
 
             for position in summary:
                 print("<10")
-                total_value += position['market_value']
-                total_cost += position['cost_basis']
+                total_value += position["market_value"]
+                total_cost += position["cost_basis"]
 
             print("-" * 80)
             total_gain = total_value - total_cost
-            total_gain_pct = (total_gain / total_cost * 100) if total_cost > 0 else 0
+            # total_gain_pct intentionally unused; calc kept for future use
+            _ = (total_gain / total_cost * 100) if total_cost > 0 else 0
             print("<10")
 
         # Get current portfolio value

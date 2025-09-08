@@ -3,11 +3,12 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Optional, Any
+
 try:
     import stockdex as sd
 except ImportError:
     sd = None  # stockdex not available
-from .database import DatabaseManager, PortfolioPosition
+from .database import DatabaseManager
 
 # import yahoo_finance as yf
 
@@ -60,12 +61,20 @@ class PortfolioManager:
                         "name": pos.name,
                         "quantity": pos.quantity,
                         "buyPrice": pos.buy_price,
-                        "buyDate": pos.buy_date.strftime("%Y-%m-%d")
-                    } for pos in positions
+                        "buyDate": pos.buy_date.strftime("%Y-%m-%d"),
+                    }
+                    for pos in positions
                 ]
             }
 
-    def add_position(self, symbol: str, name: str, quantity: float, buy_price: float, buy_date: str):
+    def add_position(
+        self,
+        symbol: str,
+        name: str,
+        quantity: float,
+        buy_price: float,
+        buy_date: str,
+    ):
         """Add or update a position in the portfolio"""
         try:
             buy_date_obj = datetime.strptime(buy_date, "%Y-%m-%d")
@@ -78,7 +87,7 @@ class PortfolioManager:
                     symbol=symbol,
                     quantity=quantity,
                     buy_price=buy_price,
-                    buy_date=buy_date_obj
+                    buy_date=buy_date_obj,
                 )
             else:
                 # Add new position
@@ -87,13 +96,15 @@ class PortfolioManager:
                     name=name,
                     quantity=quantity,
                     buy_price=buy_price,
-                    buy_date=buy_date_obj
+                    buy_date=buy_date_obj,
                 )
 
             # Update ticker info
             self.db_manager.add_or_update_ticker(symbol, name)
 
-            logging.info(f"Added/Updated position: {symbol} - {quantity} shares")
+            logging.info(
+                f"Added/Updated position: {symbol} - {quantity} shares"
+            )
 
         except Exception as e:
             logging.error(f"Error adding position {symbol}: {e}")
@@ -124,11 +135,13 @@ class PortfolioManager:
                 logging.debug("Fetching price for %s", position.symbol)
                 if sd is not None:
                     ticker = sd.Ticker(ticker=position.symbol)
-                    price_data = ticker.yahoo_api_price(range="1d", dataGranularity="1d")
+                    price_data = ticker.yahoo_api_price(
+                        range="1d", dataGranularity="1d"
+                    )
 
                     # Extract the latest price
-                    if price_data and 'Close' in price_data:
-                        latest_price = price_data['Close'].iloc[-1]
+                    if price_data and "Close" in price_data:
+                        latest_price = price_data["Close"].iloc[-1]
                         prices[position.symbol] = latest_price
 
                         # Update ticker price in database
@@ -136,11 +149,16 @@ class PortfolioManager:
                             position.symbol, position.name, latest_price
                         )
                 else:
-                    logging.warning("stockdex not available, cannot fetch price for %s", position.symbol)
+                    logging.warning(
+                        "stockdex not available, cannot fetch price for %s",
+                        position.symbol,
+                    )
                     prices[position.symbol] = 0.0
 
             except Exception as e:
-                logging.error("Error fetching price for %s: %s", position.symbol, str(e))
+                logging.error(
+                    "Error fetching price for %s: %s", position.symbol, str(e)
+                )
                 prices[position.symbol] = 0.0
 
         return prices
@@ -169,7 +187,9 @@ class PortfolioManager:
             try:
                 if sd is not None:
                     ticker = sd.Ticker(position.symbol)
-                    data = ticker.yahoo_api_price(range=period, dataGranularity="1d")
+                    data = ticker.yahoo_api_price(
+                        range=period, dataGranularity="1d"
+                    )
                     historical_data[position.symbol] = data
 
                     # Store historical data in database
@@ -178,19 +198,24 @@ class PortfolioManager:
                             self.db_manager.add_historical_price(
                                 symbol=position.symbol,
                                 date=date.to_pydatetime(),
-                                open_price=row.get('Open'),
-                                high_price=row.get('High'),
-                                low_price=row.get('Low'),
-                                close_price=row.get('Close'),
-                                volume=row.get('Volume')
+                                open_price=row.get("Open"),
+                                high_price=row.get("High"),
+                                low_price=row.get("Low"),
+                                close_price=row.get("Close"),
+                                volume=row.get("Volume"),
                             )
                 else:
-                    logging.warning("stockdex not available, cannot fetch historical data for %s", position.symbol)
+                    logging.warning(
+                        "stockdex not available, cannot fetch historical data for %s",
+                        position.symbol,
+                    )
                     historical_data[position.symbol] = None
 
             except Exception as e:
                 logging.error(
-                    "Error fetching historical data for %s: %s", position.symbol, str(e)
+                    "Error fetching historical data for %s: %s",
+                    position.symbol,
+                    str(e),
                 )
 
         return historical_data
@@ -206,20 +231,24 @@ class PortfolioManager:
             market_value = current_price * position.quantity
             cost_basis = position.buy_price * position.quantity
             gain_loss = market_value - cost_basis
-            gain_loss_pct = (gain_loss / cost_basis * 100) if cost_basis > 0 else 0
+            gain_loss_pct = (
+                (gain_loss / cost_basis * 100) if cost_basis > 0 else 0
+            )
 
-            summary.append({
-                "symbol": position.symbol,
-                "name": position.name,
-                "quantity": position.quantity,
-                "buy_price": position.buy_price,
-                "current_price": current_price,
-                "market_value": market_value,
-                "cost_basis": cost_basis,
-                "gain_loss": gain_loss,
-                "gain_loss_pct": gain_loss_pct,
-                "buy_date": position.buy_date.strftime("%Y-%m-%d")
-            })
+            summary.append(
+                {
+                    "symbol": position.symbol,
+                    "name": position.name,
+                    "quantity": position.quantity,
+                    "buy_price": position.buy_price,
+                    "current_price": current_price,
+                    "market_value": market_value,
+                    "cost_basis": cost_basis,
+                    "gain_loss": gain_loss,
+                    "gain_loss_pct": gain_loss_pct,
+                    "buy_date": position.buy_date.strftime("%Y-%m-%d"),
+                }
+            )
 
         return summary
 

@@ -1,5 +1,6 @@
 from logging.config import fileConfig
 import os
+import sys
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
@@ -16,12 +17,11 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-import sys
 # Ensure project root and src/ are on path (works both in source and installed package scenarios)
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
-src_path = os.path.join(project_root, 'src')
+src_path = os.path.join(project_root, "src")
 if os.path.isdir(src_path) and src_path not in sys.path:
     sys.path.insert(0, src_path)
 
@@ -69,7 +69,9 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection, target_metadata=target_metadata
+        )
 
         with context.begin_transaction():
             context.run_migrations()

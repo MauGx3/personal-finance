@@ -3,6 +3,9 @@
 The implementation now lives in `personal_finance.gui.desktop_gui`.
 """
 
-from .gui.desktop_gui import *  # re-export for backward compatibility
+try:  # pragma: no cover - optional GUI
+    from .gui.desktop_gui import App
+except Exception:  # pragma: no cover - fallback for packaging
+    App = None
 
 __all__ = ["App"]

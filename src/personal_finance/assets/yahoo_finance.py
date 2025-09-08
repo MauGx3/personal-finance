@@ -2,7 +2,7 @@ import yfinance
 import logging
 import requests
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Dict, List
 from ..database import DatabaseManager
 
@@ -23,7 +23,9 @@ def verify_yfinance():
         return False
 
 
-def get_ticker_price(symbol: str, db_manager: Optional[DatabaseManager] = None) -> float:
+def get_ticker_price(
+    symbol: str, db_manager: Optional[DatabaseManager] = None
+) -> float:
     """Helper method to get current price for a single ticker"""
     try:
         ticker = yfinance.Ticker(symbol)
@@ -36,7 +38,7 @@ def get_ticker_price(symbol: str, db_manager: Optional[DatabaseManager] = None) 
             if db_manager:
                 # Get ticker info
                 info = ticker.info
-                name = info.get('longName', info.get('shortName', symbol))
+                name = info.get("longName", info.get("shortName", symbol))
                 db_manager.add_or_update_ticker(symbol, name, price)
 
             return price
@@ -47,8 +49,11 @@ def get_ticker_price(symbol: str, db_manager: Optional[DatabaseManager] = None) 
         return 0
 
 
-def fetch_and_store_historical_data(symbol: str, period: str = "1y",
-                                  db_manager: Optional[DatabaseManager] = None) -> Optional[Dict]:
+def fetch_and_store_historical_data(
+    symbol: str,
+    period: str = "1y",
+    db_manager: Optional[DatabaseManager] = None,
+) -> Optional[Dict]:
     """Fetch historical data and store in database"""
     try:
         ticker = yfinance.Ticker(symbol)
@@ -62,7 +67,7 @@ def fetch_and_store_historical_data(symbol: str, period: str = "1y",
         if db_manager:
             # Get ticker info
             info = ticker.info
-            name = info.get('longName', info.get('shortName', symbol))
+            name = info.get("longName", info.get("shortName", symbol))
             db_manager.add_or_update_ticker(symbol, name)
 
             # Store historical data
@@ -70,11 +75,11 @@ def fetch_and_store_historical_data(symbol: str, period: str = "1y",
                 db_manager.add_historical_price(
                     symbol=symbol,
                     date=date.to_pydatetime(),
-                    open_price=row.get('Open'),
-                    high_price=row.get('High'),
-                    low_price=row.get('Low'),
-                    close_price=row.get('Close'),
-                    volume=row.get('Volume')
+                    open_price=row.get("Open"),
+                    high_price=row.get("High"),
+                    low_price=row.get("Low"),
+                    close_price=row.get("Close"),
+                    volume=row.get("Volume"),
                 )
 
         return hist.to_dict()
@@ -84,9 +89,12 @@ def fetch_and_store_historical_data(symbol: str, period: str = "1y",
         return None
 
 
-def get_stored_historical_data(symbol: str, start_date: Optional[datetime] = None,
-                             end_date: Optional[datetime] = None,
-                             db_manager: Optional[DatabaseManager] = None) -> List[Dict]:
+def get_stored_historical_data(
+    symbol: str,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    db_manager: Optional[DatabaseManager] = None,
+) -> List[Dict]:
     """Get historical data from database"""
     if not db_manager:
         return []
@@ -100,8 +108,9 @@ def get_stored_historical_data(symbol: str, start_date: Optional[datetime] = Non
                 "high": price.high_price,
                 "low": price.low_price,
                 "close": price.close_price,
-                "volume": price.volume
-            } for price in prices
+                "volume": price.volume,
+            }
+            for price in prices
         ]
     except Exception as e:
         logging.error("Error retrieving historical data for %s: %s", symbol, e)

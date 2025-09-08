@@ -3,9 +3,9 @@
 This is intentionally minimal: it demonstrates wiring rather than a polished UI.
 Run with: PYTHONPATH=src python -m personal_finance.desktop_gui
 """
+
 import tkinter as tk
 from tkinter import ttk, messagebox
-from datetime import datetime
 
 from .gui_service import GUIService
 
@@ -38,7 +38,9 @@ class App(tk.Tk):
         add_btn = ttk.Button(frm, text="Add Ticker", command=self.add_ticker)
         add_btn.grid(row=1, column=3)
 
-        refresh_btn = ttk.Button(frm, text="Refresh", command=self.refresh_tickers)
+        refresh_btn = ttk.Button(
+            frm, text="Refresh", command=self.refresh_tickers
+        )
         refresh_btn.grid(row=0, column=3)
 
         frm.columnconfigure(0, weight=1)
@@ -48,7 +50,9 @@ class App(tk.Tk):
         self.ticker_list.delete(0, tk.END)
         try:
             for t in service.list_tickers():
-                self.ticker_list.insert(tk.END, f"{t.symbol} - {t.name} - {t.price}")
+                self.ticker_list.insert(
+                    tk.END, f"{t.symbol} - {t.name} - {t.price}"
+                )
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
@@ -56,7 +60,9 @@ class App(tk.Tk):
         sym = self.symbol_entry.get().strip().upper()
         name = self.name_entry.get().strip()
         if not sym or not name:
-            messagebox.showwarning("Validation", "Symbol and name are required")
+            messagebox.showwarning(
+                "Validation", "Symbol and name are required"
+            )
             return
         try:
             service.add_ticker(sym, name)

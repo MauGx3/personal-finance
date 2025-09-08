@@ -3,6 +3,11 @@ import sys
 from datetime import datetime, timezone, timedelta
 
 import pytest
+
+# Skip entire module at collection time if FastAPI isn't available. This
+# allows VS Code's test discovery to succeed even when optional dev deps
+# (fastapi) are not installed in the current environment.
+pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient
 
 

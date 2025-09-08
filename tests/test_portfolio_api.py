@@ -3,6 +3,9 @@ import sys
 from datetime import datetime, timezone
 
 import pytest
+
+# Skip entire module at collection time if FastAPI isn't available.
+pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient
 
 
@@ -37,10 +40,10 @@ def test_create_and_list_position(tmp_db_path, monkeypatch):
     # Use a unique symbol to avoid UNIQUE constraint violations across tests
     payload = {
         "symbol": "PORTFOLIO_TEST",
-        "name": "Portfolio Test Corp", 
+        "name": "Portfolio Test Corp",
         "quantity": 10.5,
         "buy_price": 12.34,
-        "buy_date": datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00")
+        "buy_date": datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00"),
     }
 
     # Create position
@@ -52,5 +55,7 @@ def test_create_and_list_position(tmp_db_path, monkeypatch):
     assert resp.status_code == 200, resp.text
     data = resp.json()
     assert isinstance(data, list)
-    symbols = [p.get('symbol') for p in data]
-    assert any(s == 'PORTFOLIO_TEST' for s in symbols), f"Positions returned: {data}"
+    symbols = [p.get("symbol") for p in data]
+    assert any(s == "PORTFOLIO_TEST" for s in symbols), (
+        f"Positions returned: {data}"
+    )

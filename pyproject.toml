@@ -44,9 +44,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=6.0",
-    "black>=22.1.0",
-    "flake8>=4.0.1",
-    "isort>=5.10.1",
+    "ruff>=0.12.11",
     "alembic>=1.10"
 ]
 
@@ -54,9 +52,8 @@ dev = [
 package-dir = {"" = "src"}
 packages = ["personal_finance"]
 
-[tool.black]
-line-length = 79
-target-version = ["py37"]
 
-[tool.isort]
-profile = "black"
+[tool.ruff]
+line-length = 79
+target-version = "py311"
+extend-select = []
