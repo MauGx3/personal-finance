@@ -19,6 +19,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aqua Security Trivy
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
   linter:
     runs-on: ubuntu-latest
     steps:
@@ -77,4 +90,4 @@ jobs:
         run: docker compose -f docker-compose.local.yml run django pytest
 
       - name: Tear down the Stack
-        run: docker compose -f docker-compose.local.yml down
+        run: docker compose -f docker-compose.local.yml down]
