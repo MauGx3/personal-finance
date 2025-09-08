@@ -37,8 +37,6 @@ jobs:
             "$GIT_URL" \
             --org-id "$ORG_ID" \
             --group-id "$GROUP_ID" \
-            --scanners sast_scanner iac_scanner secret_scanner \
-                   pii_scanner sca_scanner container_scanner cicd_scanner \
             --fail-on-vulns  # use this if you want to fail your pipeline if any bug is found
 
       - name: Upload SARIF to GitHub Security
