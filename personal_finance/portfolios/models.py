@@ -176,6 +176,38 @@ class Position(TimeStampedModel):
         if self.total_cost_basis == 0:
             return None
         return (self.unrealized_gain_loss / self.total_cost_basis) * 100
+    
+    def update_from_transactions(self):
+        """Update position metrics based on transaction history.
+        
+        This method recalculates quantity and average cost based on all
+        transactions for this position.
+        """
+        transactions = self.transactions.order_by('transaction_date', 'created')
+        
+        total_quantity = Decimal('0')
+        total_cost = Decimal('0')
+        
+        for transaction in transactions:
+            if transaction.transaction_type == Transaction.TransactionType.BUY:
+                total_quantity += transaction.quantity
+                total_cost += (transaction.quantity * transaction.price) + transaction.fees
+            elif transaction.transaction_type == Transaction.TransactionType.SELL:
+                # For sells, reduce quantity but keep weighted average cost
+                if total_quantity > 0:
+                    # Calculate proportion sold
+                    proportion_sold = transaction.quantity / total_quantity
+                    total_cost -= total_cost * proportion_sold
+                    total_quantity -= transaction.quantity
+        
+        if total_quantity > 0:
+            self.quantity = total_quantity
+            self.average_cost = total_cost / total_quantity
+        else:
+            self.quantity = Decimal('0')
+            self.average_cost = Decimal('0')
+        
+        self.save(update_fields=['quantity', 'average_cost'])
 
 
 class Transaction(TimeStampedModel):
@@ -250,7 +282,9 @@ class Transaction(TimeStampedModel):
     def save(self, *args, **kwargs):
         """Override save to update position after transaction."""
         super().save(*args, **kwargs)
-        self.position.update_from_transactions()
+        # Only call update if position has the method implemented
+        if hasattr(self.position, 'update_from_transactions'):
+            self.position.update_from_transactions()
 
 
 class PortfolioSnapshot(TimeStampedModel):
