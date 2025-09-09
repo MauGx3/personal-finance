@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ dashboard_title }}{% endblock title %}
+
+{% block css %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
+<style>
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-card {
+    text-align: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.portfolio-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.portfolio-item {
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.portfolio-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.chart-container {
+    min-height: 400px;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.btn-chart-toggle {
+    margin: 0.25rem;
+}
+
+.performance-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.performance-positive {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.performance-negative {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.performance-neutral {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4">{{ dashboard_title }}</h1>
+        </div>
+    </div>
+
+    <!-- Summary Metrics Row -->
+    <div class="row" id="summary-metrics">
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-value" id="total-value">$0.00</div>
+                <div class="metric-label">Total Portfolio Value</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_portfolios }}</div>
+                <div class="metric-label">Active Portfolios</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-value" id="total-positions">0</div>
+                <div class="metric-label">Total Positions</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-value">{{ active_assets }}</div>
+                <div class="metric-label">Unique Assets</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row">
+        <!-- Portfolio List -->
+        <div class="col-lg-4">
+            <div class="dashboard-card">
+                <h5 class="card-title mb-3">Your Portfolios</h5>
+                <div class="portfolio-list">
+                    {% for portfolio in portfolios %}
+                    <div class="portfolio-item" data-portfolio-id="{{ portfolio.id }}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ portfolio.name }}</h6>
+                                <small class="text-muted">{{ portfolio.description|default:"No description" }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">${{ portfolio.total_value|floatformat:2 }}</div>
+                                <a href="{% url 'visualization:portfolio_detail' portfolio.id %}" 
+                                   class="btn btn-sm btn-outline-primary mt-1">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <p>No portfolios found.</p>
+                        <a href="#" class="btn btn-primary">Create Your First Portfolio</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Top Performers -->
+            <div class="dashboard-card">
+                <h5 class="card-title mb-3">Top Performers</h5>
+                <div id="top-performers">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Area -->
+        <div class="col-lg-8">
+            {% if portfolios %}
+            <!-- Chart Selection -->
+            <div class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Portfolio Analytics</h5>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="chartType" id="performance-chart" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary btn-chart-toggle" for="performance-chart">Performance</label>
+
+                        <input type="radio" class="btn-check" name="chartType" id="allocation-chart" autocomplete="off">
+                        <label class="btn btn-outline-primary btn-chart-toggle" for="allocation-chart">Allocation</label>
+
+                        <input type="radio" class="btn-check" name="chartType" id="risk-chart" autocomplete="off">
+                        <label class="btn btn-outline-primary btn-chart-toggle" for="risk-chart">Risk Metrics</label>
+                    </div>
+                </div>
+
+                <!-- Portfolio Selection -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <select class="form-select" id="portfolio-selector">
+                            <option value="">Select a portfolio to analyze</option>
+                            {% for portfolio in portfolios %}
+                            <option value="{{ portfolio.id }}">{{ portfolio.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="date-range-controls" style="display: none;">
+                        <select class="form-select" id="time-period">
+                            <option value="30">Last 30 Days</option>
+                            <option value="90">Last 3 Months</option>
+                            <option value="180">Last 6 Months</option>
+                            <option value="365" selected>Last Year</option>
+                            <option value="730">Last 2 Years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="chart-container">
+                    <div id="main-chart" class="w-100">
+                        <div class="text-center text-muted py-5">
+                            <p>Select a portfolio to view analytics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- No Portfolios Message -->
+            <div class="dashboard-card text-center py-5">
+                <h5 class="text-muted mb-3">Welcome to Your Personal Finance Dashboard</h5>
+                <p class="text-muted mb-4">Get started by creating your first portfolio to track your investments.</p>
+                <a href="#" class="btn btn-primary btn-lg">Create Portfolio</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+{{ block.super }}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const portfolioSelector = document.getElementById('portfolio-selector');
+    const chartTypeInputs = document.querySelectorAll('input[name="chartType"]');
+    const timePeriodSelector = document.getElementById('time-period');
+    const dateRangeControls = document.getElementById('date-range-controls');
+    const mainChart = document.getElementById('main-chart');
+
+    // Load dashboard summary
+    loadDashboardSummary();
+
+    // Portfolio selection handler
+    portfolioSelector.addEventListener('change', function() {
+        const portfolioId = this.value;
+        if (portfolioId) {
+            dateRangeControls.style.display = 'block';
+            loadSelectedChart();
+        } else {
+            dateRangeControls.style.display = 'none';
+            showSelectPortfolioMessage();
+        }
+    });
+
+    // Chart type change handler
+    chartTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (portfolioSelector.value) {
+                loadSelectedChart();
+            }
+        });
+    });
+
+    // Time period change handler
+    timePeriodSelector.addEventListener('change', function() {
+        if (portfolioSelector.value) {
+            loadSelectedChart();
+        }
+    });
+
+    function loadDashboardSummary() {
+        fetch('{% url "visualization:dashboard_summary_api" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error loading summary:', data.error);
+                    return;
+                }
+                
+                // Update summary metrics
+                document.getElementById('total-value').textContent = 
+                    '$' + data.total_value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('total-positions').textContent = data.total_positions;
+                
+                // Update top performers
+                updateTopPerformers(data.top_performers);
+            })
+            .catch(error => {
+                console.error('Error loading dashboard summary:', error);
+            });
+    }
+
+    function updateTopPerformers(performers) {
+        const container = document.getElementById('top-performers');
+        
+        if (!performers || performers.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">No performance data available</p>';
+            return;
+        }
+
+        let html = '';
+        performers.forEach(performer => {
+            const performanceClass = performer.return >= 0 ? 'performance-positive' : 'performance-negative';
+            const returnSign = performer.return >= 0 ? '+' : '';
+            
+            html += `
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+                    <div>
+                        <div class="fw-bold">${performer.symbol}</div>
+                        <small class="text-muted">${performer.name}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="performance-indicator ${performanceClass}">
+                            ${returnSign}${performer.return.toFixed(2)}%
+                        </div>
+                        <small class="text-muted">$${performer.value.toLocaleString()}</small>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    function loadSelectedChart() {
+        const portfolioId = portfolioSelector.value;
+        const selectedChart = document.querySelector('input[name="chartType"]:checked').id;
+        
+        if (!portfolioId) return;
+
+        showLoading();
+
+        let apiUrl;
+        let params = '';
+
+        switch (selectedChart) {
+            case 'performance-chart':
+                apiUrl = `{% url 'visualization:portfolio_performance_api' 0 %}`.replace('0', portfolioId);
+                params = `?days=${timePeriodSelector.value}`;
+                break;
+            case 'allocation-chart':
+                apiUrl = `{% url 'visualization:portfolio_allocation_api' 0 %}`.replace('0', portfolioId);
+                break;
+            case 'risk-chart':
+                apiUrl = `{% url 'visualization:portfolio_risk_api' 0 %}`.replace('0', portfolioId);
+                break;
+            default:
+                return;
+        }
+
+        fetch(apiUrl + params)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                const plotData = JSON.parse(data.figure);
+                Plotly.newPlot('main-chart', plotData.data, plotData.layout, {
+                    responsive: true,
+                    displayModeBar: true,
+                    modeBarButtonsToRemove: ['pan2d', 'lasso2d']
+                });
+            })
+            .catch(error => {
+                console.error('Error loading chart:', error);
+                showError('Failed to load chart data');
+            });
+    }
+
+    function showLoading() {
+        mainChart.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading chart...</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function showError(message) {
+        mainChart.innerHTML = `
+            <div class="text-center text-danger py-5">
+                <p>${message}</p>
+                <button class="btn btn-outline-primary" onclick="loadSelectedChart()">Retry</button>
+            </div>
+        `;
+    }
+
+    function showSelectPortfolioMessage() {
+        mainChart.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <p>Select a portfolio to view analytics</p>
+            </div>
+        `;
+    }
+});
+</script>
+{% endblock javascript %}

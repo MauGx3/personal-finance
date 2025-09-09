@@ -28,6 +28,9 @@ urlpatterns = [
     path(
         "assets/", include("personal_finance.assets.urls", namespace="assets")
     ),
+    path(
+        "dashboard/", include("personal_finance.visualization.urls", namespace="visualization")
+    ),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

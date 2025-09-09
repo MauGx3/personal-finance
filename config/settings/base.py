@@ -97,6 +97,7 @@ LOCAL_APPS = [
     "personal_finance.portfolios",
     "personal_finance.analytics",
     "personal_finance.data_sources",
+    "personal_finance.visualization",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
