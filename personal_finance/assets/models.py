@@ -6,10 +6,9 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-from model_utils.models import TimeStampedModel
 
 
-class Asset(TimeStampedModel):
+class Asset(models.Model):
     """Canonical asset metadata for many asset types (stock, bond, crypto, etc.).
     
     Enhanced with additional finance-specific fields and methods for
@@ -184,6 +183,10 @@ class Asset(TimeStampedModel):
         default=True,
         help_text="Whether this asset is actively tracked"
     )
+    
+    # Timestamp fields to match migration
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["symbol", "name"]
@@ -270,7 +273,7 @@ class Asset(TimeStampedModel):
         ])
 
 
-class PriceHistory(TimeStampedModel):
+class PriceHistory(models.Model):
     """Historical price data for assets.
     
     Stores daily OHLCV (Open, High, Low, Close, Volume) data
@@ -346,6 +349,10 @@ class PriceHistory(TimeStampedModel):
         max_length=50,
         help_text="Source of this price data"
     )
+    
+    # Timestamp fields to match migration
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['-date']

@@ -13,8 +13,8 @@ from rest_framework.request import Request
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
-from .models import Asset, PriceHistory, Holding, Portfolio as LegacyPortfolio
-from .serializers import (
+from ..models import Asset, PriceHistory, Holding, Portfolio as LegacyPortfolio
+from ..serializers import (
     AssetListSerializer, AssetDetailSerializer, AssetCreateUpdateSerializer,
     PriceHistorySerializer, AssetPerformanceSerializer, TechnicalIndicatorsSerializer,
     AssetSearchSerializer, AssetSerializer, PortfolioSerializer, HoldingSerializer
