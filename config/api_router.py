@@ -9,6 +9,12 @@ from personal_finance.portfolios.api.views import (
 )
 from personal_finance.users.api.views import UserViewSet
 from personal_finance.realtime.api import RealtimeViewSet
+from personal_finance.tax.views import (
+    TaxYearViewSet, TaxLotViewSet, CapitalGainLossViewSet,
+    DividendIncomeViewSet, TaxLossHarvestingOpportunityViewSet,
+    TaxOptimizationRecommendationViewSet, TaxReportViewSet,
+    TaxAnalyticsViewSet
+)
 
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
 
@@ -31,6 +37,16 @@ router.register("holdings", HoldingViewSet)
 
 # Real-time WebSocket management
 router.register("realtime", RealtimeViewSet, basename='realtime')
+
+# Tax reporting and optimization
+router.register("tax/tax-years", TaxYearViewSet, basename='tax-taxyear')
+router.register("tax/tax-lots", TaxLotViewSet, basename='tax-taxlot')
+router.register("tax/capital-gains-losses", CapitalGainLossViewSet, basename='tax-capitalgainloss')
+router.register("tax/dividend-income", DividendIncomeViewSet, basename='tax-dividendincome')
+router.register("tax/loss-harvesting", TaxLossHarvestingOpportunityViewSet, basename='tax-lossharvesting')
+router.register("tax/recommendations", TaxOptimizationRecommendationViewSet, basename='tax-recommendations')
+router.register("tax/reports", TaxReportViewSet, basename='tax-reports')
+router.register("tax/analytics", TaxAnalyticsViewSet, basename='tax-analytics')
 
 app_name = "api"
 urlpatterns = router.urls

@@ -100,6 +100,7 @@ LOCAL_APPS = [
     "personal_finance.visualization",
     "personal_finance.backtesting",
     "personal_finance.realtime",
+    "personal_finance.tax",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
