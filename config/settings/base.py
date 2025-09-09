@@ -94,6 +94,9 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "personal_finance.users",
     "personal_finance.assets",
+    "personal_finance.portfolios",
+    "personal_finance.analytics",
+    "personal_finance.data_sources",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
