@@ -366,9 +366,6 @@ REALTIME_CACHE_TIMEOUT = env.int("REALTIME_CACHE_TIMEOUT", default=300)
 
 # WebSocket connection timeout in seconds
 WEBSOCKET_TIMEOUT = env.int("WEBSOCKET_TIMEOUT", default=300)
-# https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
-INSTALLED_APPS += ["compressor"]
-STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
 # django-rest-framework
 # -------------------------------------------------------------------------------
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
