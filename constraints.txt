@@ -4,38 +4,38 @@
 
 # Core web/runtime
 fastapi==0.116.1
-uvicorn==0.34.3
-pydantic==2.11.6
+uvicorn==0.35.0
+pydantic==2.11.7
 ## NOTE: fastapi 0.116.x requires starlette >=0.47.0,<0.48.0; pin to latest compatible 0.47.x
-starlette==0.47.2
-anyio==4.9.0
+starlette==0.47.3
+anyio==4.10.0
 
 # HTTP
-requests==2.32.3  # pinned to satisfy stockdex==1.2.0 requirement (Requests==2.32.3)
-urllib3==2.4.0
-charset-normalizer==3.4.2
-idna==3.9
+requests==2.32.5  # pinned to satisfy stockdex==1.2.1 requirement (Requests==2.32.3)
+urllib3==2.5.0
+charset-normalizer==3.4.3
+idna==3.10
 
 # Data stack
 numpy==2.3.1
-pandas==2.3.1
+pandas==2.3.2
 matplotlib==3.10.5
-seaborn==0.13.1
+seaborn==0.13.2
 scikit-learn==1.7.1
 statsmodels==0.14.5
 
 # IO / scraping
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.5
 lxml==6.0.1
 
 # Finance libs
 yfinance==0.2.65
-stockdex==1.2.0
+stockdex==1.2.1
 yahoofinancials==1.20
 alpha_vantage==3.0.0
 pandas-datareader==0.10.0
 fredapi==0.5.2
-quantstats==0.0.76
+quantstats==0.0.77
 
 # SQL / DB
 sqlalchemy==2.0.43
@@ -46,7 +46,7 @@ psycopg2-binary==2.9.10
 gunicorn==20.1.0
 
 # Misc
-pip-audit==2.0.0
+pip-audit==2.9.0
 
 # Notes:
 # - When installing with constraints use: python -m pip install -r requirements.txt -c constraints.txt
