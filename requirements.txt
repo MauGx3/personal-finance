@@ -3,6 +3,10 @@
 fastapi>=0.116.1
 uvicorn[standard]>=0.20.0
 
+# Django and essential dependencies for CI/CD
+django>=4.2.0
+django-environ>=0.12.0
+
 # runtime deps (copied from pyproject)
 requests>=2.32.4
 setuptools>=78.1.1
