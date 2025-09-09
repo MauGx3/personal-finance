@@ -8,6 +8,7 @@ from personal_finance.portfolios.api.views import (
     PortfolioViewSet, PositionViewSet, TransactionViewSet, PortfolioSnapshotViewSet
 )
 from personal_finance.users.api.views import UserViewSet
+from personal_finance.realtime.api import RealtimeViewSet
 
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
 
@@ -27,6 +28,9 @@ router.register("portfolio-snapshots", PortfolioSnapshotViewSet)
 # Legacy endpoints for backward compatibility
 router.register("legacy-portfolios", LegacyPortfolioViewSet)
 router.register("holdings", HoldingViewSet)
+
+# Real-time WebSocket management
+router.register("realtime", RealtimeViewSet, basename='realtime')
 
 app_name = "api"
 urlpatterns = router.urls

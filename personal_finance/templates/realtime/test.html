@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}WebSocket Test{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="h3 mb-4">WebSocket Connection Test</h1>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Service Status</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>WebSocket URL:</strong> {{ websocket_url }}</p>
+                    <p><strong>Service Status:</strong> 
+                        <span class="badge badge-{% if service_status == 'running' %}success{% else %}danger{% endif %}">
+                            {{ service_status|title }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Test Connection</h5>
+                </div>
+                <div class="card-body">
+                    <button id="test-connect" class="btn btn-primary">Test WebSocket Connection</button>
+                    <button id="test-disconnect" class="btn btn-secondary ms-2" disabled>Disconnect</button>
+                    
+                    <div id="test-results" class="mt-3" style="display: none;">
+                        <h6>Connection Status:</h6>
+                        <div id="status-indicator" class="alert alert-info">
+                            <span id="status-text">Not connected</span>
+                        </div>
+                        
+                        <h6>Test Messages:</h6>
+                        <div class="mb-3">
+                            <button id="send-ping" class="btn btn-sm btn-outline-primary" disabled>Send Ping</button>
+                            <button id="test-subscribe" class="btn btn-sm btn-outline-success ms-2" disabled>Test Subscribe</button>
+                        </div>
+                        
+                        <h6>Message Log:</h6>
+                        <div id="message-log" style="height: 200px; overflow-y: auto; background-color: #f8f9fa; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px; font-family: monospace; font-size: 0.9rem;">
+                            <!-- Messages will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Links</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'realtime:dashboard' %}" class="btn btn-success me-2">Real-time Dashboard</a>
+                    <a href="{% url 'realtime:status' %}" class="btn btn-info me-2">Service Status API</a>
+                    <a href="{% url 'realtime:websocket_info' %}" class="btn btn-warning">WebSocket Info API</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const connectBtn = document.getElementById('test-connect');
+    const disconnectBtn = document.getElementById('test-disconnect');
+    const testResults = document.getElementById('test-results');
+    const statusText = document.getElementById('status-text');
+    const statusIndicator = document.getElementById('status-indicator');
+    const sendPingBtn = document.getElementById('send-ping');
+    const testSubscribeBtn = document.getElementById('test-subscribe');
+    const messageLog = document.getElementById('message-log');
+    
+    let socket = null;
+    let messageCount = 0;
+    
+    function logMessage(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const typeColors = {
+            'info': 'text-info',
+            'success': 'text-success',
+            'warning': 'text-warning',
+            'error': 'text-danger'
+        };
+        
+        const logEntry = document.createElement('div');
+        logEntry.className = typeColors[type] || 'text-dark';
+        logEntry.textContent = `[${timestamp}] ${message}`;
+        
+        messageLog.appendChild(logEntry);
+        messageLog.scrollTop = messageLog.scrollHeight;
+        
+        messageCount++;
+        if (messageCount > 50) {
+            messageLog.removeChild(messageLog.firstChild);
+            messageCount--;
+        }
+    }
+    
+    function updateStatus(status, type) {
+        statusText.textContent = status;
+        statusIndicator.className = `alert alert-${type}`;
+    }
+    
+    connectBtn.addEventListener('click', function() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}{{ websocket_url }}`;
+        
+        logMessage(`Connecting to ${wsUrl}...`, 'info');
+        updateStatus('Connecting...', 'warning');
+        
+        try {
+            socket = new WebSocket(wsUrl);
+            
+            socket.onopen = function(event) {
+                logMessage('WebSocket connected successfully!', 'success');
+                updateStatus('Connected', 'success');
+                
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendPingBtn.disabled = false;
+                testSubscribeBtn.disabled = false;
+                testResults.style.display = 'block';
+            };
+            
+            socket.onmessage = function(event) {
+                try {
+                    const message = JSON.parse(event.data);
+                    logMessage(`Received ${message.type}: ${JSON.stringify(message.data)}`, 'info');
+                } catch (error) {
+                    logMessage(`Received: ${event.data}`, 'info');
+                }
+            };
+            
+            socket.onclose = function(event) {
+                logMessage(`Connection closed: ${event.code}`, 'warning');
+                updateStatus('Disconnected', 'secondary');
+                
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                sendPingBtn.disabled = true;
+                testSubscribeBtn.disabled = true;
+            };
+            
+            socket.onerror = function(event) {
+                logMessage('WebSocket error occurred', 'error');
+                updateStatus('Error', 'danger');
+            };
+            
+        } catch (error) {
+            logMessage(`Connection error: ${error.message}`, 'error');
+            updateStatus('Error', 'danger');
+        }
+    });
+    
+    disconnectBtn.addEventListener('click', function() {
+        if (socket) {
+            socket.close();
+        }
+    });
+    
+    sendPingBtn.addEventListener('click', function() {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            const message = {
+                type: 'ping',
+                data: {},
+                timestamp: new Date().toISOString()
+            };
+            socket.send(JSON.stringify(message));
+            logMessage('Sent ping message', 'success');
+        }
+    });
+    
+    testSubscribeBtn.addEventListener('click', function() {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            const message = {
+                type: 'subscribe_asset',
+                data: { symbol: 'AAPL' },
+                timestamp: new Date().toISOString()
+            };
+            socket.send(JSON.stringify(message));
+            logMessage('Sent test subscription for AAPL', 'success');
+        }
+    });
+});
+</script>
+{% endblock %}

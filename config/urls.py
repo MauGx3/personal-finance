@@ -31,6 +31,9 @@ urlpatterns = [
     path(
         "dashboard/", include("personal_finance.visualization.urls", namespace="visualization")
     ),
+    path(
+        "realtime/", include("personal_finance.realtime.urls", namespace="realtime")
+    ),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

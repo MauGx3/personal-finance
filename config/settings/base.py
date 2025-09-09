@@ -98,6 +98,8 @@ LOCAL_APPS = [
     "personal_finance.analytics",
     "personal_finance.data_sources",
     "personal_finance.visualization",
+    "personal_finance.backtesting",
+    "personal_finance.realtime",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -346,6 +348,23 @@ SOCIALACCOUNT_FORMS = {
 }
 # django-compressor
 # ------------------------------------------------------------------------------
+# https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
+INSTALLED_APPS += ["compressor"]
+STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
+
+# Real-time WebSocket Settings
+# ------------------------------------------------------------------------------
+# Real-time price update interval in seconds
+REALTIME_UPDATE_INTERVAL = env.int("REALTIME_UPDATE_INTERVAL", default=30)
+
+# Maximum batch size for price updates
+REALTIME_BATCH_SIZE = env.int("REALTIME_BATCH_SIZE", default=50)
+
+# Cache timeout for real-time price data in seconds
+REALTIME_CACHE_TIMEOUT = env.int("REALTIME_CACHE_TIMEOUT", default=300)
+
+# WebSocket connection timeout in seconds
+WEBSOCKET_TIMEOUT = env.int("WEBSOCKET_TIMEOUT", default=300)
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
 INSTALLED_APPS += ["compressor"]
 STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
