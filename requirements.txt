@@ -60,6 +60,8 @@ psycopg2-binary>=2.9.0  # PostgreSQL adapter for Django
 celery>=5.5.0
 redis>=6.0.0  # Redis for caching and celery broker
 django-redis>=6.0.0  # Django Redis integration
+channels>=4.0.0  # WebSocket support for Django
+channels-redis>=4.0.0  # Redis backend for Django Channels
 
 # Optional: security tooling
 pip-audit>=2.0.0
