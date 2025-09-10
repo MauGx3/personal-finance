@@ -343,7 +343,7 @@ class TestRiskMetrics:
             ("STOCK", Asset.ASSET_STOCK),
             ("BOND", Asset.ASSET_BOND),
             ("REIT", Asset.ASSET_ETF),
-            ("COMMODITY", Asset.ASSET_ETF)
+            ("CRYPTO", Asset.ASSET_CRYPTO)  # Use crypto instead of commodity for diversity
         ]
         
         holdings = []

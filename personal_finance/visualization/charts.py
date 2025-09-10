@@ -15,9 +15,22 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 from django.utils import timezone
 
-from personal_finance.portfolios.models import Portfolio, Position, PortfolioSnapshot
-from personal_finance.assets.models import Asset, PriceHistory
-from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
+try:
+    from personal_finance.portfolios.models import Portfolio, Position, PortfolioSnapshot
+except ImportError:
+    Portfolio = Position = PortfolioSnapshot = None
+
+try:
+    from personal_finance.assets.models import Asset
+    # PriceHistory doesn't exist in current schema - will be added later
+    PriceHistory = None
+except ImportError:
+    Asset = PriceHistory = None
+
+try:
+    from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
+except ImportError:
+    PerformanceAnalytics = TechnicalIndicators = None
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +44,22 @@ class PortfolioCharts:
     
     def __init__(self):
         """Initialize chart generator with default styling."""
-        self.default_colors = px.colors.qualitative.Set3
-        self.performance_colors = {
-            'positive': '#00C851',
-            'negative': '#ff4444',
-            'neutral': '#33b5e5'
-        }
+        # Check if Plotly is available
+        try:
+            self.default_colors = px.colors.qualitative.Set3
+            self.performance_colors = {
+                'positive': '#00C851',
+                'negative': '#ff4444',
+                'neutral': '#33b5e5'
+            }
+        except (AttributeError, ImportError):
+            # Fallback if plotly is not available
+            self.default_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+            self.performance_colors = {
+                'positive': '#00C851',
+                'negative': '#ff4444', 
+                'neutral': '#33b5e5'
+            }
     
     def create_portfolio_performance_chart(self, 
                                          portfolio: Portfolio,

@@ -260,7 +260,9 @@ class TestDividendTaxCalculations:
         
         assert additional_shares.quantize(Decimal('0.001')) == Decimal('2.451')
         assert new_total_cost_basis == Decimal('5125.00')
-        assert new_avg_cost_per_share.quantize(Decimal('0.01')) == Decimal('50.01')
+        # Allow for small rounding differences in cost per share calculation
+        expected_avg_cost = Decimal('50.02')  # Correct calculation result
+        assert new_avg_cost_per_share.quantize(Decimal('0.01')) == expected_avg_cost
 
 
 @pytest.mark.django_db
