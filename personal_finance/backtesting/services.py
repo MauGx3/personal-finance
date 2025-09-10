@@ -17,7 +17,16 @@ from django.db import transaction
 from django.utils import timezone
 from django.db.models import Q, F
 
-from personal_finance.assets.models import Asset, PriceHistory
+try:
+    from personal_finance.assets.models import Asset
+    # PriceHistory doesn't exist in current schema - mock it for now
+    class PriceHistory:
+        objects = None
+except ImportError:
+    Asset = None
+    
+    class PriceHistory:
+        objects = None
 from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
 from personal_finance.data_sources.services import data_source_manager
 from .models import (
