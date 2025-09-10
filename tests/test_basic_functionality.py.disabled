@@ -43,7 +43,7 @@ class TestAssetModels:
     """Test asset models without complex factories."""
     
     def test_asset_creation_simple(self):
-        """Test basic asset model creation."""
+        """Test basic asset model creation using only fields from migration schema."""
         from personal_finance.assets.models import Asset
         
         asset = Asset.objects.create(
@@ -57,6 +57,9 @@ class TestAssetModels:
         assert asset.symbol == "AAPL"
         assert asset.name == "Apple Inc."
         assert asset.asset_type == Asset.ASSET_STOCK
+        assert asset.currency == "USD"
+        assert asset.exchange == "NASDAQ"
+        assert asset.is_active is True
 
 
 @pytest.mark.django_db  
