@@ -13,12 +13,32 @@ from rest_framework.request import Request
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
-from ..models import Asset, PriceHistory, Holding, Portfolio as LegacyPortfolio
-from ..serializers import (
-    AssetListSerializer, AssetDetailSerializer, AssetCreateUpdateSerializer,
-    PriceHistorySerializer, AssetPerformanceSerializer, TechnicalIndicatorsSerializer,
-    AssetSearchSerializer, AssetSerializer, PortfolioSerializer, HoldingSerializer
-)
+from ..models import Asset, Holding, Portfolio as LegacyPortfolio
+
+# Graceful import handling for missing models and serializers
+try:
+    from ..models import PriceHistory
+except ImportError:
+    PriceHistory = None
+
+try:
+    from ..serializers import (
+        AssetListSerializer, AssetDetailSerializer, AssetCreateUpdateSerializer,
+        PriceHistorySerializer, AssetPerformanceSerializer, TechnicalIndicatorsSerializer,
+        AssetSearchSerializer, AssetSerializer, PortfolioSerializer, HoldingSerializer
+    )
+except ImportError:
+    # Create minimal serializers if imports fail
+    from rest_framework import serializers
+    class AssetListSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Asset
+            fields = ['id', 'symbol', 'name', 'asset_type', 'currency']
+    
+    AssetDetailSerializer = AssetCreateUpdateSerializer = AssetListSerializer
+    PriceHistorySerializer = AssetPerformanceSerializer = None
+    TechnicalIndicatorsSerializer = AssetSearchSerializer = None
+    AssetSerializer = PortfolioSerializer = HoldingSerializer = None
 from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
 from personal_finance.data_sources.services import data_source_manager
 

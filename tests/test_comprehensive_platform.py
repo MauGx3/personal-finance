@@ -815,6 +815,7 @@ class TestPerformanceCalculations:
 class TestPlatformIntegration:
     """Integration tests for complete platform workflows."""
     
+    @pytest.mark.django_db
     def setup_method(self):
         """Set up integration testing."""
         self.client = Client()
@@ -858,9 +859,13 @@ class TestPlatformIntegration:
         assert holding.asset == stock
         assert holding.portfolio == portfolio
         
-        # 5. Test relationships work both ways
+        # 5. Test relationships work both ways (refresh from database)
+        self.user.refresh_from_db()
+        portfolio.refresh_from_db()
+        stock.refresh_from_db()
+        
         user_portfolios = self.user.portfolios.all()
-        assert portfolio in user_portfolios
+        assert portfolio in user_portfolios, f"Portfolio {portfolio.id} not found in user portfolios: {[p.id for p in user_portfolios]}"
         
         portfolio_holdings = portfolio.holdings.all()
         assert holding in portfolio_holdings

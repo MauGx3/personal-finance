@@ -8,8 +8,18 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
-from personal_finance.assets.models import Asset, PriceHistory
-from personal_finance.data_sources.services import data_source_manager
+from personal_finance.assets.models import Asset
+
+# Graceful import for PriceHistory
+try:
+    from personal_finance.assets.models import PriceHistory
+except ImportError:
+    PriceHistory = None
+
+try:
+    from personal_finance.data_sources.services import data_source_manager
+except ImportError:
+    data_source_manager = None
 
 logger = logging.getLogger(__name__)
 

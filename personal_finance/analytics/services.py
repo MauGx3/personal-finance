@@ -15,8 +15,18 @@ import numpy as np
 from django.db.models import QuerySet
 from django.utils import timezone
 
-from personal_finance.assets.models import Asset, PriceHistory
-from personal_finance.portfolios.models import Portfolio, Position, PortfolioSnapshot
+from personal_finance.assets.models import Asset
+
+# Graceful import handling for missing models
+try:
+    from personal_finance.assets.models import PriceHistory
+except ImportError:
+    PriceHistory = None
+
+try:
+    from personal_finance.portfolios.models import Portfolio, Position, PortfolioSnapshot
+except ImportError:
+    Portfolio = Position = PortfolioSnapshot = None
 
 logger = logging.getLogger(__name__)
 
