@@ -7,7 +7,17 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 
-from personal_finance.portfolios.models import Portfolio, Position, Transaction
+try:
+    from personal_finance.portfolios.models import Portfolio, Position, Transaction
+except ImportError:
+    import warnings
+    warnings.warn(
+        "Could not import Portfolio, Position, or Transaction from personal_finance.portfolios.models. "
+        "Some tax models may not function correctly if portfolios app is missing."
+    )
+    Portfolio = None
+    Position = None
+    Transaction = None
 
 User = get_user_model()
 
