@@ -479,18 +479,18 @@ class TaxLossHarvestingService:
         
         # For individual stocks, suggest ETFs in same sector
         if asset.asset_type == 'stock':
-            if 'AAPL' in asset.symbol:
+            if asset.symbol == 'AAPL':
                 alternatives = ['VGT', 'XLK', 'FTEC']  # Technology ETFs
-            elif 'MSFT' in asset.symbol:
+            elif asset.symbol == 'MSFT':
                 alternatives = ['VGT', 'XLK', 'FTEC']
             else:
                 alternatives = ['VTI', 'ITOT', 'SWTSX']  # Broad market ETFs
         
         # For ETFs, suggest similar but different ETFs
         elif asset.asset_type == 'etf':
-            if 'SPY' in asset.symbol:
+            if asset.symbol == 'SPY':
                 alternatives = ['VOO', 'IVV', 'VTI']
-            elif 'QQQ' in asset.symbol:
+            elif asset.symbol == 'QQQ':
                 alternatives = ['VGT', 'XLK', 'FTEC']
             else:
                 alternatives = ['VTI', 'ITOT', 'SWTSX']
