@@ -24,12 +24,12 @@ except ImportError:
     Portfolio = None
     Position = None
 
-# Mock PriceHistory since it doesn't exist yet
+# Temporary stub for PriceHistory; replace with actual model ASAP
 class PriceHistory:
-    """Mock PriceHistory model for compatibility."""
+    """Stub PriceHistory model. Any usage should be replaced with the real model."""
     @classmethod
     def objects(cls):
-        return None
+        raise NotImplementedError("PriceHistory.objects is a stub. Implement the actual model.")
 try:
     from personal_finance.data_sources.services import data_source_manager
 except ImportError:
