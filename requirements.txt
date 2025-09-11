@@ -7,27 +7,30 @@ uvicorn[standard]>=0.20.0
 django>=4.2.0
 django-environ>=0.12.0
 
-# runtime deps (copied from pyproject)
+# Runtime dependencies (copied from pyproject)
 requests>=2.32.4
 setuptools>=78.1.1
 beautifulsoup4>=4.11.0
 alpha_vantage>=3.0.0
 dash>=2.9.0
 fredapi>=0.5.0
-psycopg2-binary>=2.9.0
-# database
+httpx>=0.24.0
+
+# Database
 sqlalchemy>=2.0.0
 pymongo>=4.0.0
 alembic>=1.11.0
-# GUI
+
+# GUI/Web server
 gunicorn>=20.1.0
-httpx>=0.24.0
-# finance specific
+
+# Finance specific
 yfinance>=0.2.65
 yahoofinancials>=1.20
 stockdex>=1.2.0
 financepy>=1.0.1
-# data analysis
+
+# Data analysis
 pandas>=2.0.0
 matplotlib>=3.6.0
 numpy>=1.24.0
@@ -65,15 +68,15 @@ channels-redis>=4.0.0  # Redis backend for Django Channels
 # Optional: security tooling
 pip-audit>=2.0.0
 
-
+# Indirect dependencies (pinned by Snyk to avoid vulnerabilities)
 # If you use extra packages in pyproject, keep this file in sync.
-aiohttp>=3.12.14 # not directly required, pinned by Snyk to avoid a vulnerability
-anyio>=4.4.0 # not directly required, pinned by Snyk to avoid a vulnerability
-dnspython>=2.6.1 # not directly required, pinned by Snyk to avoid a vulnerability
-fonttools>=4.43.0 # not directly required, pinned by Snyk to avoid a vulnerability
-h11>=0.16.0 # not directly required, pinned by Snyk to avoid a vulnerability
-pillow>=10.3.0 # not directly required, pinned by Snyk to avoid a vulnerability
-protobuf>=4.25.8 # not directly required, pinned by Snyk to avoid a vulnerability
-urllib3>=2.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
-werkzeug>=3.0.6 # not directly required, pinned by Snyk to avoid a vulnerability
-zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
+aiohttp>=3.12.14
+anyio>=4.4.0
+dnspython>=2.6.1
+fonttools>=4.43.0
+h11>=0.16.0
+pillow>=10.3.0
+protobuf>=4.25.8
+urllib3>=2.5.0
+werkzeug>=3.0.6
+zipp>=3.19.1
