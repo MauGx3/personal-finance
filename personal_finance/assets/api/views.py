@@ -39,13 +39,21 @@ except ImportError:
     PriceHistorySerializer = AssetPerformanceSerializer = None
     TechnicalIndicatorsSerializer = AssetSearchSerializer = None
     AssetSerializer = PortfolioSerializer = HoldingSerializer = None
-from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
-from personal_finance.data_sources.services import data_source_manager
+try:
+    from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
+except ImportError:
+    PerformanceAnalytics = TechnicalIndicators = None
+
+try:
+    from personal_finance.data_sources.services import data_source_manager
+except ImportError:
+    data_source_manager = None
 
 
 class AssetViewSet(viewsets.ModelViewSet):
     """ViewSet for asset management with comprehensive market data."""
     
+    queryset = Asset.objects.filter(is_active=True)
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
     def get_queryset(self):
@@ -452,44 +460,49 @@ class AssetViewSet(viewsets.ModelViewSet):
         return default
 
 
-class PriceHistoryViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for viewing price history data."""
-    
-    serializer_class = PriceHistorySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    
-    def get_queryset(self):
-        """Return price history with optional filtering."""
-        queryset = PriceHistory.objects.all().select_related('asset')
+# Only define PriceHistoryViewSet if both PriceHistory model and serializer exist
+if PriceHistory is not None and PriceHistorySerializer is not None:
+    class PriceHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+        """ViewSet for viewing price history data."""
         
-        # Filter by asset
-        asset_id = self.request.query_params.get('asset_id')
-        if asset_id:
-            queryset = queryset.filter(asset_id=asset_id)
+        queryset = PriceHistory.objects.all()
+        serializer_class = PriceHistorySerializer
+        permission_classes = [permissions.IsAuthenticatedOrReadOnly]
         
-        # Filter by asset symbol
-        symbol = self.request.query_params.get('symbol')
-        if symbol:
-            queryset = queryset.filter(asset__symbol=symbol)
-        
-        # Filter by date range
-        start_date = self.request.query_params.get('start_date')
-        if start_date:
-            try:
-                start_date = date.fromisoformat(start_date)
-                queryset = queryset.filter(date__gte=start_date)
-            except ValueError:
-                pass
-        
-        end_date = self.request.query_params.get('end_date')
-        if end_date:
-            try:
-                end_date = date.fromisoformat(end_date)
-                queryset = queryset.filter(date__lte=end_date)
-            except ValueError:
-                pass
-        
-        return queryset.order_by('-date')
+        def get_queryset(self):
+            """Return price history with optional filtering."""
+            queryset = PriceHistory.objects.all().select_related('asset')
+            
+            # Filter by asset
+            asset_id = self.request.query_params.get('asset_id')
+            if asset_id:
+                queryset = queryset.filter(asset_id=asset_id)
+            
+            # Filter by asset symbol
+            symbol = self.request.query_params.get('symbol')
+            if symbol:
+                queryset = queryset.filter(asset__symbol=symbol)
+            
+            # Filter by date range
+            start_date = self.request.query_params.get('start_date')
+            if start_date:
+                try:
+                    start_date = date.fromisoformat(start_date)
+                    queryset = queryset.filter(date__gte=start_date)
+                except ValueError:
+                    pass
+            
+            end_date = self.request.query_params.get('end_date')
+            if end_date:
+                try:
+                    end_date = date.fromisoformat(end_date)
+                    queryset = queryset.filter(date__lte=end_date)
+                except ValueError:
+                    pass
+            
+            return queryset.order_by('-date')
+else:
+    PriceHistoryViewSet = None
 
 
 # Legacy ViewSets for backward compatibility
