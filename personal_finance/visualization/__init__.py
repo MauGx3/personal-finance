@@ -1,0 +1,1 @@
+"""Visualization module for financial data dashboards and charts."""
