@@ -48,9 +48,13 @@
                                 <label for="portfolio-select">Subscribe to Portfolio:</label>
                                 <select id="portfolio-select" class="form-control">
                                     <option value="">Select a portfolio...</option>
-                                    {% for portfolio in user_portfolios %}
-                                    <option value="{{ portfolio.id }}">{{ portfolio.name }}</option>
-                                    {% endfor %}
+                                    {% if user_portfolios %}
+                                        {% for portfolio in user_portfolios %}
+                                            <option value="{{ portfolio.id }}">{{ portfolio.name }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="" disabled>No portfolios available</option>
+                                    {% endif %}
                                 </select>
                             </div>
                             <button id="subscribe-portfolio-btn" class="btn btn-success btn-sm">Subscribe</button>
