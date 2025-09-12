@@ -23,6 +23,10 @@ seaborn==0.13.2
 scikit-learn==1.7.1
 statsmodels==0.14.5
 
+# Modern data analysis (S.C.A.F.F. requirements)
+polars==1.17.1
+pyjanitor==0.29.0
+
 # IO / scraping
 beautifulsoup4==4.12.3
 lxml==6.0.1
@@ -35,6 +39,12 @@ alpha_vantage==3.0.0
 pandas-datareader==0.10.0
 fredapi==0.5.2
 quantstats==0.0.77
+
+# Enhanced finance libraries (S.C.A.F.F. requirements)
+pandas-market-calendars==4.3.3
+FinanceDatabase==2.2.1
+FinanceToolkit==1.8.12
+bt==0.2.9
 
 # SQL / DB
 sqlalchemy==2.0.43

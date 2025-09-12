@@ -31,22 +31,10 @@ stockdex>=1.2.0
 financepy>=1.0.1
 
 # Finance specific - Additional (S.C.A.F.F. requirements)
-polars-trading>=0.1.0
-polars-order-book>=0.1.0  
-polars-ta>=0.1.0
-OptionLab>=1.0.0
-investing-algorithm-framework>=1.0.0
-qis>=0.1.0
-earnalotbot>=0.1.0
 pandas-market-calendars>=4.0.0
-findatapy>=0.1.0
-yahoo-finance-server>=0.1.0
-finmarketpy>=0.1.0
-eiten>=0.1.0
-thepassiveinvestor>=1.0.0
 FinanceDatabase>=2.0.0
 FinanceToolkit>=1.0.0
-stock-indicators-python>=1.0.0
+bt>=0.2.9
 
 # Data analysis - Core
 pandas>=2.0.0
@@ -61,13 +49,7 @@ plotly>=5.13.0
 
 # Data analysis - Modern (S.C.A.F.F. requirements)
 polars>=0.20.0
-DataProfiler>=0.11.0
 pyjanitor>=0.26.0
-polars-fin>=0.1.0
-patito>=0.7.0
-functime>=0.9.0
-chartpy>=0.1.0
-tcapy>=0.1.0
 bt>=0.2.9
 
 # Testing and development tools
