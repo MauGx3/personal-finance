@@ -453,10 +453,20 @@ class DataProfilerService:
         return any(keyword in col_name.lower() for keyword in currency_keywords)
     
     def _looks_like_date_column(self, col_name: str, col_data: pd.Series) -> bool:
-        """Check if column looks like date data."""
+        """Check if column looks like date data by name or by actual data content."""
         date_keywords = ['date', 'time', 'created', 'updated', 'timestamp']
-        return any(keyword in col_name.lower() for keyword in date_keywords)
-    
+        # Check column name first
+        if any(keyword in col_name.lower() for keyword in date_keywords):
+            return True
+        # Check actual data content
+        sample = col_data.dropna().astype(str).head(10)
+        if sample.empty:
+            return False
+        parsed = pd.to_datetime(sample, errors='coerce', infer_datetime_format=True)
+        # If at least half of the sample can be parsed as dates, consider it a date column
+        if (parsed.notna().sum() / len(sample)) >= 0.5:
+            return True
+        return False
     def _looks_like_amount_column(self, col_name: str, col_data: pd.Series) -> bool:
         """Check if column contains financial amounts."""
         try:
