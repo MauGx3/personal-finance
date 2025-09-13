@@ -15,7 +15,12 @@ from datetime import timedelta
 from personal_finance.realtime.connections import connection_manager
 from personal_finance.realtime.services import price_feed_service
 from personal_finance.assets.models import Asset
-from personal_finance.portfolios.models import Portfolio
+
+# Graceful import handling for missing models
+try:
+    from personal_finance.portfolios.models import Portfolio
+except ImportError:
+    Portfolio = None
 
 
 class RealtimeViewSet(viewsets.ViewSet):

@@ -10,7 +10,12 @@ from django.db import transaction
 from django.db.models import Sum, Q
 from django.utils import timezone
 
-from personal_finance.portfolios.models import Portfolio, Position, Transaction
+# Graceful import handling for missing models
+try:
+    from personal_finance.portfolios.models import Portfolio, Position, Transaction
+except ImportError:
+    Portfolio = Position = Transaction = None
+    
 from .models import (
     TaxYear, TaxLot, CapitalGainLoss, DividendIncome,
     TaxLossHarvestingOpportunity, TaxOptimizationRecommendation, TaxReport

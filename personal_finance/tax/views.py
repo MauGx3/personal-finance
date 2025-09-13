@@ -11,7 +11,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from personal_finance.portfolios.models import Portfolio
+# Graceful import handling for missing models
+try:
+    from personal_finance.portfolios.models import Portfolio
+except ImportError:
+    Portfolio = None
+    
 from .models import (
     TaxYear, TaxLot, CapitalGainLoss, DividendIncome,
     TaxLossHarvestingOpportunity, TaxOptimizationRecommendation, TaxReport
@@ -399,11 +404,16 @@ class TaxAnalyticsViewSet(viewsets.ViewSet):
         try:
             # Import here to avoid circular imports
             from personal_finance.portfolios.models import Transaction
+        except ImportError:
+            # Handle case where portfolios models are not available
+            return Response({
+                'error': 'Portfolio models are not available. Please ensure portfolios app is properly migrated.'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             
-            # Build query for transactions
-            queryset = Transaction.objects.filter(
-                position__portfolio__user=request.user
-            ).select_related('position__asset', 'position__portfolio')
+        # Build query for transactions
+        queryset = Transaction.objects.filter(
+            position__portfolio__user=request.user
+        ).select_related('position__asset', 'position__portfolio')
             
             if year:
                 queryset = queryset.filter(date__year=year)
