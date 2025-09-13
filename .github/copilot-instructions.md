@@ -1,6 +1,6 @@
-Take these packages into consideration when doing the code (but not exclusively)
+# Take these packages into consideration when doing the code (but not exclusively)
 
-#### Data
+## Data
 
 * `polars` https://github.com/pola-rs/polars: Polars is an analytical query engine written for DataFrames. It is designed to be fast, easy to use and expressive. Better substitute to `pandas`. [Docs](https://docs.pola.rs/api/python/stable/reference/index.html) (also available for [node.js](https://github.com/pola-rs/nodejs-polars), [js-polars](https://github.com/pola-rs/js-polars), [[Rust]] and [[R]])
 * `DataProfiler` https://github.com/capitalone/DataProfiler: The DataProfiler is a Python library designed to make data analysis, monitoring, and **sensitive data detection** easy. Loading **Data** with a single command, the library automatically formats & loads files into a DataFrame. **Profiling** the Data, the library identifies the schema, statistics, entities (PII / NPI) and more. Data Profiles can then be used in downstream applications or reports. [Docs](https://capitalone.github.io/DataProfiler/)
@@ -12,7 +12,7 @@ Take these packages into consideration when doing the code (but not exclusively)
 * `tcapy` https://github.com/cuemacro/tcapy: library for doing transaction cost analysis (TCA).
 * `bt` https://github.com/pmorissette/bt: flexible backtesting framework for Python used to test quantitative trading strategies. **Backtesting** is the process of testing a strategy over a given data set. This framework allows you to easily create strategies that mix and match different [Algos](http://pmorissette.github.io/bt/bt.html#bt.core.Algo). It aims to foster the creation of easily testable, re-usable and flexible blocks of strategy logic to facilitate the rapid development of complex trading strategies. [Docs](http://pmorissette.github.io/bt)
 
-#### Finance
+## Finance
 
 * `polars-trading` https://github.com/ngriffiths13/polars-trading: meant to provide some nice utilities for working with market data in Polars DataFrames. Much of the original inspiration has come from Marcos Lopez de Prado's book _Advances in Financial Machine Learning_. It is a work in progress with some basic functionality that will be added to over time.
 * `polars-order-book` https://github.com/ChristopherRussell/polars-order-book: provides plugins for the Polars library that efficiently calculate summary information (price and quantity) for the top N levels of an order book.
@@ -33,3 +33,15 @@ Take these packages into consideration when doing the code (but not exclusively)
 * `FinanceDatabase` https://github.com/JerBouma/FinanceDatabase: features 300,000+ symbols containing Equities, ETFs, Funds, Indices, Currencies, Cryptocurrencies, and Money Markets. It therefore allows you to obtain a broad overview of sectors, industries, types of investments, and much more.
 * `FinanceToolkit` https://github.com/JerBouma/FinanceToolkit: open-source toolkit in which all relevant financial ratios ([150+](https://github.com/JerBouma/FinanceToolkit#core-functionality-and-metrics)), indicators and performance measurements are written down in the most simplistic way allowing for complete transparency of the method of calculation ([proof](https://github.com/JerBouma/FinanceToolkit/blob/main/financetoolkit/ratios/valuation_model.py)). This enables you to avoid dependence on metrics from other providers that do not provide their methods. With a large selection of financial statements in hand, it facilitates streamlined calculations, promoting the adoption of a consistent and universally understood methods and formulas.
 * `stock-indicators-python` https://github.com/facioquo/stock-indicators-python: **Stock Indicators for Python** is a PyPI library package that produces financial market technical indicators. Send in historical price quotes and get back desired indicators such as moving averages, Relative Strength Index, Stochastic Oscillator, Parabolic SAR, etc. [Docs](https://python.stockindicators.dev/)
+
+## Utilities
+* `uv` https://github.com/astral-sh/uv: extremely fast Python package and project manager, written in Rust. [Docs](https://docs.astral.sh/uv)
+* `django`
+* `unicorn` https://github.com/Kludex/uvicorn: ASGI web server implementation. [Docs](https://www.uvicorn.org/)
+* `gunicorn`
+* `ruff` https://github.com/astral-sh/ruff: extremely fast Python linter and code formatter, written in Rust. [Docs](https://docs.astral.sh/ruff)
+* `github_changelog_generator`
+
+# Testing
+
+* `pytest`
