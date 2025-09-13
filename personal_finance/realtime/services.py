@@ -24,12 +24,36 @@ except ImportError:
     Portfolio = None
     Position = None
 
-# Temporary stub for PriceHistory; replace with actual model ASAP
-class PriceHistory:
-    """Stub PriceHistory model. Any usage should be replaced with the real model."""
-    @classmethod
-    def objects(cls):
-        raise NotImplementedError("PriceHistory.objects is a stub. Implement the actual model.")
+# Try to import PriceHistory model if it exists, otherwise use stub
+try:
+    from personal_finance.assets.models import PriceHistory
+except ImportError:
+    # Temporary stub for PriceHistory; replace with actual model ASAP
+    class PriceHistoryStubManager:
+        """Stub manager for PriceHistory to handle Django ORM operations gracefully."""
+        
+        async def acreate(self, **kwargs):
+            """Stub acreate method that logs the operation instead of performing it."""
+            logger.warning("PriceHistory.objects.acreate called on stub - implement actual model. Data: %s", kwargs)
+            return None
+        
+        def filter(self, **kwargs):
+            """Stub filter method that returns empty result."""
+            logger.warning("PriceHistory.objects.filter called on stub - implement actual model. Filters: %s", kwargs)
+            return self
+        
+        def order_by(self, *args):
+            """Stub order_by method for chaining."""
+            return self
+        
+        def exists(self):
+            """Stub exists method that returns False."""
+            return False
+
+
+    class PriceHistory:
+        """Stub PriceHistory model. Any usage should be replaced with the real model."""
+        objects = PriceHistoryStubManager()
 try:
     from personal_finance.data_sources.services import data_source_manager
 except ImportError:

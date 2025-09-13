@@ -19,14 +19,33 @@ from django.db.models import Q, F
 
 try:
     from personal_finance.assets.models import Asset
-    # PriceHistory doesn't exist in current schema - mock it for now
-    class PriceHistory:
-        objects = None
 except ImportError:
     Asset = None
+
+# Try to import PriceHistory model if it exists, otherwise use stub
+try:
+    from personal_finance.assets.models import PriceHistory
+except ImportError:
+    # PriceHistory doesn't exist in current schema - mock it for now
+    class PriceHistoryStubManager:
+        """Stub manager for PriceHistory to handle Django ORM operations gracefully."""
+        
+        def filter(self, **kwargs):
+            """Stub filter method that returns empty result."""
+            logger.warning("PriceHistory.objects.filter called on stub - implement actual model. Filters: %s", kwargs)
+            return self
+        
+        def order_by(self, *args):
+            """Stub order_by method for chaining."""
+            return self
+        
+        def values(self, *args):
+            """Stub values method that returns empty list."""
+            return []
     
     class PriceHistory:
-        objects = None
+        """Stub PriceHistory model. Any usage should be replaced with the real model."""
+        objects = PriceHistoryStubManager()
 from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
 from personal_finance.data_sources.services import data_source_manager
 from .models import (
