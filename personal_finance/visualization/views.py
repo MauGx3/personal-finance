@@ -286,6 +286,5 @@ def dashboard_summary_api(request: HttpRequest) -> JsonResponse:
     except Exception as e:
         logger.error(f"Error generating dashboard summary: {e}")
         return JsonResponse({
-            'error': 'Failed to generate dashboard summary',
-            'message': str(e)
+            'error': 'Failed to generate dashboard summary'
         }, status=500)
