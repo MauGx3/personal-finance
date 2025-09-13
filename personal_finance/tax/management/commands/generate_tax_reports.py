@@ -280,13 +280,20 @@ class Command(BaseCommand):
             tax_year: Tax year for preview
             report_type: Type of report to preview
         """
-        from personal_finance.portfolios.models import Transaction
+        try:
+            from personal_finance.portfolios.models import Transaction
+        except ImportError:
+            Transaction = None
+            
         from personal_finance.tax.models import CapitalGainLoss, DividendIncome
 
         # Count relevant data
-        transaction_count = Transaction.objects.filter(
-            position__portfolio__user=user, date__year=tax_year.year
-        ).count()
+        if Transaction is not None:
+            transaction_count = Transaction.objects.filter(
+                position__portfolio__user=user, date__year=tax_year.year
+            ).count()
+        else:
+            transaction_count = 0
 
         capital_gains_count = CapitalGainLoss.objects.filter(
             user=user, tax_year=tax_year

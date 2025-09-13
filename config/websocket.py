@@ -251,7 +251,12 @@ class WebSocketHandler:
         if not self.is_authenticated:
             return False
         
-        from personal_finance.portfolios.models import Portfolio
+        try:
+            from personal_finance.portfolios.models import Portfolio
+        except ImportError:
+            # Portfolio models not available or not migrated
+            return False
+            
         try:
             Portfolio.objects.get(id=portfolio_id, user=self.user)
             return True
