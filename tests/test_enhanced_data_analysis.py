@@ -310,7 +310,7 @@ class TestDataAnalysisIntegration:
         
         cleaned_values = []
         for value in test_values:
-            cleaned = financial_cleaner._clean_financial_value(value)
+            cleaned = financial_cleaner.clean_financial_value(value)
             cleaned_values.append(cleaned)
         
         # Check that values were properly cleaned
