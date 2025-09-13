@@ -7,6 +7,10 @@ import os
 import logging
 from contextlib import contextmanager
 from typing import Optional, List, Generator, Any
+
+# Import dependency management system
+from .dependencies import dependency_manager, require_dependency
+
 from sqlalchemy import (
     create_engine,
     text,
@@ -160,13 +164,10 @@ class DatabaseManager:
         ):
             # MongoDB backend
             self.backend = "mongodb"
-            try:
-                from pymongo import MongoClient  # type: ignore
-            except Exception as ie:  # pragma: no cover - environment dependent
-                raise RuntimeError(
-                    "pymongo is required for MongoDB support. "
-                    "Install with 'pip install pymongo'"
-                ) from ie
+            
+            # Use dependency management for pymongo
+            MongoClient = require_dependency("pymongo", "MongoDB support").MongoClient
+            
             # Lazily create client and DB
             self._mongo_client = MongoClient(database_url)
             # If a DB name is present in the URL, use it; otherwise default to
@@ -202,14 +203,10 @@ class DatabaseManager:
         This allows programmatic control instead of relying on the CLI.
         """
         try:
-            try:
-                from alembic import command  # type: ignore
-                from alembic.config import Config  # type: ignore
-            except ImportError as ie:  # pragma: no cover
-                raise RuntimeError(
-                    "Alembic is not installed. Install with 'pip install alembic' "
-                    "or install project with dev extras: 'pip install .[dev]'"
-                ) from ie
+            # Use dependency management for alembic
+            alembic = require_dependency("alembic", "database migrations")
+            command = alembic.command
+            Config = alembic.config.Config
 
             # Candidate locations to search for alembic scripts (ordered)
             candidates = []

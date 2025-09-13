@@ -4,11 +4,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 
-try:
-    import stockdex as sd
-except ImportError:
-    sd = None  # stockdex not available
+# Import dependency management system
+from .dependencies import dependency_manager, get_module, require_dependency
 from .database import DatabaseManager
+
+# Register and get stockdex dependency
+dependency_manager.register_dependency(
+    name="stockdex",
+    import_path="stockdex", 
+    required=False,
+    fallback_available=True
+)
+
+# Get stockdex module using dependency manager
+sd = get_module("stockdex")
 
 # import yahoo_finance as yf
 
