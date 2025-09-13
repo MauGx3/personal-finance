@@ -6,9 +6,53 @@ from decimal import Decimal
 from unittest.mock import Mock, patch
 
 from django.test import TestCase
-from django.utils import timezone
 
-from personal_finance.visualization.charts import PortfolioCharts, AssetCharts
+from personal_finance.visualization.charts import (
+    PortfolioCharts, 
+    AssetCharts, 
+    get_currency_symbol, 
+    format_currency_value
+)
+
+
+class CurrencyFormattingTestCase(TestCase):
+    """Test currency formatting functionality."""
+    
+    def test_get_currency_symbol_usd(self):
+        """Test USD currency symbol."""
+        self.assertEqual(get_currency_symbol('USD'), '$')
+        self.assertEqual(get_currency_symbol('usd'), '$')  # Case insensitive
+    
+    def test_get_currency_symbol_eur(self):
+        """Test EUR currency symbol."""
+        self.assertEqual(get_currency_symbol('EUR'), '€')
+        
+    def test_get_currency_symbol_gbp(self):
+        """Test GBP currency symbol."""
+        self.assertEqual(get_currency_symbol('GBP'), '£')
+        
+    def test_get_currency_symbol_jpy(self):
+        """Test JPY currency symbol."""
+        self.assertEqual(get_currency_symbol('JPY'), '¥')
+        
+    def test_get_currency_symbol_unknown(self):
+        """Test unknown currency code returns the code itself."""
+        self.assertEqual(get_currency_symbol('XYZ'), 'XYZ')
+        
+    def test_format_currency_value_usd(self):
+        """Test USD currency value formatting."""
+        result = format_currency_value(1234.56, 'USD')
+        self.assertEqual(result, '$1,234.56')
+        
+    def test_format_currency_value_eur(self):
+        """Test EUR currency value formatting."""
+        result = format_currency_value(1234.56, 'EUR')
+        self.assertEqual(result, '€1,234.56')
+        
+    def test_format_currency_value_default(self):
+        """Test default currency formatting (USD)."""
+        result = format_currency_value(1234.56)
+        self.assertEqual(result, '$1,234.56')
 
 
 class PortfolioChartsTestCase(TestCase):
@@ -94,7 +138,7 @@ class PortfolioChartsTestCase(TestCase):
         end_date = date.today()
         
         result = self.chart_generator.create_portfolio_performance_chart(
-            self.mock_portfolio, start_date, end_date
+            self.mock_portfolio, start_date, end_date, 'USD'
         )
         
         self.assertEqual(result['type'], 'empty')
@@ -106,7 +150,7 @@ class PortfolioChartsTestCase(TestCase):
         # Mock empty positions
         self.mock_portfolio.positions.filter.return_value.exists.return_value = False
         
-        result = self.chart_generator.create_asset_allocation_chart(self.mock_portfolio)
+        result = self.chart_generator.create_asset_allocation_chart(self.mock_portfolio, 'USD')
         
         self.assertEqual(result['type'], 'empty')
         self.assertIn('No active positions', result['figure'])
@@ -141,7 +185,7 @@ class AssetChartsTestCase(TestCase):
         mock_price_history.objects.filter.return_value.order_by.return_value.exists.return_value = False
         
         result = self.chart_generator.create_price_chart_with_indicators(
-            self.mock_asset, days=252
+            self.mock_asset, days=252, currency_code='USD'
         )
         
         self.assertEqual(result['type'], 'empty')

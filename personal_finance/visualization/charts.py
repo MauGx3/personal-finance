@@ -6,8 +6,8 @@ performance tracking, and asset visualization using Plotly for interactive chart
 
 import logging
 from decimal import Decimal
-from typing import Dict, List, Optional, Union, Any
-from datetime import datetime, date, timedelta
+from typing import Dict, List, Optional, Any
+from datetime import date, timedelta
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -33,6 +33,96 @@ except ImportError:
     PerformanceAnalytics = TechnicalIndicators = None
 
 logger = logging.getLogger(__name__)
+
+
+def get_currency_symbol(currency_code: str = 'USD') -> str:
+    """Get currency symbol for the given currency code.
+    
+    Args:
+        currency_code: ISO currency code (e.g., 'USD', 'EUR', 'GBP')
+        
+    Returns:
+        Currency symbol string
+    """
+    currency_symbols = {
+        'USD': '$',
+        'EUR': '€',
+        'GBP': '£',
+        'JPY': '¥',
+        'CNY': '¥',
+        'CHF': 'CHF',
+        'CAD': 'C$',
+        'AUD': 'A$',
+        'NZD': 'NZ$',
+        'SEK': 'kr',
+        'NOK': 'kr',
+        'DKK': 'kr',
+        'PLN': 'zł',
+        'CZK': 'Kč',
+        'HUF': 'Ft',
+        'RON': 'lei',
+        'BGN': 'лв',
+        'HRK': 'kn',
+        'RUB': '₽',
+        'TRY': '₺',
+        'INR': '₹',
+        'KRW': '₩',
+        'SGD': 'S$',
+        'HKD': 'HK$',
+        'TWD': 'NT$',
+        'THB': '฿',
+        'MYR': 'RM',
+        'PHP': '₱',
+        'IDR': 'Rp',
+        'VND': '₫',
+        'BRL': 'R$',
+        'MXN': '$',
+        'ARS': '$',
+        'CLP': '$',
+        'COP': '$',
+        'PEN': 'S/',
+        'UYU': '$U',
+        'ZAR': 'R',
+        'EGP': 'E£',
+        'NGN': '₦',
+        'KES': 'KSh',
+        'GHS': 'GH₵',
+        'XAF': 'FCFA',
+        'XOF': 'CFA',
+        'MAD': 'DH',
+        'TND': 'DT',
+        'ILS': '₪',
+        'SAR': 'SR',
+        'AED': 'AED',
+        'QAR': 'QR',
+        'KWD': 'KD',
+        'BHD': 'BD',
+        'OMR': 'OMR',
+        'JOD': 'JD',
+        'LBP': 'L£',
+        'PKR': 'Rs',
+        'BDT': '৳',
+        'LKR': 'Rs',
+        'NPR': 'Rs',
+        'AFN': '؋',
+        'IRR': '﷼',
+        'IQD': 'ID'
+    }
+    return currency_symbols.get(currency_code.upper(), currency_code)
+
+
+def format_currency_value(value: float, currency_code: str = 'USD') -> str:
+    """Format a currency value with appropriate symbol and formatting.
+    
+    Args:
+        value: Numeric value to format
+        currency_code: ISO currency code
+        
+    Returns:
+        Formatted currency string
+    """
+    symbol = get_currency_symbol(currency_code)
+    return f"{symbol}{value:,.2f}"
 
 
 class PortfolioCharts:
@@ -64,13 +154,15 @@ class PortfolioCharts:
     def create_portfolio_performance_chart(self, 
                                          portfolio: Portfolio,
                                          start_date: date,
-                                         end_date: date) -> Dict[str, Any]:
+                                         end_date: date,
+                                         currency_code: str = 'USD') -> Dict[str, Any]:
         """Create portfolio performance chart over time.
         
         Args:
             portfolio: Portfolio instance to chart
             start_date: Start date for analysis
             end_date: End date for analysis
+            currency_code: Currency code for formatting (default: USD)
             
         Returns:
             Dictionary containing Plotly figure JSON and metadata
@@ -108,6 +200,7 @@ class PortfolioCharts:
             )
             
             # Portfolio value line chart
+            currency_symbol = get_currency_symbol(currency_code)
             fig.add_trace(
                 go.Scatter(
                     x=df['date'],
@@ -115,7 +208,7 @@ class PortfolioCharts:
                     mode='lines',
                     name='Portfolio Value',
                     line=dict(color='#2E86AB', width=2),
-                    hovertemplate='<b>%{x}</b><br>Value: $%{y:,.2f}<extra></extra>'
+                    hovertemplate=f'<b>%{{x}}</b><br>Value: {currency_symbol}%{{y:,.2f}}<extra></extra>'
                 ),
                 row=1, col=1
             )
@@ -146,7 +239,7 @@ class PortfolioCharts:
             )
             
             fig.update_xaxes(title_text="Date", row=2, col=1)
-            fig.update_yaxes(title_text="Portfolio Value ($)", row=1, col=1)
+            fig.update_yaxes(title_text=f"Portfolio Value ({currency_symbol})", row=1, col=1)
             fig.update_yaxes(title_text="Daily Return (%)", row=2, col=1)
             
             return {
@@ -159,11 +252,12 @@ class PortfolioCharts:
             logger.error(f"Error creating performance chart: {e}")
             return self._create_empty_chart("Error generating performance chart")
     
-    def create_asset_allocation_chart(self, portfolio: Portfolio) -> Dict[str, Any]:
+    def create_asset_allocation_chart(self, portfolio: Portfolio, currency_code: str = 'USD') -> Dict[str, Any]:
         """Create pie chart showing portfolio asset allocation.
         
         Args:
             portfolio: Portfolio instance to analyze
+            currency_code: Currency code for formatting (default: USD)
             
         Returns:
             Dictionary containing Plotly figure JSON and metadata
@@ -196,11 +290,12 @@ class PortfolioCharts:
             allocation_data.sort(key=lambda x: x['value'], reverse=True)
             
             # Create pie chart
+            currency_symbol = get_currency_symbol(currency_code)
             fig = go.Figure(data=[go.Pie(
                 labels=[f"{item['symbol']}<br>{item['name']}" for item in allocation_data],
                 values=[item['percentage'] for item in allocation_data],
                 hovertemplate='<b>%{label}</b><br>' +
-                             'Value: $%{customdata:,.2f}<br>' +
+                             f'Value: {currency_symbol}%{{customdata:,.2f}}<br>' +
                              'Allocation: %{percent}<br>' +
                              '<extra></extra>',
                 customdata=[item['value'] for item in allocation_data],
@@ -227,11 +322,12 @@ class PortfolioCharts:
             logger.error(f"Error creating allocation chart: {e}")
             return self._create_empty_chart("Error generating allocation chart")
     
-    def create_risk_metrics_chart(self, portfolio: Portfolio) -> Dict[str, Any]:
+    def create_risk_metrics_chart(self, portfolio: Portfolio, currency_code: str = 'USD') -> Dict[str, Any]:
         """Create risk metrics visualization chart.
         
         Args:
             portfolio: Portfolio instance to analyze
+            currency_code: Currency code for formatting (default: USD)
             
         Returns:
             Dictionary containing Plotly figure JSON and metadata
@@ -411,13 +507,15 @@ class AssetCharts:
     def create_price_chart_with_indicators(self, 
                                          asset: Asset,
                                          days: int = 252,
-                                         indicators: Optional[List[str]] = None) -> Dict[str, Any]:
+                                         indicators: Optional[List[str]] = None,
+                                         currency_code: str = 'USD') -> Dict[str, Any]:
         """Create price chart with technical indicators.
         
         Args:
             asset: Asset to chart
             days: Number of days of historical data
             indicators: List of technical indicators to include
+            currency_code: Currency code for formatting (default: USD)
             
         Returns:
             Dictionary containing Plotly figure JSON and metadata
@@ -483,6 +581,7 @@ class AssetCharts:
             if indicators:
                 self._add_technical_indicators(fig, df, asset, indicators)
             
+            currency_symbol = get_currency_symbol(currency_code)
             fig.update_layout(
                 title=f'{asset.symbol} - {asset.name}',
                 template='plotly_white',
@@ -491,7 +590,7 @@ class AssetCharts:
             )
             
             fig.update_xaxes(title_text="Date", row=3, col=1)
-            fig.update_yaxes(title_text="Price ($)", row=1, col=1)
+            fig.update_yaxes(title_text=f"Price ({currency_symbol})", row=1, col=1)
             fig.update_yaxes(title_text="Volume", row=2, col=1)
             fig.update_yaxes(title_text="Indicator Value", row=3, col=1)
             
