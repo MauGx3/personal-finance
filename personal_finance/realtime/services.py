@@ -119,6 +119,11 @@ class PriceFeedService:
     
     async def _get_portfolio_assets(self) -> Set[str]:
         """Get all asset symbols from subscribed portfolios."""
+        # Skip if portfolio models are not available
+        if Portfolio is None or Position is None:
+            logger.debug("Portfolio models not available, returning empty asset set")
+            return set()
+            
         assets = set()
         for portfolio_id in connection_manager.portfolio_subscriptions.keys():
             try:
@@ -222,6 +227,11 @@ class PriceFeedService:
     
     async def _update_asset_price(self, symbol: str, price_data: Dict[str, Any]):
         """Update asset price in the database."""
+        # Skip if Asset model is not available
+        if Asset is None:
+            logger.debug(f"Asset model not available, skipping price update for {symbol}")
+            return
+            
         try:
             asset = await Asset.objects.aget(symbol=symbol)
             
@@ -230,17 +240,21 @@ class PriceFeedService:
             asset.last_updated = timezone.now()
             await asset.asave()
             
-            # Create price history entry
-            await PriceHistory.objects.acreate(
-                asset=asset,
-                date=timezone.now().date(),
-                open=Decimal(str(price_data.get('open', price_data['current_price']))),
-                high=Decimal(str(price_data.get('high', price_data['current_price']))),
-                low=Decimal(str(price_data.get('low', price_data['current_price']))),
-                close=Decimal(str(price_data['current_price'])),
-                volume=price_data.get('volume', 0),
-                source=price_data.get('source', 'realtime')
-            )
+            # Create price history entry (only if PriceHistory model is available)
+            try:
+                await PriceHistory.objects.acreate(
+                    asset=asset,
+                    date=timezone.now().date(),
+                    open=Decimal(str(price_data.get('open', price_data['current_price']))),
+                    high=Decimal(str(price_data.get('high', price_data['current_price']))),
+                    low=Decimal(str(price_data.get('low', price_data['current_price']))),
+                    close=Decimal(str(price_data['current_price'])),
+                    volume=price_data.get('volume', 0),
+                    source=price_data.get('source', 'realtime')
+                )
+            except (NotImplementedError, AttributeError):
+                # PriceHistory model is not available or implemented
+                logger.debug(f"PriceHistory not available, skipping price history for {symbol}")
             
         except Asset.DoesNotExist:
             logger.warning(f"Asset {symbol} not found in database")
@@ -272,6 +286,11 @@ class PriceFeedService:
         
     async def _update_portfolio_values(self, symbol: str, price_data: Dict[str, Any]):
         """Update portfolio values affected by the price change."""
+        # Skip if portfolio models are not available
+        if Position is None or Portfolio is None:
+            logger.debug(f"Portfolio models not available, skipping portfolio updates for {symbol}")
+            return
+            
         try:
             # Find portfolios that contain this asset
             affected_portfolios = set()
@@ -291,6 +310,11 @@ class PriceFeedService:
     
     async def _broadcast_portfolio_update(self, portfolio_id: int):
         """Broadcast portfolio value update to subscribers."""
+        # Skip if Portfolio model is not available
+        if Portfolio is None:
+            logger.debug(f"Portfolio model not available, skipping broadcast for portfolio {portfolio_id}")
+            return
+            
         subscribers = connection_manager.get_portfolio_subscribers(portfolio_id)
         
         if not subscribers:
@@ -319,8 +343,13 @@ class PriceFeedService:
         except Exception as e:
             logger.error(f"Error broadcasting portfolio update for {portfolio_id}: {e}")
     
-    async def _calculate_portfolio_value(self, portfolio: Portfolio) -> Decimal:
+    async def _calculate_portfolio_value(self, portfolio) -> Decimal:
         """Calculate current portfolio value."""
+        # Skip if Position model is not available
+        if Position is None:
+            logger.debug("Position model not available, returning zero portfolio value")
+            return Decimal('0')
+            
         total_value = Decimal('0')
         
         async for position in Position.objects.select_related('asset').filter(
@@ -350,7 +379,11 @@ class PriceFeedService:
         """Subscribe a connection to asset updates and send current price."""
         await connection_manager.subscribe_to_asset(connection_id, symbol)
         
-        # Send current price immediately
+        # Send current price immediately (if Asset model is available)
+        if Asset is None:
+            logger.debug(f"Asset model not available, skipping initial price for {symbol}")
+            return
+            
         try:
             asset = await Asset.objects.aget(symbol=symbol)
             if asset.current_price:
