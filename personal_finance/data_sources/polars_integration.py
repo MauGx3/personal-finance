@@ -25,9 +25,32 @@ except ImportError:
     PANDAS_AVAILABLE = False
     pd = None
 
-from django.conf import settings
-from django.core.cache import cache
-from django.utils import timezone
+try:
+    from django.conf import settings
+    from django.core.cache import cache
+    from django.utils import timezone
+    DJANGO_AVAILABLE = True
+except ImportError:
+    DJANGO_AVAILABLE = False
+    # Create simple substitutes
+    class MockCache:
+        @staticmethod
+        def get(key, default=None):
+            return default
+        @staticmethod
+        def set(key, value, timeout=None):
+            pass
+    cache = MockCache()
+    
+    class MockTimezone:
+        @staticmethod
+        def now():
+            return datetime.now()
+    timezone = MockTimezone()
+    
+    class MockSettings:
+        DEBUG = False
+    settings = MockSettings()
 
 logger = logging.getLogger(__name__)
 
@@ -229,6 +252,186 @@ class PolarsDataProcessor:
         result_df['bb_lower'] = result_df['bb_middle'] - 2 * result_df['bb_std']
         
         return result_df
+    
+    def calculate_advanced_technical_indicators(self, 
+                                           df: Union[pl.DataFrame, pd.DataFrame],
+                                           indicators: List[str] = None) -> Union[pl.DataFrame, pd.DataFrame]:
+        """Calculate advanced technical indicators using modern libraries.
+        
+        Args:
+            df: DataFrame containing price data
+            indicators: List of indicators to calculate
+            
+        Returns:
+            DataFrame with additional technical indicators
+        """
+        if indicators is None:
+            indicators = ['macd', 'stochastic', 'williams_r', 'atr']
+        
+        try:
+            if self.polars_available and isinstance(df, pl.DataFrame):
+                return self._calculate_advanced_indicators_polars(df, indicators)
+            elif self.pandas_available and isinstance(df, pd.DataFrame):
+                return self._calculate_advanced_indicators_pandas(df, indicators)
+            else:
+                return df
+                
+        except Exception as e:
+            logger.error(f"Error calculating advanced technical indicators: {e}")
+            return df
+    
+    def _calculate_advanced_indicators_polars(self, df: pl.DataFrame, indicators: List[str]) -> pl.DataFrame:
+        """Calculate advanced indicators using Polars."""
+        result_df = df.clone()
+        
+        if 'close_price' not in df.columns:
+            return result_df
+        
+        try:
+            # MACD (Moving Average Convergence Divergence)
+            if 'macd' in indicators:
+                ema_12 = pl.col('close_price').ewm_mean(span=12)
+                ema_26 = pl.col('close_price').ewm_mean(span=26)
+                macd_line = ema_12 - ema_26
+                signal_line = macd_line.ewm_mean(span=9)
+                
+                result_df = result_df.with_columns([
+                    macd_line.alias('macd'),
+                    signal_line.alias('macd_signal'),
+                    (macd_line - signal_line).alias('macd_histogram')
+                ])
+            
+            # Average True Range (ATR)
+            if 'atr' in indicators and all(col in df.columns for col in ['high_price', 'low_price']):
+                high_low = pl.col('high_price') - pl.col('low_price')
+                high_close = (pl.col('high_price') - pl.col('close_price').shift(1)).abs()
+                low_close = (pl.col('low_price') - pl.col('close_price').shift(1)).abs()
+                
+                true_range = pl.max_horizontal([high_low, high_close, low_close])
+                atr = true_range.rolling_mean(window_size=14)
+                
+                result_df = result_df.with_columns([
+                    true_range.alias('true_range'),
+                    atr.alias('atr_14')
+                ])
+            
+            # Williams %R
+            if 'williams_r' in indicators and all(col in df.columns for col in ['high_price', 'low_price']):
+                highest_high = pl.col('high_price').rolling_max(window_size=14)
+                lowest_low = pl.col('low_price').rolling_min(window_size=14)
+                williams_r = (highest_high - pl.col('close_price')) / (highest_high - lowest_low) * -100
+                
+                result_df = result_df.with_columns([
+                    williams_r.alias('williams_r_14')
+                ])
+            
+            return result_df
+            
+        except Exception as e:
+            logger.error(f"Error in Polars advanced indicators: {e}")
+            return result_df
+    
+    def _calculate_advanced_indicators_pandas(self, df: pd.DataFrame, indicators: List[str]) -> pd.DataFrame:
+        """Calculate advanced indicators using Pandas."""
+        result_df = df.copy()
+        
+        if 'close_price' not in df.columns:
+            return result_df
+        
+        try:
+            # MACD (Moving Average Convergence Divergence)
+            if 'macd' in indicators:
+                ema_12 = result_df['close_price'].ewm(span=12).mean()
+                ema_26 = result_df['close_price'].ewm(span=26).mean()
+                result_df['macd'] = ema_12 - ema_26
+                result_df['macd_signal'] = result_df['macd'].ewm(span=9).mean()
+                result_df['macd_histogram'] = result_df['macd'] - result_df['macd_signal']
+            
+            # Average True Range (ATR)
+            if 'atr' in indicators and all(col in df.columns for col in ['high_price', 'low_price']):
+                high_low = result_df['high_price'] - result_df['low_price']
+                high_close = (result_df['high_price'] - result_df['close_price'].shift(1)).abs()
+                low_close = (result_df['low_price'] - result_df['close_price'].shift(1)).abs()
+                
+                result_df['true_range'] = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+                result_df['atr_14'] = result_df['true_range'].rolling(14).mean()
+            
+            # Williams %R
+            if 'williams_r' in indicators and all(col in df.columns for col in ['high_price', 'low_price']):
+                highest_high = result_df['high_price'].rolling(14).max()
+                lowest_low = result_df['low_price'].rolling(14).min()
+                result_df['williams_r_14'] = (highest_high - result_df['close_price']) / (highest_high - lowest_low) * -100
+            
+            return result_df
+            
+        except Exception as e:
+            logger.error(f"Error in Pandas advanced indicators: {e}")
+            return result_df
+    
+    def calculate_portfolio_optimization_metrics(self, 
+                                               portfolio_data: List[Dict],
+                                               risk_free_rate: float = 0.02) -> Dict[str, Any]:
+        """Calculate portfolio optimization metrics.
+        
+        Args:
+            portfolio_data: Portfolio holdings data
+            risk_free_rate: Risk-free rate for Sharpe ratio calculation
+            
+        Returns:
+            Dictionary containing optimization metrics
+        """
+        try:
+            if not portfolio_data:
+                return {}
+            
+            # Calculate basic metrics first
+            basic_metrics = self.calculate_portfolio_metrics(portfolio_data)
+            
+            # Add optimization-specific metrics
+            optimization_metrics = {}
+            
+            # Calculate portfolio weights
+            total_value = basic_metrics.get('total_value', 0)
+            if total_value > 0:
+                weights = []
+                returns = []
+                
+                for holding in portfolio_data:
+                    weight = holding.get('current_value', 0) / total_value
+                    weights.append(weight)
+                    
+                    # Calculate individual return
+                    current_val = holding.get('current_value', 0)
+                    cost_basis = holding.get('cost_basis', 1)
+                    if cost_basis > 0:
+                        holding_return = (current_val - cost_basis) / cost_basis
+                        returns.append(holding_return)
+                
+                if weights and returns:
+                    # Portfolio-level calculations
+                    avg_return = sum(r * w for r, w in zip(returns, weights))
+                    
+                    # Simple volatility estimate (would need historical data for proper calculation)
+                    volatility = abs(sum((r - avg_return) ** 2 * w for r, w in zip(returns, weights))) ** 0.5
+                    
+                    # Sharpe ratio
+                    sharpe_ratio = (avg_return - risk_free_rate) / volatility if volatility > 0 else 0
+                    
+                    optimization_metrics.update({
+                        'portfolio_return': avg_return,
+                        'portfolio_volatility': volatility,
+                        'sharpe_ratio': sharpe_ratio,
+                        'max_weight': max(weights) if weights else 0,
+                        'min_weight': min(weights) if weights else 0,
+                        'weight_concentration': max(weights) if weights else 0,
+                    })
+            
+            # Combine with basic metrics
+            return {**basic_metrics, **optimization_metrics}
+            
+        except Exception as e:
+            logger.error(f"Error calculating portfolio optimization metrics: {e}")
+            return self.calculate_portfolio_metrics(portfolio_data)
     
     def calculate_portfolio_metrics(self, 
                                   holdings_data: List[Dict]) -> Dict[str, Any]:
