@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ portfolio.name }} - Detailed View{% endblock title %}
+
+{% block css %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
+<style>
+.portfolio-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.stats-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.stats-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.chart-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.position-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.position-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.position-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.position-symbol {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.position-name {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.position-value {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.position-return {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.positive-return {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.negative-return {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.neutral-return {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.chart-controls {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.tab-content .chart-container {
+    min-height: 500px;
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+    border: 1px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #667eea;
+    border-color: #dee2e6 #dee2e6 #fff;
+    border-bottom-color: transparent;
+}
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Portfolio Header -->
+    <div class="portfolio-header">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="mb-2">{{ portfolio.name }}</h1>
+                <p class="mb-0 opacity-75">{{ portfolio.description|default:"Investment Portfolio" }}</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="h3 mb-1">${{ portfolio_value|floatformat:2 }}</div>
+                <div class="opacity-75">Total Portfolio Value</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Portfolio Statistics -->
+        <div class="col-lg-3">
+            <div class="stats-card">
+                <div class="stats-value">{{ total_positions }}</div>
+                <div class="stats-label">Active Positions</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-value" id="total-return">-</div>
+                <div class="stats-label">Total Return</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-value" id="daily-return">-</div>
+                <div class="stats-label">Today's Return</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-value" id="sharpe-ratio">-</div>
+                <div class="stats-label">Sharpe Ratio</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="col-lg-6">
+            <div class="chart-section">
+                <div class="chart-controls">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <label for="time-period" class="form-label mb-0">Time Period:</label>
+                            <select class="form-select form-select-sm" id="time-period">
+                                <option value="30">Last 30 Days</option>
+                                <option value="90">Last 3 Months</option>
+                                <option value="180">Last 6 Months</option>
+                                <option value="365" selected>Last Year</option>
+                                <option value="730">Last 2 Years</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="chartUpdate" id="auto-update" checked>
+                                <label class="btn btn-outline-secondary btn-sm" for="auto-update">Auto</label>
+                                <button class="btn btn-outline-primary btn-sm" id="refresh-charts">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Tabs -->
+                <ul class="nav nav-tabs" id="chartTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="performance-tab" data-bs-toggle="tab" 
+                                data-bs-target="#performance-content" type="button" role="tab">
+                            Performance
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="allocation-tab" data-bs-toggle="tab" 
+                                data-bs-target="#allocation-content" type="button" role="tab">
+                            Allocation
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="risk-tab" data-bs-toggle="tab" 
+                                data-bs-target="#risk-content" type="button" role="tab">
+                            Risk
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Chart Content -->
+                <div class="tab-content" id="chartTabContent">
+                    <div class="tab-pane fade show active" id="performance-content" role="tabpanel">
+                        <div class="chart-container">
+                            <div id="performance-chart"></div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="allocation-content" role="tabpanel">
+                        <div class="chart-container">
+                            <div id="allocation-chart"></div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="risk-content" role="tabpanel">
+                        <div class="chart-container">
+                            <div id="risk-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Positions List -->
+        <div class="col-lg-3">
+            <div class="chart-section">
+                <h5 class="mb-3">Portfolio Positions</h5>
+                <div class="positions-list" style="max-height: 600px; overflow-y: auto;">
+                    {% for position in positions %}
+                    <div class="position-card" data-asset-id="{{ position.asset.id }}">
+                        <div class="position-header">
+                            <div>
+                                <div class="position-symbol">{{ position.asset.symbol }}</div>
+                                <div class="position-name">{{ position.asset.name|truncatechars:30 }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div>
+                                <small class="text-muted">Quantity:</small><br>
+                                <span class="fw-bold">{{ position.quantity|floatformat:2 }}</span>
+                            </div>
+                            <div class="text-end">
+                                <div class="position-value">${{ position.current_value|floatformat:2 }}</div>
+                                {% if position.total_return_percent %}
+                                <div class="position-return {% if position.total_return_percent >= 0 %}positive-return{% else %}negative-return{% endif %}">
+                                    {% if position.total_return_percent >= 0 %}+{% endif %}{{ position.total_return_percent|floatformat:2 }}%
+                                </div>
+                                {% else %}
+                                <div class="position-return neutral-return">No data</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <small class="text-muted">Avg Cost: ${{ position.average_cost|floatformat:2 }}</small>
+                        </div>
+                        
+                        <button class="btn btn-sm btn-outline-primary mt-2 w-100" 
+                                onclick="viewAssetChart({{ position.asset.id }}, '{{ position.asset.symbol }}')">
+                            View Chart
+                        </button>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <p>No positions in this portfolio.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Asset Chart Modal -->
+<div class="modal fade" id="assetChartModal" tabindex="-1" aria-labelledby="assetChartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assetChartModalLabel">Asset Chart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="chart-period" class="form-label">Time Period:</label>
+                        <select class="form-select" id="chart-period">
+                            <option value="90">Last 3 Months</option>
+                            <option value="180">Last 6 Months</option>
+                            <option value="252" selected>Last Year</option>
+                            <option value="504">Last 2 Years</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="technical-indicators" class="form-label">Technical Indicators:</label>
+                        <select class="form-select" id="technical-indicators" multiple>
+                            <option value="sma_20">SMA 20</option>
+                            <option value="rsi">RSI</option>
+                            <option value="macd">MACD</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="asset-chart-container" style="min-height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+{{ block.super }}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const portfolioId = {{ portfolio.id }};
+    const timePeriodSelector = document.getElementById('time-period');
+    const refreshButton = document.getElementById('refresh-charts');
+    
+    // Chart containers
+    const performanceChart = document.getElementById('performance-chart');
+    const allocationChart = document.getElementById('allocation-chart');
+    const riskChart = document.getElementById('risk-chart');
+    
+    // Initialize charts
+    loadAllCharts();
+    
+    // Event listeners
+    timePeriodSelector.addEventListener('change', loadAllCharts);
+    refreshButton.addEventListener('click', loadAllCharts);
+    
+    // Tab change handler
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            if (targetId === '#allocation-content' && !allocationChart.hasChildNodes()) {
+                loadAllocationChart();
+            } else if (targetId === '#risk-content' && !riskChart.hasChildNodes()) {
+                loadRiskChart();
+            }
+        });
+    });
+
+    function loadAllCharts() {
+        loadPerformanceChart();
+        // Load other charts only if their tabs are active or have been viewed
+        if (document.getElementById('allocation-tab').classList.contains('active') || allocationChart.hasChildNodes()) {
+            loadAllocationChart();
+        }
+        if (document.getElementById('risk-tab').classList.contains('active') || riskChart.hasChildNodes()) {
+            loadRiskChart();
+        }
+    }
+
+    function loadPerformanceChart() {
+        showLoading(performanceChart);
+        
+        const days = timePeriodSelector.value;
+        const apiUrl = `{% url 'visualization:portfolio_performance_api' portfolio.id %}?days=${days}`;
+        
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(performanceChart, data.error);
+                    return;
+                }
+                
+                const plotData = JSON.parse(data.figure);
+                Plotly.newPlot(performanceChart, plotData.data, plotData.layout, {
+                    responsive: true,
+                    displayModeBar: true
+                });
+            })
+            .catch(error => {
+                console.error('Error loading performance chart:', error);
+                showError(performanceChart, 'Failed to load performance chart');
+            });
+    }
+
+    function loadAllocationChart() {
+        showLoading(allocationChart);
+        
+        const apiUrl = `{% url 'visualization:portfolio_allocation_api' portfolio.id %}`;
+        
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(allocationChart, data.error);
+                    return;
+                }
+                
+                const plotData = JSON.parse(data.figure);
+                Plotly.newPlot(allocationChart, plotData.data, plotData.layout, {
+                    responsive: true,
+                    displayModeBar: true
+                });
+            })
+            .catch(error => {
+                console.error('Error loading allocation chart:', error);
+                showError(allocationChart, 'Failed to load allocation chart');
+            });
+    }
+
+    function loadRiskChart() {
+        showLoading(riskChart);
+        
+        const apiUrl = `{% url 'visualization:portfolio_risk_api' portfolio.id %}`;
+        
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(riskChart, data.error);
+                    return;
+                }
+                
+                const plotData = JSON.parse(data.figure);
+                Plotly.newPlot(riskChart, plotData.data, plotData.layout, {
+                    responsive: true,
+                    displayModeBar: true
+                });
+            })
+            .catch(error => {
+                console.error('Error loading risk chart:', error);
+                showError(riskChart, 'Failed to load risk chart');
+            });
+    }
+
+    function showLoading(container) {
+        container.innerHTML = `
+            <div class="d-flex justify-content-center align-items-center" style="height: 400px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading chart...</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function showError(container, message) {
+        container.innerHTML = `
+            <div class="text-center text-danger py-5">
+                <p>${message}</p>
+                <button class="btn btn-outline-primary" onclick="loadAllCharts()">Retry</button>
+            </div>
+        `;
+    }
+
+    // Asset chart modal functionality
+    window.viewAssetChart = function(assetId, symbol) {
+        const modal = new bootstrap.Modal(document.getElementById('assetChartModal'));
+        document.getElementById('assetChartModalLabel').textContent = `${symbol} - Technical Analysis`;
+        
+        modal.show();
+        loadAssetChart(assetId);
+        
+        // Add event listeners for asset chart controls
+        document.getElementById('chart-period').addEventListener('change', () => loadAssetChart(assetId));
+        document.getElementById('technical-indicators').addEventListener('change', () => loadAssetChart(assetId));
+    };
+
+    function loadAssetChart(assetId) {
+        const container = document.getElementById('asset-chart-container');
+        showLoading(container);
+        
+        const days = document.getElementById('chart-period').value;
+        const indicators = Array.from(document.getElementById('technical-indicators').selectedOptions)
+                               .map(option => option.value);
+        
+        let apiUrl = `{% url 'visualization:asset_price_api' 0 %}`.replace('0', assetId);
+        apiUrl += `?days=${days}`;
+        if (indicators.length > 0) {
+            apiUrl += '&' + indicators.map(ind => `indicators=${ind}`).join('&');
+        }
+        
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(container, data.error);
+                    return;
+                }
+                
+                const plotData = JSON.parse(data.figure);
+                Plotly.newPlot(container, plotData.data, plotData.layout, {
+                    responsive: true,
+                    displayModeBar: true
+                });
+            })
+            .catch(error => {
+                console.error('Error loading asset chart:', error);
+                showError(container, 'Failed to load asset chart');
+            });
+    }
+});
+</script>
+{% endblock javascript %}

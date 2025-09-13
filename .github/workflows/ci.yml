@@ -31,8 +31,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Ensure Django, pytest-django, Celery and django-celery-beat are available in CI for test collection
-          pip install "Django>=4.2" pytest-django celery django-celery-beat
+          # Install Django requirements for proper test environment
+          pip install -r requirements/base.txt
+          # Ensure testing dependencies are available in CI for test collection
+          pip install pytest-django celery django-celery-beat coverage
 
       - name: Lint (flake8)
         run: |
@@ -42,6 +44,9 @@ jobs:
         env:
           PYTHONPATH: src
           DATABASE_URL: sqlite:///test.db
+          DJANGO_SETTINGS_MODULE: config.settings.test
+          DJANGO_SECRET_KEY: test-secret-key-for-ci
+          DJANGO_DEBUG: False
         run: |
           pytest -q || [ $? -eq 5 ]
 

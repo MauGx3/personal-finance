@@ -1,0 +1,95 @@
+"""
+Basic functionality tests for the Personal Finance Platform.
+
+This test suite covers core functionality to ensure the platform basics work
+without requiring complex imports or non-existent modules.
+"""
+
+import pytest
+from django.test import TestCase
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from rest_framework.test import APITestCase, APIClient
+from rest_framework import status
+
+User = get_user_model()
+
+
+@pytest.mark.django_db
+class TestBasicFunctionality:
+    """Test basic platform functionality without complex dependencies."""
+    
+    def test_user_creation(self):
+        """Test that we can create users."""
+        user = User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+            password="testpass123"
+        )
+        assert user.username == "testuser"
+        assert user.email == "test@example.com"
+        assert user.check_password("testpass123")
+    
+    def test_django_setup_working(self):
+        """Test that Django is properly configured."""
+        from django.conf import settings
+        assert hasattr(settings, 'INSTALLED_APPS')
+        assert 'personal_finance.users' in settings.INSTALLED_APPS
+        assert 'personal_finance.assets' in settings.INSTALLED_APPS
+
+
+@pytest.mark.django_db
+class TestAssetModels:
+    """Test asset models without complex factories."""
+    
+    def test_asset_creation_simple(self):
+        """Test basic asset model creation using only fields from migration schema."""
+        from personal_finance.assets.models import Asset
+        
+        asset = Asset.objects.create(
+            symbol="AAPL",
+            name="Apple Inc.",
+            asset_type=Asset.ASSET_STOCK,
+            currency="USD",
+            exchange="NASDAQ"
+        )
+        
+        assert asset.symbol == "AAPL"
+        assert asset.name == "Apple Inc."
+        assert asset.asset_type == Asset.ASSET_STOCK
+        assert asset.currency == "USD"
+        assert asset.exchange == "NASDAQ"
+        assert asset.is_active is True
+
+
+@pytest.mark.django_db  
+class TestPortfolioModels:
+    """Test portfolio models with minimal setup."""
+    
+    def test_portfolio_creation_simple(self):
+        """Test basic portfolio creation using legacy assets portfolio."""
+        from personal_finance.assets.models import Portfolio
+        
+        user = User.objects.create_user(
+            username="portfoliouser",
+            email="portfolio@example.com",
+            password="testpass123"
+        )
+        
+        portfolio = Portfolio.objects.create(
+            user=user,
+            name="Test Portfolio",
+            description="A test portfolio"
+        )
+        
+        assert portfolio.name == "Test Portfolio"
+        assert portfolio.user == user
+
+
+class TestRestFrameworkBasics:
+    """Test that Django REST Framework is working."""
+    
+    def test_django_rest_framework_installed(self):
+        """Test that DRF is properly installed."""
+        import rest_framework
+        assert rest_framework.VERSION is not None

@@ -1,6 +1,6 @@
 python-slugify==8.0.4  # https://github.com/un33k/python-slugify
 Pillow==11.3.0 # pyup: != 11.2.0  # https://github.com/python-pillow/Pillow
-rcssmin==1.2.1  # https://github.com/ndparker/rcssmin
+rcssmin==1.1.2  # https://github.com/ndparker/rcssmin
 argon2-cffi==25.1.0  # https://github.com/hynek/argon2_cffi
 whitenoise==6.9.0  # https://github.com/evansd/whitenoise
 redis==6.4.0  # https://github.com/redis/redis-py
@@ -26,3 +26,12 @@ djangorestframework==3.16.1  # https://github.com/encode/django-rest-framework
 django-cors-headers==4.8.0  # https://github.com/adamchainz/django-cors-headers
 # DRF-spectacular for api documentation
 drf-spectacular==0.28.0  # https://github.com/tfranzel/drf-spectacular
+
+# Finance-specific dependencies
+# ------------------------------------------------------------------------------
+yfinance>=0.2.18  # https://github.com/ranaroussi/yfinance - Yahoo Finance data
+pandas>=2.0.0  # https://pandas.pydata.org/ - Data manipulation and analysis
+numpy>=1.24.0  # https://numpy.org/ - Numerical computing
+plotly>=5.17.0  # https://plotly.com/python/ - Interactive charts
+quantstats>=0.0.62  # https://github.com/ranaroussi/quantstats - Performance analytics
+stockdex>=1.2.0  # https://github.com/ahnazary/stockdex - Stock market data
