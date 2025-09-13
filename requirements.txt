@@ -4,7 +4,7 @@ fastapi>=0.116.1
 uvicorn[standard]>=0.20.0
 
 # Django and essential dependencies for CI/CD
-django>=4.2.0
+django>=5.0.14
 django-environ>=0.12.0
 
 # Runtime dependencies (copied from pyproject)
@@ -80,3 +80,4 @@ protobuf>=4.25.8
 urllib3>=2.5.0
 werkzeug>=3.0.6
 zipp>=3.19.1
+sqlparse>=0.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
