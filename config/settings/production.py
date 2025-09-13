@@ -167,7 +167,7 @@ COMPRESS_OFFLINE = (
 COMPRESS_FILTERS = {
     "css": [
         "compressor.filters.css_default.CssAbsoluteFilter",
-        "compressor.filters.cssmin.rCSSMinFilter",
+        "compressor.filters.cssmin.CSSMinFilter",
     ],
     "js": ["compressor.filters.jsmin.JSMinFilter"],
 }
