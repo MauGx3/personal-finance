@@ -8,6 +8,7 @@ and provides clear error messages.
 import sys
 import os
 import pytest
+import uuid
 from unittest.mock import patch
 
 # Add src to path for testing
@@ -19,6 +20,11 @@ from personal_finance.dependencies import (
     dependency_manager,
     setup_core_dependencies
 )
+
+
+def _generate_nonexistent_module_name():
+    """Generate a unique module name that is guaranteed not to exist."""
+    return f"nonexistent_module_{uuid.uuid4().hex}"
 
 
 class TestDependencyManager:
@@ -51,10 +57,13 @@ class TestDependencyManager:
         """Test registering a dependency that is missing."""
         dm = DependencyManager()
         
+        # Generate a unique module name that doesn't exist
+        nonexistent_module_name = _generate_nonexistent_module_name()
+        
         # Register a module that doesn't exist
         dep_info = dm.register_dependency(
             name="nonexistent_module",
-            import_path="nonexistent_module_that_should_not_exist",
+            import_path=nonexistent_module_name,
             required=False,
             fallback_available=True
         )
@@ -99,9 +108,12 @@ class TestDependencyManager:
         """Test listing all dependencies."""
         dm = DependencyManager()
         
+        # Generate a unique module name that doesn't exist
+        nonexistent_module_name = _generate_nonexistent_module_name()
+        
         # Register multiple dependencies
         dm.register_dependency("json", "json")
-        dm.register_dependency("missing", "nonexistent")
+        dm.register_dependency("missing", nonexistent_module_name)
         
         deps = dm.list_dependencies()
         assert len(deps) == 2
@@ -159,8 +171,9 @@ if __name__ == "__main__":
     dep_info = dm.register_dependency("json", "json")
     print(f"JSON module status: {dep_info.status}")
     
-    # Test with missing module  
-    dep_info = dm.register_dependency("missing", "nonexistent")
+    # Test with missing module using unique name
+    nonexistent_module_name = _generate_nonexistent_module_name()
+    dep_info = dm.register_dependency("missing", nonexistent_module_name)
     print(f"Missing module status: {dep_info.status}")
     
     # Test feature flags
