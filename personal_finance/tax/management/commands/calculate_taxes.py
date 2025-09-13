@@ -7,7 +7,12 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from personal_finance.portfolios.models import Transaction
+# Graceful import handling for missing models
+try:
+    from personal_finance.portfolios.models import Transaction
+except ImportError:
+    Transaction = None
+    
 from personal_finance.tax.services import TaxCalculationService
 
 User = get_user_model()

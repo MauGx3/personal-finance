@@ -11,7 +11,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from personal_finance.portfolios.models import Portfolio
+# Graceful import handling for missing models
+try:
+    from personal_finance.portfolios.models import Portfolio
+except ImportError:
+    Portfolio = None
+    
 from .models import (
     TaxYear, TaxLot, CapitalGainLoss, DividendIncome,
     TaxLossHarvestingOpportunity, TaxOptimizationRecommendation, TaxReport
@@ -399,58 +404,56 @@ class TaxAnalyticsViewSet(viewsets.ViewSet):
         try:
             # Import here to avoid circular imports
             from personal_finance.portfolios.models import Transaction
-            
-            # Build query for transactions
-            queryset = Transaction.objects.filter(
-                position__portfolio__user=request.user
-            ).select_related('position__asset', 'position__portfolio')
-            
-            if year:
-                queryset = queryset.filter(date__year=year)
-            
-            if portfolio_id:
-                try:
-                    portfolio = Portfolio.objects.get(
-                        id=portfolio_id, user=request.user
-                    )
-                    queryset = queryset.filter(position__portfolio=portfolio)
-                except Portfolio.DoesNotExist:
-                    return Response(
-                        {'error': 'Portfolio not found'},
-                        status=status.HTTP_404_NOT_FOUND
-                    )
-            
-            # Process transactions
-            tax_service = TaxCalculationService()
-            processed_count = 0
-            error_count = 0
-            
-            for transaction in queryset:
-                try:
-                    # Skip if already processed and not reprocessing
-                    if not reprocess and self._is_transaction_processed(transaction):
-                        continue
-                    
-                    tax_service.process_transaction_for_taxes(transaction)
-                    processed_count += 1
-                    
-                except Exception as e:
-                    error_count += 1
-                    logger.error(f"Error processing transaction {transaction.id}: {str(e)}")
-            
+        except ImportError:
+            # Handle case where portfolios models are not available
             return Response({
-                'processed_transactions': processed_count,
-                'errors': error_count,
-                'total_transactions': queryset.count(),
-                'reprocessed': reprocess
-            })
+                'error': 'Portfolio models are not available. Please ensure portfolios app is properly migrated.'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             
-        except Exception as e:
-            logger.error(f"Error calculating taxes: {str(e)}")
-            return Response(
-                {'error': 'Failed to calculate taxes'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        # Build query for transactions
+        queryset = Transaction.objects.filter(
+            position__portfolio__user=request.user
+        ).select_related('position__asset', 'position__portfolio')
+            
+        if year:
+            queryset = queryset.filter(date__year=year)
+            
+        if portfolio_id:
+            try:
+                portfolio = Portfolio.objects.get(
+                    id=portfolio_id, user=request.user
+                )
+                queryset = queryset.filter(position__portfolio=portfolio)
+            except Portfolio.DoesNotExist:
+                return Response(
+                    {'error': 'Portfolio not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+        # Process transactions
+        tax_service = TaxCalculationService()
+        processed_count = 0
+        error_count = 0
+        
+        for transaction in queryset:
+            try:
+                # Skip if already processed and not reprocessing
+                if not reprocess and self._is_transaction_processed(transaction):
+                    continue
+                
+                tax_service.process_transaction_for_taxes(transaction)
+                processed_count += 1
+                    
+            except Exception as e:
+                error_count += 1
+                logger.error(f"Error processing transaction {transaction.id}: {str(e)}")
+        
+        return Response({
+            'processed_transactions': processed_count,
+            'errors': error_count,
+            'total_transactions': queryset.count(),
+            'reprocessed': reprocess
+        })
     
     def _is_transaction_processed(self, transaction):
         """Check if a transaction has already been processed for taxes."""
