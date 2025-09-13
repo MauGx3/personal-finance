@@ -30,26 +30,7 @@ try:
     from personal_finance.assets.models import PriceHistory
 except ImportError:
     # PriceHistory doesn't exist in current schema - will be added later
-    class PriceHistoryStubManager:
-        """Stub manager for PriceHistory to handle Django ORM operations gracefully."""
-        
-        def filter(self, **kwargs):
-            """Stub filter method that returns empty result."""
-            logger.warning("PriceHistory.objects.filter called on stub - implement actual model. Filters: %s", kwargs)
-            return self
-        
-        def order_by(self, *args):
-            """Stub order_by method for chaining."""
-            return self
-        
-        def exists(self):
-            """Stub exists method that returns False."""
-            return False
-    
-    class PriceHistory:
-        """Stub PriceHistory model. Any usage should be replaced with the real model."""
-        objects = PriceHistoryStubManager()
-
+    from personal_finance.assets.stubs import PriceHistory, PriceHistoryStubManager
 try:
     from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
 except ImportError:
