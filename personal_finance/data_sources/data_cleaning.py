@@ -216,9 +216,14 @@ class FinancialDataCleaner:
             col_expr = pl.col(col)
             
             # Check if column might contain currency symbols
-            if df.select(pl.col(col).dtype).item() == pl.Utf8:
+            col_dtype = df.schema[col]
+            if col_dtype in [pl.Utf8, pl.String]:
                 for symbol in currency_symbols:
-                    col_expr = col_expr.str.replace_all(f"\\{symbol}", "")
+                    # Escape special regex characters properly
+                    if symbol in ['$']:
+                        col_expr = col_expr.str.replace_all(f"\\{symbol}", "")
+                    else:
+                        col_expr = col_expr.str.replace_all(symbol, "")
             
             expressions.append(col_expr.alias(col))
         
