@@ -63,7 +63,7 @@ class TaxLot(models.Model):
     """
     
     position = models.ForeignKey(
-        Position, on_delete=models.CASCADE, related_name='tax_lots'
+        'portfolios.Position', on_delete=models.CASCADE, related_name='tax_lots'
     )
     acquisition_date = models.DateField(help_text="Date shares were acquired")
     original_quantity = models.DecimalField(
@@ -83,7 +83,7 @@ class TaxLot(models.Model):
         help_text="Total cost basis for this lot"
     )
     transaction = models.ForeignKey(
-        Transaction, on_delete=models.CASCADE,
+        'portfolios.Transaction', on_delete=models.CASCADE,
         help_text="Transaction that created this tax lot"
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -144,9 +144,9 @@ class CapitalGainLoss(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tax_year = models.ForeignKey(TaxYear, on_delete=models.CASCADE)
-    position = models.ForeignKey(Position, on_delete=models.CASCADE)
+    position = models.ForeignKey('portfolios.Position', on_delete=models.CASCADE)
     transaction = models.ForeignKey(
-        Transaction, on_delete=models.CASCADE,
+        'portfolios.Transaction', on_delete=models.CASCADE,
         help_text="Sale transaction that realized the gain/loss"
     )
     tax_lot = models.ForeignKey(
@@ -225,7 +225,7 @@ class DividendIncome(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tax_year = models.ForeignKey(TaxYear, on_delete=models.CASCADE)
-    position = models.ForeignKey(Position, on_delete=models.CASCADE)
+    position = models.ForeignKey('portfolios.Position', on_delete=models.CASCADE)
     
     payment_date = models.DateField(help_text="Dividend payment date")
     ex_dividend_date = models.DateField(help_text="Ex-dividend date")
@@ -281,7 +281,7 @@ class TaxLossHarvestingOpportunity(models.Model):
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    position = models.ForeignKey(Position, on_delete=models.CASCADE)
+    position = models.ForeignKey('portfolios.Position', on_delete=models.CASCADE)
     tax_year = models.ForeignKey(TaxYear, on_delete=models.CASCADE)
     
     identified_date = models.DateField(auto_now_add=True)
@@ -356,7 +356,7 @@ class TaxOptimizationRecommendation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tax_year = models.ForeignKey(TaxYear, on_delete=models.CASCADE)
     portfolio = models.ForeignKey(
-        Portfolio, on_delete=models.CASCADE, null=True, blank=True
+        'portfolios.Portfolio', on_delete=models.CASCADE, null=True, blank=True
     )
     
     recommendation_type = models.CharField(
