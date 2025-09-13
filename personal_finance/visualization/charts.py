@@ -78,6 +78,11 @@ class PortfolioCharts:
         Raises:
             ValueError: If no performance data is available for the period
         """
+        # Check if required models are available
+        if PortfolioSnapshot is None:
+            logger.warning("PortfolioSnapshot model not available")
+            return self._create_empty_chart("Portfolio snapshots not available")
+        
         try:
             # Get portfolio snapshots for the period
             snapshots = PortfolioSnapshot.objects.filter(
@@ -159,7 +164,7 @@ class PortfolioCharts:
             logger.error(f"Error creating performance chart: {e}")
             return self._create_empty_chart("Error generating performance chart")
     
-    def create_asset_allocation_chart(self, portfolio: Portfolio) -> Dict[str, Any]:
+    def create_asset_allocation_chart(self, portfolio) -> Dict[str, Any]:
         """Create pie chart showing portfolio asset allocation.
         
         Args:
@@ -168,6 +173,10 @@ class PortfolioCharts:
         Returns:
             Dictionary containing Plotly figure JSON and metadata
         """
+        # Check if required models are available
+        if Portfolio is None or Position is None:
+            logger.warning("Portfolio or Position models not available")
+            return self._create_empty_chart("Portfolio models not available")
         try:
             positions = portfolio.positions.filter(is_active=True)
             
@@ -227,7 +236,7 @@ class PortfolioCharts:
             logger.error(f"Error creating allocation chart: {e}")
             return self._create_empty_chart("Error generating allocation chart")
     
-    def create_risk_metrics_chart(self, portfolio: Portfolio) -> Dict[str, Any]:
+    def create_risk_metrics_chart(self, portfolio) -> Dict[str, Any]:
         """Create risk metrics visualization chart.
         
         Args:
@@ -236,6 +245,11 @@ class PortfolioCharts:
         Returns:
             Dictionary containing Plotly figure JSON and metadata
         """
+        # Check if required models are available
+        if Portfolio is None or PerformanceAnalytics is None:
+            logger.warning("Portfolio model or PerformanceAnalytics not available")
+            return self._create_empty_chart("Risk analysis not available")
+        
         try:
             analytics = PerformanceAnalytics()
             end_date = timezone.now().date()
@@ -422,6 +436,11 @@ class AssetCharts:
         Returns:
             Dictionary containing Plotly figure JSON and metadata
         """
+        # Check if required models are available
+        if PriceHistory is None:
+            logger.warning("PriceHistory model not available")
+            return self._create_empty_chart("Price history not available")
+        
         try:
             end_date = timezone.now().date()
             start_date = end_date - timedelta(days=days)
