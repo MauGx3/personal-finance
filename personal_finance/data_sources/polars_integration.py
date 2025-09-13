@@ -317,8 +317,8 @@ class PolarsDataProcessor:
             
             # Williams %R
             if 'williams_r' in indicators and all(col in df.columns for col in ['high_price', 'low_price']):
-                highest_high = pl.col('high_price').rolling_max(window_size=14)
-                lowest_low = pl.col('low_price').rolling_min(window_size=14)
+                highest_high = pl.col('high_price').rolling_max(window=14)
+                lowest_low = pl.col('low_price').rolling_min(window=14)
                 williams_r = (highest_high - pl.col('close_price')) / (highest_high - lowest_low) * -100
                 
                 result_df = result_df.with_columns([
