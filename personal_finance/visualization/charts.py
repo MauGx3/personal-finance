@@ -22,11 +22,15 @@ except ImportError:
 
 try:
     from personal_finance.assets.models import Asset
-    # PriceHistory doesn't exist in current schema - will be added later
-    PriceHistory = None
 except ImportError:
-    Asset = PriceHistory = None
+    Asset = None
 
+# Try to import PriceHistory model if it exists, otherwise use stub
+try:
+    from personal_finance.assets.models import PriceHistory
+except ImportError:
+    # PriceHistory doesn't exist in current schema - will be added later
+    from personal_finance.assets.stubs import PriceHistory, PriceHistoryStubManager
 try:
     from personal_finance.analytics.services import PerformanceAnalytics, TechnicalIndicators
 except ImportError:
