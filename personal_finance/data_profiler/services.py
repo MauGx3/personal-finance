@@ -498,7 +498,28 @@ class DataProfilerService:
         return suspicious
     
     def _looks_like_ssn(self, value: str) -> bool:
-        """Check if value looks like a Social Security Number."""
-        # Simple pattern: XXX-XX-XXXX or XXXXXXXXX
-        value = str(value).replace('-', '').replace(' ', '')
-        return len(value) == 9 and value.isdigit()
+        """Check if value looks like a valid Social Security Number (SSN).
+        
+        Excludes invalid ranges:
+        - Area number (first 3 digits): not 000, 666, or 900-999
+        - Group number (next 2 digits): not 00
+        - Serial number (last 4 digits): not 0000
+        Accepts formats: XXX-XX-XXXX or XXXXXXXXX
+        """
+        import re
+        value = str(value).strip()
+        # Accept both XXX-XX-XXXX and XXXXXXXXX formats
+        match = re.match(r'^(\d{3})-?(\d{2})-?(\d{4})$', value)
+        if not match:
+            return False
+        area, group, serial = match.group(1), match.group(2), match.group(3)
+        # Area number cannot be 000, 666, or 900-999
+        if area == '000' or area == '666' or (900 <= int(area) <= 999):
+            return False
+        # Group number cannot be 00
+        if group == '00':
+            return False
+        # Serial number cannot be 0000
+        if serial == '0000':
+            return False
+        return True
