@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from personal_finance.gui.gui_service import GUIService
+import html
 
 app = FastAPI()
 service = GUIService()
@@ -93,23 +94,23 @@ def portfolio_page():
 def asset_page(symbol: str):
     tpl = """
     <html>
-      <head><meta charset="utf-8"><title>Asset __SYMBOL__</title></head>
-      <body>
+        <head><meta charset="utf-8"><title>Asset __SYMBOL__</title></head>
+        <body>
         <h1 id="title">Asset</h1>
         <pre id="summary">loading...</pre>
         <script>
-          async function load(sym){
+            async function load(sym){
             const r = await fetch('/asset_summary/' + encodeURIComponent(sym));
             const j = await r.json();
             document.getElementById('title').textContent = j.symbol;
             document.getElementById('summary').innerText = JSON.stringify(j, null, 2);
-          }
-          (function(){ const parts = location.pathname.split('/'); load(parts.pop()); })();
+            }
+            (function(){ const parts = location.pathname.split('/'); load(parts.pop()); })();
         </script>
-      </body>
+        </body>
     </html>
     """
-    return HTMLResponse(content=tpl.replace("__SYMBOL__", symbol))
+    return HTMLResponse(content=tpl.replace("__SYMBOL__", html.escape(symbol)))
 
 
 @app.get("/asset_summary/{symbol}")

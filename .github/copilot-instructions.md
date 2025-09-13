@@ -1,35 +1,6 @@
-# Personal Finance Project default prompt
+# Take these packages into consideration when doing the code (but not exclusively)
 
-## Prompt Identification
-
-- **Name**: Personal Finance Project default prompt
-- **Version**: 0.4
-- **Created By**: MauGx3
-- **Last Modified**: 2025-09-12
-- **Category**: Web and desktop app
-
-## Purpose and Goals
-
-- **Primary Goal**: Create a basic web and desktop app using Python, Django and Docker, primarily focused on functionality, that contains the features stated on the SCAFF structure below.
-- **Use Cases**: web development, software development, finance, investing
-- **Expected Output**: A simple GUI that has functional modules to be further developed and debugged.
-
-## Technical Configuration
-
-- **Target Model**: GitHub Copilot
-- **Parameters**:
-  - Temperature: 0.5
-  - Token Limit: 5 tokens
-  - Top-K: N/A
-  - Top-P: N/A
-
-## S.C.A.F.F. Structure
-
-### Situation
-
-This code uses Django as the web framework. The code depends on many dependencies, but the finance packages are essential, such as `yfinance`, `stockdex` etc that need to work properly and have fallbacks to guarantee best functionality for the app. The complete list of packages to be used in the project:
-
-#### Data
+## Data
 
 * `polars` https://github.com/pola-rs/polars: Polars is an analytical query engine written for DataFrames. It is designed to be fast, easy to use and expressive. Better substitute to `pandas`. [Docs](https://docs.pola.rs/api/python/stable/reference/index.html) (also available for [node.js](https://github.com/pola-rs/nodejs-polars), [js-polars](https://github.com/pola-rs/js-polars), [[Rust]] and [[R]])
 * `DataProfiler` https://github.com/capitalone/DataProfiler: The DataProfiler is a Python library designed to make data analysis, monitoring, and **sensitive data detection** easy. Loading **Data** with a single command, the library automatically formats & loads files into a DataFrame. **Profiling** the Data, the library identifies the schema, statistics, entities (PII / NPI) and more. Data Profiles can then be used in downstream applications or reports. [Docs](https://capitalone.github.io/DataProfiler/)
@@ -41,7 +12,7 @@ This code uses Django as the web framework. The code depends on many dependencie
 * `tcapy` https://github.com/cuemacro/tcapy: library for doing transaction cost analysis (TCA).
 * `bt` https://github.com/pmorissette/bt: flexible backtesting framework for Python used to test quantitative trading strategies. **Backtesting** is the process of testing a strategy over a given data set. This framework allows you to easily create strategies that mix and match different [Algos](http://pmorissette.github.io/bt/bt.html#bt.core.Algo). It aims to foster the creation of easily testable, re-usable and flexible blocks of strategy logic to facilitate the rapid development of complex trading strategies. [Docs](http://pmorissette.github.io/bt)
 
-#### Finance
+## Finance
 
 * `polars-trading` https://github.com/ngriffiths13/polars-trading: meant to provide some nice utilities for working with market data in Polars DataFrames. Much of the original inspiration has come from Marcos Lopez de Prado's book _Advances in Financial Machine Learning_. It is a work in progress with some basic functionality that will be added to over time.
 * `polars-order-book` https://github.com/ChristopherRussell/polars-order-book: provides plugins for the Polars library that efficiently calculate summary information (price and quantity) for the top N levels of an order book.
@@ -63,54 +34,14 @@ This code uses Django as the web framework. The code depends on many dependencie
 * `FinanceToolkit` https://github.com/JerBouma/FinanceToolkit: open-source toolkit in which all relevant financial ratios ([150+](https://github.com/JerBouma/FinanceToolkit#core-functionality-and-metrics)), indicators and performance measurements are written down in the most simplistic way allowing for complete transparency of the method of calculation ([proof](https://github.com/JerBouma/FinanceToolkit/blob/main/financetoolkit/ratios/valuation_model.py)). This enables you to avoid dependence on metrics from other providers that do not provide their methods. With a large selection of financial statements in hand, it facilitates streamlined calculations, promoting the adoption of a consistent and universally understood methods and formulas.
 * `stock-indicators-python` https://github.com/facioquo/stock-indicators-python: **Stock Indicators for Python** is a PyPI library package that produces financial market technical indicators. Send in historical price quotes and get back desired indicators such as moving averages, Relative Strength Index, Stochastic Oscillator, Parabolic SAR, etc. [Docs](https://python.stockindicators.dev/)
 
-### Challenge
+## Utilities
+* `uv` https://github.com/astral-sh/uv: extremely fast Python package and project manager, written in Rust. [Docs](https://docs.astral.sh/uv)
+* `django`
+* `unicorn` https://github.com/Kludex/uvicorn: ASGI web server implementation. [Docs](https://www.uvicorn.org/)
+* `gunicorn`
+* `ruff` https://github.com/astral-sh/ruff: extremely fast Python linter and code formatter, written in Rust. [Docs](https://docs.astral.sh/ruff)
+* `github_changelog_generator`
 
-Create a complete personal finance/investing platform complete with portfolio tracking, asset data visualization, charts, quantitative analysis, backtesting etc. The app should be available as a deployment on Render for easier development with automatic container creation.
+# Testing
 
-### Audience
-
-Keep the code accessible to junior developers where possible, but don't let it be a constraint for making better code if a more complex approach would lead to better performance, security etc. Use comments where needed to explain code for a junior dev, in that case.
-
-### Format
-
-Code should follow Pythonic foundations. Use Google documentation guidelines for the Python code. This project was started by using the [cookiecutter-django] template. Formatter is `ruff`, `uv` should be preferred over `pip` when available. Tests will be done using `pytest`. Use `docker-compose` for local development and testing. Use `git` for version control, with a branching strategy that uses `main` as production-ready code, and `dev` as the main development branch. Feature branches should be used for specific features or bug fixes. The code should follow the "Easier to ask for forgiveness than permission" or EAFP style unless LBYL is assessed to be a better option for that particular block of code.
-
-### Foundations
-
-This code will be mostly deployed as a Docker container, so there should be a focus on maintain security and performance for a Docker app. For my personal use, I will run the app on a QNAP NAS running QTS 5. A large amount of data will be expected to be used as the app develops and the user collects more data, so consider best practices for following Big Data performance.
-
-## Usage Guidelines
-
-- **For Security-Critical Components**:
-
-  - Set temperature: 0.0-0.2
-  - Include explicit security requirements
-  - Request detailed documentation of security measures
-- **For Performance-Sensitive Components**:
-
-  - Specify performance constraints
-  - Request optimization techniques
-  - Require complexity analysis
-- **For UI Components**:
-
-  - Include accessibility requirements
-  - Specify responsive design needs
-  - Reference design system patterns
-
-## Effectiveness Metrics
-
-- **Success Rate**: 85% usable on first attempt
-- **Iteration Count**: Usually 3 to 5 iterations
-- **Issues Found**: None so far
-- **Time Savings**: Approximately 5 to 7 hours per implementation
-
-## Documentation
-
-- **Related Components**: N/A
-- **Security Review**: Codebase verified by Snyk.io
-- **Notes and Insights**: This prompt was created based on the Vibe Coding Framework and follows the S.C.A.F.F. Prompt Structure. Refer to this docs regarding AI coding: [https://docs.vibe-coding-framework.com/](https://docs.vibe-coding-framework.com/)
-- **Improvement History**:
-  - 0.1: initial prompt
-  - 0.2: added more details to the SCAFF structure
-  - 0.3: added more packages to Situation and added Render info
-  - 0.4: added EAFP info
+* `pytest`
