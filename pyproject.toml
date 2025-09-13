@@ -41,6 +41,14 @@ dependencies = [
     "sqlalchemy",
     "alembic",
     "pymongo",
+    # Data analysis - Modern (S.C.A.F.F. requirements)
+    "polars>=0.20.0",
+    "pyjanitor>=0.26.0",
+    "bt>=0.2.9",
+    # Finance specific - Additional (S.C.A.F.F. requirements)
+    "pandas-market-calendars>=4.0.0",
+    "FinanceDatabase>=2.0.0",
+    "FinanceToolkit>=1.0.0",
 ]
 
 [project.optional-dependencies]
