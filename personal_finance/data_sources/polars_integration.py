@@ -71,7 +71,7 @@ class PolarsDataProcessor:
         if not (self.polars_available or self.pandas_available):
             raise ImportError(
                 "Neither polars nor pandas is available. "
-                "Install at least one: pip install polars pandas"
+                "Install at least one: pip install polars OR pip install pandas"
             )
         
         logger.info(
