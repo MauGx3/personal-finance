@@ -426,9 +426,12 @@ class DataProfilerService:
                 continue
             
             # Check for account numbers (simplified pattern)
-            if any(len(str(val).replace('-', '').replace(' ', '')) >= 8 and 
-                   str(val).replace('-', '').replace(' ', '').isdigit() 
-                   for val in col_data.head(10)):
+            if any(
+                (lambda cleaned_val: len(cleaned_val) >= 8 and cleaned_val.isdigit())(
+                    str(val).replace('-', '').replace(' ', '')
+                )
+                for val in col_data.head(10)
+            ):
                 sensitive_patterns.append({
                     'column': col,
                     'pattern_type': 'potential_account_number',
