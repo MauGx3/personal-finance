@@ -15,7 +15,12 @@ from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
 from personal_finance.assets.models import Asset
-from personal_finance.portfolios.models import Portfolio
+
+# Graceful import handling for missing models
+try:
+    from personal_finance.portfolios.models import Portfolio
+except ImportError:
+    Portfolio = None
 
 User = get_user_model()
 
