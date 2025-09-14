@@ -38,6 +38,7 @@ jobs:
         env:
           PYTHONPATH: src
           DATABASE_URL: sqlite:///test.db
+          DJANGO_SETTINGS_MODULE: config.settings.test
         run: |
           pytest -q || [ $? -eq 5 ]
 

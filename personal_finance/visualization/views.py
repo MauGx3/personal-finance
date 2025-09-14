@@ -16,7 +16,12 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.utils import timezone
 
-from personal_finance.portfolios.models import Portfolio
+# Graceful import handling for missing models
+try:
+    from personal_finance.portfolios.models import Portfolio
+except ImportError:
+    Portfolio = None
+    
 from personal_finance.assets.models import Asset
 from personal_finance.visualization.charts import PortfolioCharts, AssetCharts
 

@@ -40,6 +40,7 @@ quantstats>=0.0.76
 scikit-learn>=1.2.0
 statsmodels>=0.14.0
 plotly>=5.13.0
+dataprofiler>=0.11.0  # Data profiling and sensitive data detection
 
 # Testing and development tools
 pytest>=6.0
