@@ -40,6 +40,7 @@ jobs:
 
       # Execute Codacy Analysis CLI and generate a SARIF output with the security issues identified during the analysis
       - name: Run Codacy Analysis CLI
+        id: run-codacy
         uses: codacy/codacy-analysis-cli-action@v4.4.0
         with:
           # Check https://github.com/codacy/codacy-analysis-cli#project-token to get your project token from your Codacy repository
@@ -57,9 +58,34 @@ jobs:
           skip-uncommitted-files-check: true
         continue-on-error: true
 
+      # Validate SARIF file before upload
+      - name: Validate SARIF file
+        id: validate-sarif
+        run: |
+          if [ -f "results.sarif" ]; then
+            if [ -s "results.sarif" ]; then
+              if jq . results.sarif > /dev/null 2>&1; then
+                echo "sarif-valid=true" >> $GITHUB_OUTPUT
+                echo "SARIF file is valid JSON"
+              else
+                echo "sarif-valid=false" >> $GITHUB_OUTPUT
+                echo "SARIF file exists but contains invalid JSON"
+              fi
+            else
+              echo "sarif-valid=false" >> $GITHUB_OUTPUT
+              echo "SARIF file is empty"
+            fi
+          else
+            echo "sarif-valid=false" >> $GITHUB_OUTPUT
+            echo "SARIF file does not exist"
+          fi
+        if: always()
+        continue-on-error: true
+
       # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
-        if: always() && hashFiles('results.sarif') != ''
+        if: always() && steps.validate-sarif.outputs.sarif-valid == 'true'
+        continue-on-error: true
