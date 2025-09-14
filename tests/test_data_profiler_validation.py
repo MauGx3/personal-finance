@@ -197,9 +197,9 @@ class TestSeriesValidation:
     
     def test_validate_series_invalid_name_raises_error(self):
         """Test that Series with invalid name raises error."""
-        series = pd.Series([1, 2, 3], name=['invalid', 'name'])
-        with pytest.raises(ProfileDataError, match="Series name must be"):
-            _validate_series(series)
+        # In modern pandas, creating a Series with unhashable name raises TypeError
+        with pytest.raises(TypeError, match="Series.name must be a hashable type"):
+            pd.Series([1, 2, 3], name=['invalid', 'name'])
 
 
 class TestListValidation:

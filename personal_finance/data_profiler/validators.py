@@ -90,11 +90,11 @@ def _validate_dataframe(df: pd.DataFrame) -> bool:
     Raises:
         ProfileDataError: If DataFrame is invalid
     """
-    if df.empty:
-        raise ProfileDataError("DataFrame cannot be empty")
-    
     if len(df.columns) == 0:
         raise ProfileDataError("DataFrame must have at least one column")
+    
+    if df.empty:
+        raise ProfileDataError("DataFrame cannot be empty")
     
     # Check for extremely large DataFrames that might cause memory issues
     if len(df) > 1_000_000 or len(df.columns) > 1000:
@@ -341,18 +341,22 @@ def validate_and_prepare_data(profile_data: Any) -> Union[pd.DataFrame, pd.Serie
     Raises:
         ProfileDataError: If data is not compatible
     """
-    # First validate the data
-    validate_profile_data(profile_data)
-    
-    # If it's a list of dictionaries, convert to DataFrame for better performance
+    # If it's a list of dictionaries, try to convert to DataFrame for better performance
     if isinstance(profile_data, list) and profile_data and isinstance(profile_data[0], dict):
         try:
+            # First try to validate as records format to check schema consistency
+            validate_profile_data(profile_data)
+            # If validation passes, convert to DataFrame
             df = pd.DataFrame(profile_data)
             logger.info("Converted list of dictionaries to pandas DataFrame")
             return df
-        except Exception as e:
-            logger.warning(f"Failed to convert to DataFrame: {e}. Using original data.")
+        except ProfileDataError:
+            # If validation fails (e.g., inconsistent schema), return original data with warning
+            logger.warning("Failed to validate data structure. Using original data.")
             return profile_data
+    
+    # For all other cases, validate first then process
+    validate_profile_data(profile_data)
     
     # If it's a dictionary with consistent list values, convert to DataFrame
     if isinstance(profile_data, dict):
