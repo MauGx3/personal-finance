@@ -94,13 +94,13 @@ def _validate_dataframe(df: pd.DataFrame) -> bool:
     if len(df.columns) == 0 and len(df) == 0:
         raise ProfileDataError("DataFrame cannot be empty")
     
-    # Check for DataFrame with rows but no columns
-    if len(df.columns) == 0:
-        raise ProfileDataError("DataFrame must have at least one column")
-    
     # Check for DataFrame with columns but no rows
     if len(df) == 0:
         raise ProfileDataError("DataFrame cannot be empty")
+    
+    # Check for DataFrame with rows but no columns
+    if len(df.columns) == 0:
+        raise ProfileDataError("DataFrame must have at least one column")
     
     # Check for extremely large DataFrames that might cause memory issues
     if len(df) > 1_000_000 or len(df.columns) > 1000:
