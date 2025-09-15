@@ -79,7 +79,7 @@ All messages follow this JSON structure:
 **Portfolio Subscription**
 ```json
 {
-    "type": "subscribe_portfolio", 
+    "type": "subscribe_portfolio",
     "data": {
         "portfolio_id": 123
     }
@@ -151,25 +151,25 @@ class SimpleWebSocketClient {
         this.url = url;
         this.socket = null;
     }
-    
+
     connect() {
         this.socket = new WebSocket(this.url);
-        
+
         this.socket.onopen = (event) => {
             console.log('Connected to WebSocket');
             this.sendMessage('ping', {});
         };
-        
+
         this.socket.onmessage = (event) => {
             const message = JSON.parse(event.data);
             this.handleMessage(message);
         };
-        
+
         this.socket.onclose = (event) => {
             console.log('WebSocket connection closed');
         };
     }
-    
+
     sendMessage(type, data) {
         const message = {
             type: type,
@@ -178,7 +178,7 @@ class SimpleWebSocketClient {
         };
         this.socket.send(JSON.stringify(message));
     }
-    
+
     handleMessage(message) {
         switch(message.type) {
             case 'asset_update':
@@ -191,11 +191,11 @@ class SimpleWebSocketClient {
                 console.log('Received:', message);
         }
     }
-    
+
     subscribeToAsset(symbol) {
         this.sendMessage('subscribe_asset', { symbol: symbol });
     }
-    
+
     subscribeToPortfolio(portfolioId) {
         this.sendMessage('subscribe_portfolio', { portfolio_id: portfolioId });
     }
@@ -220,27 +220,27 @@ function useWebSocket(url) {
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState([]);
     const socket = useRef(null);
-    
+
     useEffect(() => {
         socket.current = new WebSocket(url);
-        
+
         socket.current.onopen = () => setIsConnected(true);
         socket.current.onclose = () => setIsConnected(false);
         socket.current.onmessage = (event) => {
             const message = JSON.parse(event.data);
             setMessages(prev => [...prev, message]);
         };
-        
+
         return () => socket.current.close();
     }, [url]);
-    
+
     const sendMessage = (type, data) => {
         if (socket.current && socket.current.readyState === WebSocket.OPEN) {
             const message = { type, data, timestamp: new Date().toISOString() };
             socket.current.send(JSON.stringify(message));
         }
     };
-    
+
     return { isConnected, messages, sendMessage };
 }
 
@@ -248,13 +248,13 @@ function useWebSocket(url) {
 function PortfolioTracker({ portfolioId }) {
     const { isConnected, messages, sendMessage } = useWebSocket('ws://localhost:8000/ws/realtime/');
     const [portfolioValue, setPortfolioValue] = useState(0);
-    
+
     useEffect(() => {
         if (isConnected) {
             sendMessage('subscribe_portfolio', { portfolio_id: portfolioId });
         }
     }, [isConnected, portfolioId]);
-    
+
     useEffect(() => {
         const portfolioUpdates = messages.filter(m => m.type === 'portfolio_update');
         const latestUpdate = portfolioUpdates[portfolioUpdates.length - 1];
@@ -262,7 +262,7 @@ function PortfolioTracker({ portfolioId }) {
             setPortfolioValue(latestUpdate.data.total_value);
         }
     }, [messages]);
-    
+
     return (
         <div>
             <h3>Portfolio Value: ${portfolioValue.toFixed(2)}</h3>

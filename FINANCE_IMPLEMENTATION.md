@@ -11,7 +11,7 @@ The following components have been successfully implemented following the S.C.A.
 #### `personal_finance.portfolios`
 Complete portfolio management system with:
 - **Portfolio Model**: User-owned portfolio groupings with performance tracking
-- **Position Model**: Individual asset holdings with cost basis and return calculations  
+- **Position Model**: Individual asset holdings with cost basis and return calculations
 - **Transaction Model**: Buy/sell transaction tracking for accurate position management
 - **PortfolioSnapshot Model**: Historical performance snapshots for trend analysis
 
@@ -472,7 +472,7 @@ Complete tax reporting and optimization module implemented with:
 - `POST /api/tax/analytics/calculate/`: Trigger tax calculations for user transactions
 - Tax estimates, optimization metrics, and investment income analysis
 
-#### Tax Loss Harvesting  
+#### Tax Loss Harvesting
 - `GET /api/tax/loss-harvesting/`: List current loss harvesting opportunities
 - `POST /api/tax/loss-harvesting/analyze/`: Analyze portfolios for new opportunities
 - Alternative investment suggestions and tax benefit estimates
@@ -555,7 +555,7 @@ python manage.py generate_tax_reports --report-type schedule_d --output-dir /tmp
 
 The personal finance platform now includes **ALL** major components for comprehensive financial management:
 
-### ✅ **Core Infrastructure** 
+### ✅ **Core Infrastructure**
 - Django architecture with PostgreSQL database
 - User management and authentication
 - Asset management with real-time pricing
@@ -636,7 +636,7 @@ from personal_finance.analytics.services import PerformanceAnalytics
 
 analytics = PerformanceAnalytics()
 metrics = analytics.calculate_portfolio_metrics(
-    portfolio, 
+    portfolio,
     start_date=date(2024, 1, 1),
     end_date=date(2024, 12, 31)
 )

@@ -160,33 +160,33 @@ celery>=5.3.0           # Background tasks
 
 ### Junior Developer Support
 ```python
-def calculate_portfolio_return(positions: List[Position], 
-                             start_date: datetime, 
+def calculate_portfolio_return(positions: List[Position],
+                             start_date: datetime,
                              end_date: datetime) -> Decimal:
     """Calculate portfolio return over a specified period.
-    
+
     This function computes the total return of a portfolio by:
     1. Calculating individual position returns
     2. Weighting returns by position size
     3. Accounting for any dividends or distributions
-    
+
     Args:
         positions: List of portfolio positions to analyze
         start_date: Beginning of analysis period
         end_date: End of analysis period
-        
+
     Returns:
         Total portfolio return as a decimal (0.10 = 10%)
-        
+
     Raises:
         ValueError: If start_date is after end_date
         DataNotFoundError: If price data is missing for any position
-        
+
     Example:
         >>> positions = get_user_portfolio(user_id=123)
         >>> return_rate = calculate_portfolio_return(
-        ...     positions, 
-        ...     datetime(2024, 1, 1), 
+        ...     positions,
+        ...     datetime(2024, 1, 1),
         ...     datetime(2024, 12, 31)
         ... )
         >>> print(f"Annual return: {return_rate:.2%}")
@@ -198,18 +198,18 @@ def calculate_portfolio_return(positions: List[Position],
 ```python
 class DataSourceManager:
     """Manages multiple data sources with automatic fallbacks.
-    
+
     Implements the circuit breaker pattern to handle API failures
     gracefully and ensure application reliability.
     """
-    
+
     def __init__(self):
         self.sources = [
             YahooFinanceSource(),
             StockdexSource(),
             AlphaVantageSource(),
         ]
-    
+
     def get_stock_price(self, symbol: str) -> Optional[Decimal]:
         """Get current stock price with automatic fallback."""
         for source in self.sources:
@@ -219,7 +219,7 @@ class DataSourceManager:
             except (APIError, RateLimitError) as e:
                 logger.warning(f"Source {source.name} failed: {e}")
                 continue
-        
+
         logger.error(f"All data sources failed for symbol: {symbol}")
         return None
 ```

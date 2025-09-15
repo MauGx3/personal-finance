@@ -2,8 +2,8 @@
 
 from django.urls import path, include
 
-app_name = 'backtesting'
+app_name = "backtesting"
 
 urlpatterns = [
-    path('api/', include('personal_finance.backtesting.api.urls')),
+    path("api/", include("personal_finance.backtesting.api.urls")),
 ]
