@@ -8,7 +8,7 @@ After multiple CI/CD failures, the test suite has been streamlined to focus on *
 
 ### ✅ What We Test (Working)
 - **Core Django Models**: User, Asset, Portfolio, Holding from the assets app
-- **Basic Relationships**: User-Portfolio, Asset-Holding relationships  
+- **Basic Relationships**: User-Portfolio, Asset-Holding relationships
 - **Database Operations**: CRUD operations on migrated models
 - **Model Constraints**: Basic validation and string representations
 
@@ -26,7 +26,7 @@ After multiple CI/CD failures, the test suite has been streamlined to focus on *
 
 ### Disabled Tests (*.disabled files)
 - `test_comprehensive_platform.py.disabled` - Full platform testing
-- `test_api_integration.py.disabled` - API endpoint testing  
+- `test_api_integration.py.disabled` - API endpoint testing
 - `test_financial_calculations.py.disabled` - Financial math testing
 - `test_tax_compliance.py.disabled` - Tax feature testing
 - `test_basic_functionality_simple.py.disabled` - Previous basic tests
@@ -56,7 +56,7 @@ The CI failures occurred because the test suite was trying to test a **complete 
 
 Multiple attempts to fix imports with try/catch blocks and mock classes only addressed symptoms, not the root cause:
 - Adding graceful imports for `PriceHistory` model
-- Creating mock classes for missing models  
+- Creating mock classes for missing models
 - Patching individual import errors as they appeared
 - Adding conditional model checks in serializers and views
 
@@ -65,12 +65,12 @@ Multiple attempts to fix imports with try/catch blocks and mock classes only add
 ```
 ✅ MIGRATED (Working):
 - assets app: Asset, Portfolio, Holding models
-- users app: User model  
+- users app: User model
 - contrib.sites: Django sites framework
 
 ❌ NOT MIGRATED (Causing failures):
 - portfolios app: Position, Transaction models (347 lines)
-- backtesting app: Strategy, Backtest models (715 lines)  
+- backtesting app: Strategy, Backtest models (715 lines)
 - tax app: TaxLot, TaxYear models (467 lines)
 - analytics, data_sources, visualization, realtime apps
 ```
@@ -88,7 +88,7 @@ To expand the test suite in the future:
 
 The current minimal approach ensures:
 - ✅ Django can start without import errors
-- ✅ Tests collect and run successfully  
+- ✅ Tests collect and run successfully
 - ✅ No external dependencies required
 - ✅ Fast execution for rapid feedback
 - ✅ Reliable foundation for future expansion
@@ -101,10 +101,10 @@ The current minimal approach ensures:
 def test_asset_creation():
     """Test basic asset creation with migrated model."""
     from personal_finance.assets.models import Asset
-    
+
     asset = Asset.objects.create(
         symbol="AAPL",
-        name="Apple Inc.", 
+        name="Apple Inc.",
         asset_type="STOCK"
     )
     assert asset.symbol == "AAPL"

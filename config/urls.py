@@ -29,10 +29,14 @@ urlpatterns = [
         "assets/", include("personal_finance.assets.urls", namespace="assets")
     ),
     path(
-        "dashboard/", include("personal_finance.visualization.urls", namespace="visualization")
+        "dashboard/",
+        include(
+            "personal_finance.visualization.urls", namespace="visualization"
+        ),
     ),
     path(
-        "realtime/", include("personal_finance.realtime.urls", namespace="realtime")
+        "realtime/",
+        include("personal_finance.realtime.urls", namespace="realtime"),
     ),
     # ...
     # Media files
