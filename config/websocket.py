@@ -63,13 +63,13 @@ class WebSocketHandler:
         await self.send({"type": "websocket.send", "text": welcome_msg})
 
         logger.info(
-            f"WebSocket connected: {self.connection_id}, user: {user_id}"
+            "WebSocket connected: %s, user: %s", self.connection_id, user_id
         )
 
     async def disconnect(self):
         """Handle WebSocket disconnection."""
         await connection_manager.disconnect(self.connection_id)
-        logger.info(f"WebSocket disconnected: {self.connection_id}")
+        logger.info("WebSocket disconnected: %s", self.connection_id)
 
     async def receive_message(self, text_data: str):
         """Handle incoming WebSocket messages."""
@@ -99,7 +99,7 @@ class WebSocketHandler:
         except json.JSONDecodeError:
             await self.send_error("Invalid JSON format")
         except Exception as e:
-            logger.error(f"Error handling message: {e}")
+            logger.error("Error handling message: %s", e)
             await self.send_error("Internal server error")
 
     async def handle_ping(self):
@@ -282,6 +282,6 @@ async def websocket_application(scope, receive, send):
                 await handler.receive_message(text_data)
 
     except Exception as e:
-        logger.error(f"WebSocket error: {e}")
+        logger.error("WebSocket error: %s", e)
     finally:
         await handler.disconnect()

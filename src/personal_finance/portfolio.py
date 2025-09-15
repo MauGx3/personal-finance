@@ -103,11 +103,11 @@ class PortfolioManager:
             self.db_manager.add_or_update_ticker(symbol, name)
 
             logging.info(
-                f"Added/Updated position: {symbol} - {quantity} shares"
+                "Added/Updated position: %s - %s shares", symbol, quantity
             )
 
         except Exception as e:
-            logging.error(f"Error adding position {symbol}: {e}")
+            logging.error("Error adding position %s: %s", symbol, e)
             raise
 
     def remove_position(self, symbol: str):
@@ -115,11 +115,11 @@ class PortfolioManager:
         try:
             success = self.db_manager.remove_portfolio_position(symbol)
             if success:
-                logging.info(f"Removed position: {symbol}")
+                logging.info("Removed position: %s", symbol)
             else:
-                logging.warning(f"Position {symbol} not found")
+                logging.warning("Position %s not found", symbol)
         except Exception as e:
-            logging.error(f"Error removing position {symbol}: {e}")
+            logging.error("Error removing position %s: %s", symbol, e)
             raise
 
     def get_current_prices(self) -> Dict[str, float]:
