@@ -284,7 +284,7 @@ class Command(BaseCommand):
             from personal_finance.portfolios.models import Transaction
         except ImportError:
             Transaction = None
-            
+
         from personal_finance.tax.models import CapitalGainLoss, DividendIncome
 
         # Count relevant data
@@ -411,7 +411,7 @@ class Command(BaseCommand):
                     json.dump(report.report_data, f, indent=2, default=str)
                 if self.verbose:
                     self.stdout.write(f"Saved {json_file}")
-            except (OSError, IOError) as e:
+            except OSError as e:
                 logger.error(f"Error saving file {json_file}: {str(e)}")
                 self.stdout.write(
                     self.style.ERROR(f"Failed to save {json_file}: {str(e)}")

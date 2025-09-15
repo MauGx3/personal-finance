@@ -18,7 +18,7 @@ User = get_user_model()
 @pytest.mark.django_db
 class TestBasicFunctionality:
     """Test basic platform functionality without complex dependencies."""
-    
+
     def test_user_creation(self):
         """Test that we can create users."""
         user = User.objects.create_user(
@@ -29,7 +29,7 @@ class TestBasicFunctionality:
         assert user.username == "testuser"
         assert user.email == "test@example.com"
         assert user.check_password("testpass123")
-    
+
     def test_django_setup_working(self):
         """Test that Django is properly configured."""
         from django.conf import settings
@@ -41,11 +41,11 @@ class TestBasicFunctionality:
 @pytest.mark.django_db
 class TestAssetModels:
     """Test asset models without complex factories."""
-    
+
     def test_asset_creation_simple(self):
         """Test basic asset model creation using only fields from migration schema."""
         from personal_finance.assets.models import Asset
-        
+
         asset = Asset.objects.create(
             symbol="AAPL",
             name="Apple Inc.",
@@ -53,7 +53,7 @@ class TestAssetModels:
             currency="USD",
             exchange="NASDAQ"
         )
-        
+
         assert asset.symbol == "AAPL"
         assert asset.name == "Apple Inc."
         assert asset.asset_type == Asset.ASSET_STOCK
@@ -62,33 +62,33 @@ class TestAssetModels:
         assert asset.is_active is True
 
 
-@pytest.mark.django_db  
+@pytest.mark.django_db
 class TestPortfolioModels:
     """Test portfolio models with minimal setup."""
-    
+
     def test_portfolio_creation_simple(self):
         """Test basic portfolio creation using legacy assets portfolio."""
         from personal_finance.assets.models import Portfolio
-        
+
         user = User.objects.create_user(
             username="portfoliouser",
             email="portfolio@example.com",
             password="testpass123"
         )
-        
+
         portfolio = Portfolio.objects.create(
             user=user,
             name="Test Portfolio",
             description="A test portfolio"
         )
-        
+
         assert portfolio.name == "Test Portfolio"
         assert portfolio.user == user
 
 
 class TestRestFrameworkBasics:
     """Test that Django REST Framework is working."""
-    
+
     def test_django_rest_framework_installed(self):
         """Test that DRF is properly installed."""
         import rest_framework

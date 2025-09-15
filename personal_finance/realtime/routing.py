@@ -8,5 +8,5 @@ from django.urls import path
 from . import websocket
 
 websocket_urlpatterns = [
-    path('ws/realtime/', websocket.websocket_application),
+    path("ws/realtime/", websocket.websocket_application),
 ]
