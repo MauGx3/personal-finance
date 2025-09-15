@@ -224,7 +224,7 @@ service = DataProfilerService()
 if service.is_available():
     # DataProfiler is installed and available
     profile = service.create_profile(financial_data)
-    
+
     if profile:
         print("Profile summary:", profile['summary'])
         print("Column profiles:", profile['column_profiles'])

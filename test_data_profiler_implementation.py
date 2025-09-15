@@ -7,34 +7,37 @@ import sys
 import os
 
 # Add the project path
-sys.path.insert(0, '/home/runner/work/personal-finance/personal-finance')
+sys.path.insert(0, "/home/runner/work/personal-finance/personal-finance")
+
 
 def test_basic_structure():
     """Test that the module structure is correct."""
     print("Testing module structure...")
-    
+
     # Check if directories exist
-    data_profiler_path = '/home/runner/work/personal-finance/personal-finance/personal_finance/data_profiler'
-    assert os.path.exists(data_profiler_path), "data_profiler directory should exist"
-    
+    data_profiler_path = "/home/runner/work/personal-finance/personal-finance/personal_finance/data_profiler"
+    assert os.path.exists(data_profiler_path), (
+        "data_profiler directory should exist"
+    )
+
     # Check if key files exist
-    init_file = os.path.join(data_profiler_path, '__init__.py')
-    validators_file = os.path.join(data_profiler_path, 'validators.py')
-    services_file = os.path.join(data_profiler_path, 'services.py')
-    apps_file = os.path.join(data_profiler_path, 'apps.py')
-    
+    init_file = os.path.join(data_profiler_path, "__init__.py")
+    validators_file = os.path.join(data_profiler_path, "validators.py")
+    services_file = os.path.join(data_profiler_path, "services.py")
+    apps_file = os.path.join(data_profiler_path, "apps.py")
+
     assert os.path.exists(init_file), "__init__.py should exist"
     assert os.path.exists(validators_file), "validators.py should exist"
     assert os.path.exists(services_file), "services.py should exist"
     assert os.path.exists(apps_file), "apps.py should exist"
-    
+
     print("✓ Module structure is correct")
 
 
 def test_error_class():
     """Test that the ProfileDataError class is defined correctly."""
     print("Testing ProfileDataError class...")
-    
+
     try:
         # Import the error class directly
         exec("""
@@ -58,7 +61,7 @@ print("✓ ProfileDataError class works correctly")
 def test_validation_logic():
     """Test basic validation logic without pandas."""
     print("Testing basic validation logic...")
-    
+
     # Test the basic validation patterns we would use
     test_code = """
 def basic_none_check(data):
@@ -102,14 +105,14 @@ assert basic_string_check("valid_string") == True
 
 print("✓ Basic validation logic works correctly")
 """
-    
+
     exec(test_code)
 
 
 def test_file_validation():
     """Test file validation logic."""
     print("Testing file validation logic...")
-    
+
     test_code = """
 def test_file_extension_check(file_path):
     supported_extensions = {'.csv', '.json', '.parquet', '.xlsx', '.txt'}
@@ -125,14 +128,14 @@ assert test_file_extension_check('data.unknown') == False
 
 print("✓ File validation logic works correctly")
 """
-    
+
     exec(test_code)
 
 
 def test_sensitive_data_patterns():
     """Test sensitive data detection patterns."""
     print("Testing sensitive data detection patterns...")
-    
+
     test_code = """
 def looks_like_ssn(value):
     # Simple pattern: XXX-XX-XXXX or XXXXXXXXX
@@ -157,38 +160,38 @@ assert looks_like_account_number('1234567') == False  # Too short
 
 print("✓ Sensitive data pattern detection works correctly")
 """
-    
+
     exec(test_code)
 
 
 def test_data_type_checks():
     """Test data type checking logic."""
     print("Testing data type checking logic...")
-    
+
     test_code = """
 def check_supported_types(data):
     # Check for supported types (without pandas/numpy)
     if data is None:
         return False, "None not supported"
-    
+
     if isinstance(data, list):
         if len(data) == 0:
             return False, "Empty list not supported"
         return True, "List supported"
-    
+
     if isinstance(data, dict):
         if len(data) == 0:
             return False, "Empty dict not supported"
         return True, "Dict supported"
-    
+
     if isinstance(data, str):
         if len(data.strip()) == 0:
             return False, "Empty string not supported"
         return True, "String supported"
-    
+
     if isinstance(data, (int, float)):
         return False, "Raw numbers need to be in containers"
-    
+
     return False, f"Type {type(data)} not supported"
 
 # Test various data types
@@ -212,7 +215,7 @@ assert is_valid == False
 
 print("✓ Data type checking works correctly")
 """
-    
+
     exec(test_code)
 
 
@@ -220,7 +223,7 @@ def main():
     """Run all tests."""
     print("Running DataProfiler validation tests...")
     print("=" * 50)
-    
+
     try:
         test_basic_structure()
         test_error_class()
@@ -228,7 +231,7 @@ def main():
         test_file_validation()
         test_sensitive_data_patterns()
         test_data_type_checks()
-        
+
         print("=" * 50)
         print("✓ All tests passed!")
         print("\nThe DataProfiler validation implementation:")
@@ -240,9 +243,9 @@ def main():
         print("6. Validates data types correctly")
         print("\nThis addresses the issue where DataProfiler constructor")
         print("call may fail if profile_data is not in the expected format.")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"✗ Test failed: {e}")
         return False
