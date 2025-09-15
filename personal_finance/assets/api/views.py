@@ -3,6 +3,7 @@
 from datetime import date, timedelta
 from decimal import Decimal
 
+import logging
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status, viewsets, permissions
@@ -269,8 +270,9 @@ class AssetViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         except Exception as e:
+            logging.exception("Error calculating asset performance metrics for asset ID %s", str(asset.id))
             return Response(
-                {"error": f"Failed to calculate metrics: {str(e)}"},
+                {"error": "Failed to calculate metrics due to an internal server error."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
