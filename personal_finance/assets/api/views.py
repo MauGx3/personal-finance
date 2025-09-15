@@ -310,8 +310,12 @@ class AssetViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         except Exception as e:
+            logging.exception(
+                "Error calculating technical indicators for asset ID %s",
+                str(asset.id),
+            )
             return Response(
-                {"error": f"Failed to calculate indicators: {str(e)}"},
+                {"error": "Failed to calculate technical indicators due to an internal server error."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
