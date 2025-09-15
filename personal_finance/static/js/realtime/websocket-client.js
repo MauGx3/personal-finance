@@ -414,9 +414,9 @@ class WebSocketClient {
 
         const logEntry = document.createElement('div');
         logEntry.className = `log-entry ${typeColors[type] || 'text-dark'}`;
-      
+
         logEntry.textContent = `[${timestamp}] ${message}`;
-        
+
 
         logContainer.appendChild(logEntry);
         logContainer.scrollTop = logContainer.scrollHeight;

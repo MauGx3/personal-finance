@@ -1,13 +1,16 @@
 """Security tests for backtesting API views."""
 
 import json
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
 try:
-    from personal_finance.backtesting.api.views import BacktestViewSet, quick_backtest
+    from personal_finance.backtesting.api.views import (
+        BacktestViewSet,
+        quick_backtest,
+    )
 except ImportError:
     # Handle graceful import failure for testing
     BacktestViewSet = None
@@ -24,7 +27,9 @@ class BacktestAPISecurityTestCase(TestCase):
         self.user.is_authenticated = True
 
     @patch("personal_finance.backtesting.api.views.BacktestEngine")
-    def test_run_backtest_error_does_not_expose_exception_details(self, mock_engine):
+    def test_run_backtest_error_does_not_expose_exception_details(
+        self, mock_engine
+    ):
         """Test that backtest execution errors don't expose internal details."""
         if BacktestViewSet is None:
             self.skipTest("BacktestViewSet not available")
@@ -53,7 +58,9 @@ class BacktestAPISecurityTestCase(TestCase):
         response = viewset.run(request, pk=1)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
 
         # Verify error message is generic
@@ -99,7 +106,9 @@ class BacktestAPISecurityTestCase(TestCase):
         response = quick_backtest(request)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
 
         # Verify error message is generic
@@ -135,8 +144,8 @@ class BacktestAPISecurityTestCase(TestCase):
                     if BacktestViewSet is None:
                         continue
 
-                    mock_engine.return_value.run_backtest.side_effect = Exception(
-                        sensitive_msg
+                    mock_engine.return_value.run_backtest.side_effect = (
+                        Exception(sensitive_msg)
                     )
 
                     viewset = BacktestViewSet()
@@ -150,7 +159,9 @@ class BacktestAPISecurityTestCase(TestCase):
 
                     # Verify response structure
                     response_data = response.data
-                    self.assertEqual(set(response_data.keys()), expected_error_structure)
+                    self.assertEqual(
+                        set(response_data.keys()), expected_error_structure
+                    )
 
                     # Verify no sensitive data leakage
                     response_content = json.dumps(response_data)

@@ -63,7 +63,9 @@ class VisualizationAPISecurityTestCase(TestCase):
         self.assertEqual(set(response_data.keys()), expected_keys)
 
     @patch("personal_finance.visualization.views.get_object_or_404")
-    def test_portfolio_performance_chart_api_error_security(self, mock_get_object):
+    def test_portfolio_performance_chart_api_error_security(
+        self, mock_get_object
+    ):
         """Test that portfolio performance chart API doesn't expose exception details."""
         # Mock to raise an exception with sensitive information
         mock_get_object.side_effect = Exception(
@@ -80,14 +82,20 @@ class VisualizationAPISecurityTestCase(TestCase):
         self.assertEqual(response.status_code, 500)
 
         response_data = json.loads(response.content.decode())
-        self.assertEqual(response_data["error"], "Failed to generate performance chart")
+        self.assertEqual(
+            response_data["error"], "Failed to generate performance chart"
+        )
         self.assertNotIn("message", response_data)
         self.assertNotIn("server=db.internal", response.content.decode())
 
     @patch("personal_finance.visualization.views.get_object_or_404")
-    def test_portfolio_allocation_chart_api_error_security(self, mock_get_object):
+    def test_portfolio_allocation_chart_api_error_security(
+        self, mock_get_object
+    ):
         """Test that portfolio allocation chart API doesn't expose exception details."""
-        mock_get_object.side_effect = Exception("Auth token: sk-1234567890abcdef")
+        mock_get_object.side_effect = Exception(
+            "Auth token: sk-1234567890abcdef"
+        )
 
         request = self.factory.get("/api/portfolio/1/allocation/")
         request.user = self.user
@@ -96,11 +104,15 @@ class VisualizationAPISecurityTestCase(TestCase):
 
         self.assertEqual(response.status_code, 500)
         response_data = json.loads(response.content.decode())
-        self.assertEqual(response_data["error"], "Failed to generate allocation chart")
+        self.assertEqual(
+            response_data["error"], "Failed to generate allocation chart"
+        )
         self.assertNotIn("sk-1234567890abcdef", response.content.decode())
 
     @patch("personal_finance.visualization.views.get_object_or_404")
-    def test_portfolio_risk_metrics_chart_api_error_security(self, mock_get_object):
+    def test_portfolio_risk_metrics_chart_api_error_security(
+        self, mock_get_object
+    ):
         """Test that portfolio risk metrics chart API doesn't expose exception details."""
         mock_get_object.side_effect = Exception("API_KEY=secret_key_here")
 
@@ -111,7 +123,9 @@ class VisualizationAPISecurityTestCase(TestCase):
 
         self.assertEqual(response.status_code, 500)
         response_data = json.loads(response.content.decode())
-        self.assertEqual(response_data["error"], "Failed to generate risk metrics chart")
+        self.assertEqual(
+            response_data["error"], "Failed to generate risk metrics chart"
+        )
         self.assertNotIn("secret_key_here", response.content.decode())
 
     @patch("personal_finance.visualization.views.get_object_or_404")
@@ -128,7 +142,9 @@ class VisualizationAPISecurityTestCase(TestCase):
 
         self.assertEqual(response.status_code, 500)
         response_data = json.loads(response.content.decode())
-        self.assertEqual(response_data["error"], "Failed to generate asset price chart")
+        self.assertEqual(
+            response_data["error"], "Failed to generate asset price chart"
+        )
         self.assertNotIn("/etc/secrets", response.content.decode())
 
 
