@@ -31,6 +31,7 @@ from personal_finance.assets.models import Asset
 
 logger = logging.getLogger(__name__)
 
+
 class PortfolioViewSet(viewsets.ModelViewSet):
     """ViewSet for portfolio management with comprehensive analytics."""
 
@@ -134,10 +135,12 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             return Response(serializer.data)
 
-        except Exception as e:
+        except Exception:
             logger.exception("Error calculating portfolio performance metrics")
             return Response(
-                {"error": "Failed to calculate metrics due to an internal error."},
+                {
+                    "error": "Failed to calculate metrics due to an internal error."
+                },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
