@@ -12,13 +12,15 @@ except ImportError:
     PriceHistoryViewSet = None
 
 router = DefaultRouter()
-router.register(r'assets', AssetViewSet, basename='asset')
+router.register(r"assets", AssetViewSet, basename="asset")
 
 # Only register if PriceHistoryViewSet is available
 if PriceHistoryViewSet:
-    router.register(r'price-history', PriceHistoryViewSet, basename='price-history')
+    router.register(
+        r"price-history", PriceHistoryViewSet, basename="price-history"
+    )
 
-app_name = 'assets-api'
+app_name = "assets-api"
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

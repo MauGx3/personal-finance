@@ -3,7 +3,10 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.routers import SimpleRouter
 
 from personal_finance.assets.api.views import AssetViewSet
-from personal_finance.assets.api.views import HoldingViewSet, PortfolioViewSet as LegacyPortfolioViewSet
+from personal_finance.assets.api.views import (
+    HoldingViewSet,
+    PortfolioViewSet as LegacyPortfolioViewSet,
+)
 
 # Graceful import handling for missing views
 try:
@@ -13,10 +16,15 @@ except ImportError:
 
 try:
     from personal_finance.portfolios.api.views import (
-        PortfolioViewSet, PositionViewSet, TransactionViewSet, PortfolioSnapshotViewSet
+        PortfolioViewSet,
+        PositionViewSet,
+        TransactionViewSet,
+        PortfolioSnapshotViewSet,
     )
 except ImportError:
-    PortfolioViewSet = PositionViewSet = TransactionViewSet = PortfolioSnapshotViewSet = None
+    PortfolioViewSet = PositionViewSet = TransactionViewSet = (
+        PortfolioSnapshotViewSet
+    ) = None
 
 try:
     from personal_finance.users.api.views import UserViewSet
@@ -30,10 +38,14 @@ except ImportError:
 
 try:
     from personal_finance.tax.views import (
-        TaxYearViewSet, TaxLotViewSet, CapitalGainLossViewSet,
-        DividendIncomeViewSet, TaxLossHarvestingOpportunityViewSet,
-        TaxOptimizationRecommendationViewSet, TaxReportViewSet,
-        TaxAnalyticsViewSet
+        TaxYearViewSet,
+        TaxLotViewSet,
+        CapitalGainLossViewSet,
+        DividendIncomeViewSet,
+        TaxLossHarvestingOpportunityViewSet,
+        TaxOptimizationRecommendationViewSet,
+        TaxReportViewSet,
+        TaxAnalyticsViewSet,
     )
 except ImportError:
     TaxYearViewSet = TaxLotViewSet = CapitalGainLossViewSet = None
@@ -68,25 +80,43 @@ router.register("holdings", HoldingViewSet)
 
 # Real-time WebSocket management
 if RealtimeViewSet:
-    router.register("realtime", RealtimeViewSet, basename='realtime')
+    router.register("realtime", RealtimeViewSet, basename="realtime")
 
 # Tax reporting and optimization
 if TaxYearViewSet:
-    router.register("tax/tax-years", TaxYearViewSet, basename='tax-taxyear')
+    router.register("tax/tax-years", TaxYearViewSet, basename="tax-taxyear")
 if TaxLotViewSet:
-    router.register("tax/tax-lots", TaxLotViewSet, basename='tax-taxlot')
+    router.register("tax/tax-lots", TaxLotViewSet, basename="tax-taxlot")
 if CapitalGainLossViewSet:
-    router.register("tax/capital-gains-losses", CapitalGainLossViewSet, basename='tax-capitalgainloss')
+    router.register(
+        "tax/capital-gains-losses",
+        CapitalGainLossViewSet,
+        basename="tax-capitalgainloss",
+    )
 if DividendIncomeViewSet:
-    router.register("tax/dividend-income", DividendIncomeViewSet, basename='tax-dividendincome')
+    router.register(
+        "tax/dividend-income",
+        DividendIncomeViewSet,
+        basename="tax-dividendincome",
+    )
 if TaxLossHarvestingOpportunityViewSet:
-    router.register("tax/loss-harvesting", TaxLossHarvestingOpportunityViewSet, basename='tax-lossharvesting')
+    router.register(
+        "tax/loss-harvesting",
+        TaxLossHarvestingOpportunityViewSet,
+        basename="tax-lossharvesting",
+    )
 if TaxOptimizationRecommendationViewSet:
-    router.register("tax/recommendations", TaxOptimizationRecommendationViewSet, basename='tax-recommendations')
+    router.register(
+        "tax/recommendations",
+        TaxOptimizationRecommendationViewSet,
+        basename="tax-recommendations",
+    )
 if TaxReportViewSet:
-    router.register("tax/reports", TaxReportViewSet, basename='tax-reports')
+    router.register("tax/reports", TaxReportViewSet, basename="tax-reports")
 if TaxAnalyticsViewSet:
-    router.register("tax/analytics", TaxAnalyticsViewSet, basename='tax-analytics')
+    router.register(
+        "tax/analytics", TaxAnalyticsViewSet, basename="tax-analytics"
+    )
 
 app_name = "api"
 urlpatterns = router.urls

@@ -21,6 +21,11 @@ repos:
       - id: check-docstring-first
       - id: detect-private-key
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+
   - repo: https://github.com/adamchainz/django-upgrade
     rev: '1.27.0'
     hooks:
@@ -48,3 +53,9 @@ ci:
   autoupdate_schedule: weekly
   skip: []
   submodules: false
+  autofix_commit_msg: |
+        [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+        for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''

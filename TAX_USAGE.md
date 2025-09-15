@@ -404,7 +404,7 @@ from celery import shared_task
 def process_daily_tax_calculations():
     """Process tax calculations for recent transactions."""
     from personal_finance.tax.services import TaxCalculationService
-    
+
     tax_service = TaxCalculationService()
     # Process recent transactions
     # Generate reports if month-end
@@ -422,10 +422,10 @@ class CustomTaxOptimizationService(TaxOptimizationService):
     def generate_custom_recommendations(self, user, portfolio):
         """Generate custom tax recommendations."""
         recommendations = []
-        
+
         # Implement custom logic
         # Add to recommendations list
-        
+
         return recommendations
 ```
 
