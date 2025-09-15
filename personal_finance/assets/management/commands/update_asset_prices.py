@@ -354,7 +354,9 @@ class Command(BaseCommand):
             return False
 
         except Exception as e:
-            logger.error("Historical data update error for {asset.symbol}: %s", e)
+            logger.error(
+                "Historical data update error for {asset.symbol}: %s", e
+            )
             return False
 
     def _show_data_source_status(self):

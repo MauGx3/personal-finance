@@ -189,7 +189,9 @@ def _validate_numpy_array(arr: np.ndarray) -> bool:
             "Consider converting to DataFrame with explicit column types."
         )
 
-    logger.info("numpy array validation passed: shape {arr.shape}, dtype %s", arr.dtype)
+    logger.info(
+        "numpy array validation passed: shape {arr.shape}, dtype %s", arr.dtype
+    )
     return True
 
 
@@ -223,7 +225,7 @@ def _validate_list_data(data: List[Any]) -> bool:
         logger.warning(
             "List contains many different types: %s. "
             "This may cause issues with DataProfiler.",
-            unique_types
+            unique_types,
         )
 
     logger.info("List validation passed: %s items", len(data))
@@ -266,7 +268,10 @@ def _validate_records_format(records: List[Dict[str, Any]]) -> bool:
                 f"Invalid key name: '{key}'. Keys must be non-empty strings."
             )
 
-    logger.info("Records validation passed: {len(records)} records with %s fields", len(first_keys))
+    logger.info(
+        "Records validation passed: {len(records)} records with %s fields",
+        len(first_keys),
+    )
     return True
 
 
@@ -343,7 +348,8 @@ def _validate_string_data(data: str) -> bool:
         logger.warning(
             "File path '%s' does not have a recognized extension. "
             "Supported extensions: %s",
-            data, supported_extensions
+            data,
+            supported_extensions,
         )
 
     # Note: We don't check if file exists here since DataProfiler will handle that
@@ -409,6 +415,9 @@ def validate_and_prepare_data(
                     logger.info("Converted dictionary to pandas DataFrame")
                     return df
         except Exception as e:
-            logger.warning("Failed to convert dictionary to DataFrame: %s. Using original data.", e)
+            logger.warning(
+                "Failed to convert dictionary to DataFrame: %s. Using original data.",
+                e,
+            )
 
     return profile_data

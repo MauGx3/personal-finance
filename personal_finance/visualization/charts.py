@@ -194,7 +194,9 @@ class PortfolioCharts:
             ).order_by("date")
 
             if not snapshots.exists():
-                logger.warning("No snapshot data for portfolio %s", portfolio.id)
+                logger.warning(
+                    "No snapshot data for portfolio %s", portfolio.id
+                )
                 return self._create_empty_chart(
                     "No performance data available"
                 )

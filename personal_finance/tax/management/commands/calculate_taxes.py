@@ -206,7 +206,10 @@ class Command(BaseCommand):
 
                     except Exception as e:
                         error_count += 1
-                        logger.error("Error processing transaction {trans.id}: %s", str(e))
+                        logger.error(
+                            "Error processing transaction {trans.id}: %s",
+                            str(e),
+                        )
                         self.stdout.write(
                             self.style.ERROR(
                                 f"Error processing {trans}: {str(e)}"

@@ -204,7 +204,10 @@ class Command(BaseCommand):
 
             except Exception as e:
                 error_count += 1
-                logger.error("Error generating reports for user {user.username}: %s", str(e))
+                logger.error(
+                    "Error generating reports for user {user.username}: %s",
+                    str(e),
+                )
                 self.stdout.write(
                     self.style.ERROR(f"Error for {user.username}: {str(e)}")
                 )

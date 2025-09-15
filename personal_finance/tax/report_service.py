@@ -40,7 +40,10 @@ class TaxReportService:
         Returns:
             Generated TaxReport instance
         """
-        logger.info("Generating Schedule D report for {user.username} - %s", tax_year.year)
+        logger.info(
+            "Generating Schedule D report for {user.username} - %s",
+            tax_year.year,
+        )
 
         # Calculate capital gains/losses
         capital_gains_data = (
@@ -138,7 +141,10 @@ class TaxReportService:
         Returns:
             Generated TaxReport instance
         """
-        logger.info("Generating dividend report for {user.username} - %s", tax_year.year)
+        logger.info(
+            "Generating dividend report for {user.username} - %s",
+            tax_year.year,
+        )
 
         # Calculate dividend income
         dividend_data = self.tax_calc_service.calculate_dividend_income(
@@ -234,7 +240,10 @@ class TaxReportService:
         Returns:
             Generated TaxReport instance
         """
-        logger.info("Generating Form 8949 report for {user.username} - %s", tax_year.year)
+        logger.info(
+            "Generating Form 8949 report for {user.username} - %s",
+            tax_year.year,
+        )
 
         # Get all capital gains/losses with full detail
         gains_losses = (
@@ -317,7 +326,10 @@ class TaxReportService:
         Returns:
             Generated TaxReport instance
         """
-        logger.info("Generating tax summary report for {user.username} - %s", tax_year.year)
+        logger.info(
+            "Generating tax summary report for {user.username} - %s",
+            tax_year.year,
+        )
 
         # Get capital gains/losses data
         capital_gains_data = (
@@ -435,7 +447,10 @@ class TaxReportService:
         Returns:
             Generated TaxReport instance
         """
-        logger.info("Generating loss carryforward report for {user.username} - %s", tax_year.year)
+        logger.info(
+            "Generating loss carryforward report for {user.username} - %s",
+            tax_year.year,
+        )
 
         # Get capital losses from previous years
         previous_years_losses = []
@@ -545,7 +560,10 @@ class TaxReportService:
         Returns:
             Dictionary of report type to TaxReport instance
         """
-        logger.info("Generating all tax reports for {user.username} - %s", tax_year.year)
+        logger.info(
+            "Generating all tax reports for {user.username} - %s",
+            tax_year.year,
+        )
 
         reports = {}
 

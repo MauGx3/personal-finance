@@ -75,7 +75,9 @@ class Command(BaseCommand):
                 )
 
         except Exception as e:
-            logger.error("Error identifying loss harvesting opportunities: %s", str(e))
+            logger.error(
+                "Error identifying loss harvesting opportunities: %s", str(e)
+            )
             raise CommandError(f"Loss harvesting analysis failed: {str(e)}")
 
     def _analyze_user(
