@@ -51,6 +51,8 @@ jobs:
           pytest -q || [ $? -eq 5 ]
 
   security-audit:
+    permissions:
+      contents: read
     name: Security audit (pip-audit)
     runs-on: ubuntu-latest
     needs: test
