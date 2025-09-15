@@ -276,7 +276,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             serializer = AllocationDataSerializer(allocation_data, many=True)
             return Response(serializer.data)
 
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to get allocation data.")
             return Response(
                 {"error": "Failed to get allocation data."},
