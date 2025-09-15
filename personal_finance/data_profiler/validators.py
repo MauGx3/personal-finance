@@ -73,9 +73,10 @@ def validate_profile_data(profile_data: Any) -> bool:
 
     # If none of the above, it's not compatible
     raise ProfileDataError(
-        f"Unsupported data type: {type(profile_data).__name__}. "
+        "Unsupported data type: %s. "
         "DataProfiler supports pandas DataFrame/Series, numpy arrays, "
-        "lists of dictionaries, or file paths."
+        "lists of dictionaries, or file paths.",
+        type(profile_data).__name__
     )
 
 
@@ -127,7 +128,7 @@ def _validate_dataframe(df: pd.DataFrame) -> bool:
         )
 
     logger.info(
-        f"DataFrame validation passed: {len(df)} rows, {len(df.columns)} columns"
+        "DataFrame validation passed: %s rows, %s columns", len(df), len(df.columns)
     )
     return True
 
