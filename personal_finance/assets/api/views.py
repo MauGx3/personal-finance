@@ -269,10 +269,15 @@ class AssetViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             return Response(serializer.data)
 
-        except Exception as e:
-            logging.exception("Error calculating asset performance metrics for asset ID %s", str(asset.id))
+        except Exception:
+            logging.exception(
+                "Error calculating asset performance metrics for asset ID %s",
+                str(asset.id),
+            )
             return Response(
-                {"error": "Failed to calculate metrics due to an internal server error."},
+                {
+                    "error": "Failed to calculate metrics due to an internal server error."
+                },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
