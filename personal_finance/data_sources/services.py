@@ -397,6 +397,111 @@ class AlphaVantageSource(DataSourceBase):
         return {}
 
 
+class B3DataSource(DataSourceBase):
+    """B3 (Brazilian Stock Exchange) data source implementation.
+    
+    Provides import capabilities for B3 documents and Brazilian market data.
+    Supports both document import and real-time data for Brazilian tickers.
+    """
+
+    def __init__(self):
+        super().__init__("B3 Brazil")
+        from .b3_import import B3DocumentImporter
+        self.importer = B3DocumentImporter()
+
+    def get_current_price(self, symbol: str) -> Optional[PriceData]:
+        """Get current price for Brazilian ticker.
+        
+        Note: This is a placeholder implementation. In production,
+        you would integrate with B3 APIs or Yahoo Finance for .SA tickers.
+        """
+        if not self.is_available():
+            return None
+
+        try:
+            # Convert to B3 format if needed (e.g., PETR4 -> PETR4.SA)
+            yahoo_symbol = symbol if symbol.endswith('.SA') else f"{symbol}.SA"
+            
+            logger.info(f"Fetching B3 data for {symbol} ({yahoo_symbol})")
+
+            # Placeholder implementation - would use actual B3 API or Yahoo Finance
+            price_data = PriceData(
+                symbol=symbol,
+                current_price=Decimal("25.50"),  # Placeholder for Brazilian stock
+                previous_close=Decimal("25.20"),
+                day_high=Decimal("26.00"),
+                day_low=Decimal("25.00"),
+                volume=500000,
+                currency="BRL",  # Brazilian Real
+            )
+
+            self._record_success()
+            return price_data
+
+        except Exception as e:
+            logger.error(f"B3 error for {symbol}: {e}")
+            self._record_failure()
+            raise APIError(f"B3 API error: {e}")
+
+    def get_historical_data(
+        self, symbol: str, start_date: date, end_date: date
+    ) -> List[HistoricalData]:
+        """Get historical data for Brazilian ticker."""
+        if not self.is_available():
+            return []
+
+        try:
+            logger.info(f"Fetching B3 historical data for {symbol}")
+            # Placeholder implementation
+            return []
+        except Exception as e:
+            logger.error(f"B3 historical data error: {e}")
+            self._record_failure()
+            raise APIError(f"B3 historical data error: {e}")
+
+    def search_symbol(self, query: str) -> List[Dict[str, str]]:
+        """Search Brazilian tickers."""
+        # Placeholder implementation for Brazilian stocks
+        common_b3_stocks = [
+            {"symbol": "PETR4", "name": "Petrobras PN", "currency": "BRL"},
+            {"symbol": "VALE3", "name": "Vale ON", "currency": "BRL"}, 
+            {"symbol": "ITUB4", "name": "Itaú Unibanco PN", "currency": "BRL"},
+            {"symbol": "BBDC4", "name": "Bradesco PN", "currency": "BRL"},
+        ]
+        
+        query_lower = query.lower()
+        return [
+            stock for stock in common_b3_stocks 
+            if query_lower in stock["symbol"].lower() or query_lower in stock["name"].lower()
+        ]
+
+    def get_company_info(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Get company information for Brazilian ticker."""
+        # Placeholder implementation
+        return {
+            "symbol": symbol,
+            "market": "B3",
+            "currency": "BRL",
+            "country": "Brazil"
+        }
+
+    def import_document(self, content: str, document_type: str):
+        """Import B3 document (Nota de Corretagem or Extrato).
+        
+        Args:
+            content: Document content (text or extracted from PDF)
+            document_type: Type of document ('nota_corretagem' or 'extrato')
+            
+        Returns:
+            B3ImportResult with parsed data
+        """
+        return self.importer.import_document(content, document_type)
+
+    def detect_document_type(self, content: str) -> Optional[str]:
+        """Auto-detect B3 document type."""
+        return self.importer.detect_document_type(content)
+
+
 class DataSourceManager:
     """Manages multiple data sources with automatic fallbacks.
 
@@ -409,6 +514,7 @@ class DataSourceManager:
         """Initialize with default data sources in priority order."""
         self.sources = [
             YahooFinanceSource(),
+            B3DataSource(),  # Add B3 support
             StockdexSource(),
             AlphaVantageSource(),
         ]

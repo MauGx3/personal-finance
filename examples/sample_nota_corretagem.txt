@@ -1,0 +1,49 @@
+                            NOTA DE CORRETAGEM
+                         CORRETORA XYZ LTDA.
+                              CNPJ: 12.345.678/0001-90
+
+===============================================================================
+
+Cliente: João Silva                                     CPF: 123.456.789-00
+Conta: 123456                                          Data pregão: 15/03/2024
+Valor Líquido: R$ 12.685,50
+
+===============================================================================
+                                NEGÓCIOS REALIZADOS
+===============================================================================
+
+ESPECIFICAÇÃO DO TÍTULO    Q    PREÇO/AJUSTE    VALOR/AJUSTE    D/C
+
+PETR4         PETROBRAS PN  C   100    25,50        2.550,00      D
+VALE3         VALE ON       C   200    45,75        9.150,00      D  
+ITUB4         ITAU PN       V   150    30,20        4.530,00      C
+
+===============================================================================
+                                   RESUMO DOS NEGÓCIOS
+===============================================================================
+
+Debitos                                               13.700,00
+Vendas à vista                                         4.530,00
+Valor líquido das operações                           9.170,00
+
+===============================================================================
+                                RESUMO FINANCEIRO
+===============================================================================
+
+Taxa de liquidação                                        15,50
+Taxa de corretagem                                        25,00  
+Emolumentos                                                5,00
+Taxa A.N.A.                                               0,50
+ISS                                                        1,25
+I.R.R.F. s/ operações, base R$ 0,00                       0,00
+
+Total das despesas                                        47,25
+
+Valor líquido para pagamento/recebimento                9.217,25
+
+===============================================================================
+
+Observações:
+- C = Compra / V = Venda
+- Data de liquidação: 18/03/2024
+- Esta nota é válida somente para os negócios nela especificados

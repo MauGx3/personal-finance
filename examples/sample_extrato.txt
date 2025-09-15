@@ -1,0 +1,53 @@
+                              EXTRATO DE CONTA CORRENTE
+                                CORRETORA XYZ LTDA.
+                                  CNPJ: 12.345.678/0001-90
+
+===============================================================================
+
+Cliente: João Silva                                       CPF: 123.456.789-00
+Conta: 123456                                            Período: 01/03/2024 a 31/03/2024
+
+===============================================================================
+                                    MOVIMENTAÇÃO
+===============================================================================
+
+DATA       HISTÓRICO                               DÉBITO      CRÉDITO     SALDO
+
+01/03/2024 Saldo anterior                                                120.000,00
+
+03/03/2024 Transferência recebida                             5.000,00   125.000,00
+
+15/03/2024 Compra PETR4 - 100 cotas                2.550,00             122.450,00
+15/03/2024 Compra VALE3 - 200 cotas                9.150,00             113.300,00  
+15/03/2024 Venda ITUB4 - 150 cotas                            4.530,00   117.830,00
+15/03/2024 Taxa de corretagem                        25,00               117.805,00
+15/03/2024 Taxa de liquidação                        15,50               117.789,50
+15/03/2024 Emolumentos                                5,00               117.784,50
+15/03/2024 Taxa A.N.A.                               0,50               117.784,00
+15/03/2024 ISS                                       1,25               117.782,75
+
+20/03/2024 Dividendos PETR4                                    125,50    117.908,25
+22/03/2024 JCP VALE3                                           89,75     117.998,00
+
+25/03/2024 Compra BBDC4 - 300 cotas                3.450,00             114.548,00
+25/03/2024 Taxa de corretagem                        15,00               114.533,00
+
+31/03/2024 Saldo final                                                  114.533,00
+
+===============================================================================
+                                      RESUMO
+===============================================================================
+
+Saldo inicial                                                         120.000,00
+Total de créditos                                                       9.745,25
+Total de débitos                                                       15.212,25
+Saldo final                                                           114.533,00
+
+===============================================================================
+
+Movimentação de custódia em anexo.
+
+Observações:
+- Valores em Reais (R$)
+- Para dúvidas, entre em contato com sua corretora
+- Este extrato é válido para fins de Imposto de Renda
