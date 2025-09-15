@@ -372,7 +372,7 @@ class PolarsDataProcessor:
                 true_range = pl.max_horizontal(
                     [high_low, high_close, low_close]
                 )
-                atr = true_range.rolling_mean(window_size=14)
+                atr = true_range.rolling_mean(window=14)
 
                 result_df = result_df.with_columns(
                     [true_range.alias("true_range"), atr.alias("atr_14")]
