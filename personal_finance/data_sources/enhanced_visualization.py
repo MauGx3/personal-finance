@@ -350,7 +350,7 @@ class EnhancedPortfolioVisualizer:
                         x=risks, y=returns, text=symbols,
                         mode='markers+text',
                         marker=dict(
-                            size=[v/max(values)*50 + 10 for v in values] if values else 20,
+                            size=([v/max(values)*50 + 10 for v in values] if values and max(values) > 0 else [20 for _ in values]) if values else 20,
                             sizemode='diameter',
                             opacity=0.7,
                             color=returns,
