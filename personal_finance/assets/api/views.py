@@ -309,13 +309,15 @@ class AssetViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             return Response(serializer.data)
 
-        except Exception as e:
+        except Exception:
             logging.exception(
                 "Error calculating technical indicators for asset ID %s",
                 str(asset.id),
             )
             return Response(
-                {"error": "Failed to calculate technical indicators due to an internal server error."},
+                {
+                    "error": "Failed to calculate technical indicators due to an internal server error."
+                },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
