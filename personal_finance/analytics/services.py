@@ -87,9 +87,7 @@ class PerformanceAnalytics:
             ).order_by("snapshot_date")
 
             if len(snapshots) < 2:
-                logger.warning(
-                    f"Insufficient data for portfolio {portfolio.id}"
-                )
+                logger.warning("Insufficient data for portfolio %s", portfolio.id)
                 return self._empty_metrics()
 
             # Convert to pandas for efficient calculations

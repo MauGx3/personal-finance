@@ -175,9 +175,7 @@ class DataSourceBase(ABC):
         """Record a failure for circuit breaker pattern."""
         self._circuit_breaker_failures += 1
         self._circuit_breaker_last_failure = timezone.now()
-        logger.warning(
-            f"Data source {self.name} failure #{self._circuit_breaker_failures}"
-        )
+        logger.warning("Data source {self.name} failure #%s", self._circuit_breaker_failures)
 
     def _record_success(self):
         """Record a success, resetting circuit breaker."""
@@ -444,15 +442,11 @@ class DataSourceManager:
                 if source.is_available():
                     price_data = source.get_current_price(symbol)
                     if price_data:
-                        logger.info(
-                            f"Successfully fetched {symbol} from {source.name}"
-                        )
+                        logger.info("Successfully fetched {symbol} from %s", source.name)
                         self._record_source_success(source.name)
                         return price_data
             except (APIError, RateLimitError) as e:
-                logger.warning(
-                    f"Source {source.name} failed for {symbol}: {e}"
-                )
+                logger.warning("Source {source.name} failed for {symbol}: %s", e)
                 self._record_source_failure(source.name)
                 continue
             except Exception as e:
@@ -473,19 +467,13 @@ class DataSourceManager:
                         symbol, start_date, end_date
                     )
                     if historical_data:
-                        logger.info(
-                            f"Successfully fetched historical data for {symbol} from {source.name}"
-                        )
+                        logger.info("Successfully fetched historical data for {symbol} from %s", source.name)
                         return historical_data
             except (APIError, RateLimitError) as e:
-                logger.warning(
-                    f"Historical data source {source.name} failed: {e}"
-                )
+                logger.warning("Historical data source {source.name} failed: %s", e)
                 continue
             except Exception as e:
-                logger.error(
-                    f"Unexpected historical data error from {source.name}: {e}"
-                )
+                logger.error("Unexpected historical data error from {source.name}: %s", e)
                 continue
 
         logger.error("All sources failed for historical data: %s", symbol)

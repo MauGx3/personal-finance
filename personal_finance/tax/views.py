@@ -198,9 +198,7 @@ class TaxLossHarvestingOpportunityViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         except Exception as e:
-            logger.error(
-                f"Error analyzing loss harvesting opportunities: {str(e)}"
-            )
+            logger.error("Error analyzing loss harvesting opportunities: %s", str(e))
             return Response(
                 {"error": "Failed to analyze opportunities"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -284,9 +282,7 @@ class TaxOptimizationRecommendationViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         except Exception as e:
-            logger.error(
-                f"Error generating optimization recommendations: {str(e)}"
-            )
+            logger.error("Error generating optimization recommendations: %s", str(e))
             return Response(
                 {"error": "Failed to generate recommendations"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -551,9 +547,7 @@ class TaxAnalyticsViewSet(viewsets.ViewSet):
 
             except Exception as e:
                 error_count += 1
-                logger.error(
-                    f"Error processing transaction {transaction.id}: {str(e)}"
-                )
+                logger.error("Error processing transaction {transaction.id}: %s", str(e))
 
         return Response(
             {
