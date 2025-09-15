@@ -277,8 +277,9 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         except Exception as e:
+            logger.exception("Failed to get allocation data.")
             return Response(
-                {"error": f"Failed to get allocation data: {str(e)}"},
+                {"error": "Failed to get allocation data."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
