@@ -75,7 +75,8 @@ def main():
 
         logger.info(
             "Database contains %s tickers and %s portfolio positions",
-            len(tickers), len(positions)
+            len(tickers),
+            len(positions),
         )
 
     except Exception as e:
