@@ -201,7 +201,7 @@ class BacktestViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error(f"Backtest execution failed: {str(e)}")
             return Response(
-                {"error": f"Backtest execution failed: {str(e)}"},
+                {"error": "Backtest execution failed"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -560,6 +560,6 @@ def quick_backtest(request):
     except Exception as e:
         logger.error(f"Quick backtest failed: {str(e)}")
         return Response(
-            {"error": f"Quick backtest failed: {str(e)}"},
+            {"error": "Quick backtest failed"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

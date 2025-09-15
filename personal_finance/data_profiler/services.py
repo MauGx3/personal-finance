@@ -214,7 +214,7 @@ class DataProfilerService:
 
         except Exception as e:
             logger.error(f"Error extracting profile results: {e}")
-            return {"error": str(e)}
+            return {"error": "Failed to extract profile results"}
 
     def _extract_summary_stats(self, report: Dict[str, Any]) -> Dict[str, Any]:
         """Extract summary statistics from profile report.

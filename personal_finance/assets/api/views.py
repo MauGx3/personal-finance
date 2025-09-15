@@ -270,7 +270,7 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response(
-                {"error": f"Failed to calculate metrics: {str(e)}"},
+                {"error": "Failed to calculate metrics"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -304,7 +304,7 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response(
-                {"error": f"Failed to calculate indicators: {str(e)}"},
+                {"error": "Failed to calculate indicators"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -413,12 +413,12 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         except (ValueError, TypeError) as e:
             return Response(
-                {"error": f"Invalid price data: {str(e)}"},
+                {"error": "Invalid price data"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception as e:
             return Response(
-                {"error": f"Failed to update price: {str(e)}"},
+                {"error": "Failed to update price"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -471,7 +471,7 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response(
-                {"error": f"Failed to refresh data: {str(e)}"},
+                {"error": "Failed to refresh data"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 

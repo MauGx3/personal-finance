@@ -133,7 +133,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response(
-                {"error": f"Failed to calculate metrics: {str(e)}"},
+                {"error": "Failed to calculate metrics"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -271,7 +271,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response(
-                {"error": f"Failed to get allocation data: {str(e)}"},
+                {"error": "Failed to get allocation data"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -348,7 +348,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response(
-                {"error": f"Failed to get historical data: {str(e)}"},
+                {"error": "Failed to get historical data"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 

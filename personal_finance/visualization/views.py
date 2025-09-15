@@ -134,10 +134,7 @@ def portfolio_performance_chart_api(
     except Exception as e:
         logger.error(f"Error generating performance chart: {e}")
         return JsonResponse(
-            {
-                "error": "Failed to generate performance chart",
-                "message": str(e),
-            },
+            {"error": "Failed to generate performance chart"},
             status=500,
         )
 
@@ -169,10 +166,7 @@ def portfolio_allocation_chart_api(
     except Exception as e:
         logger.error(f"Error generating allocation chart: {e}")
         return JsonResponse(
-            {
-                "error": "Failed to generate allocation chart",
-                "message": str(e),
-            },
+            {"error": "Failed to generate allocation chart"},
             status=500,
         )
 
@@ -204,10 +198,7 @@ def portfolio_risk_metrics_chart_api(
     except Exception as e:
         logger.error(f"Error generating risk metrics chart: {e}")
         return JsonResponse(
-            {
-                "error": "Failed to generate risk metrics chart",
-                "message": str(e),
-            },
+            {"error": "Failed to generate risk metrics chart"},
             status=500,
         )
 
@@ -241,10 +232,7 @@ def asset_price_chart_api(request: HttpRequest, asset_id: int) -> JsonResponse:
     except Exception as e:
         logger.error(f"Error generating asset price chart: {e}")
         return JsonResponse(
-            {
-                "error": "Failed to generate asset price chart",
-                "message": str(e),
-            },
+            {"error": "Failed to generate asset price chart"},
             status=500,
         )
 
