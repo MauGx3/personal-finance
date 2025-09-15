@@ -106,7 +106,7 @@ class PriceFeedService:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error(f"Error in price update loop: {e}")
+                logger.error("Error in price update loop: %s", e)
                 await asyncio.sleep(self.update_interval)
 
     async def _update_subscribed_assets(self):
@@ -122,7 +122,7 @@ class PriceFeedService:
             return
 
         logger.debug(
-            f"Updating prices for {len(subscribed_symbols)} subscribed assets"
+            "Updating prices for %s subscribed assets", len(subscribed_symbols)
         )
 
         # Process assets in batches to avoid overwhelming the API
@@ -156,7 +156,7 @@ class PriceFeedService:
                 async for position in portfolio_positions:
                     assets.add(position.asset.symbol)
             except Portfolio.DoesNotExist:
-                logger.warning(f"Portfolio {portfolio_id} not found")
+                logger.warning("Portfolio %s not found", portfolio_id)
             except Exception as e:
                 logger.error(
                     f"Error getting assets for portfolio {portfolio_id}: {e}"
@@ -175,7 +175,7 @@ class PriceFeedService:
                 await self._process_price_update(symbol, price_data)
 
         except Exception as e:
-            logger.error(f"Error updating asset batch {symbols}: {e}")
+            logger.error("Error updating asset batch %s: %s", symbols, e)
 
     async def _fetch_price_updates(
         self, symbols: List[str]
@@ -224,7 +224,7 @@ class PriceFeedService:
                     cache.set(cache_key, update_data, self.cache_timeout)
 
             except Exception as e:
-                logger.error(f"Error fetching price for {symbol}: {e}")
+                logger.error("Error fetching price for %s: %s", symbol, e)
 
         return price_updates
 
@@ -249,7 +249,7 @@ class PriceFeedService:
             await self._update_portfolio_values(symbol, price_data)
 
         except Exception as e:
-            logger.error(f"Error processing price update for {symbol}: {e}")
+            logger.error("Error processing price update for %s: %s", symbol, e)
 
     async def _update_asset_price(
         self, symbol: str, price_data: Dict[str, Any]
@@ -299,9 +299,9 @@ class PriceFeedService:
                 )
 
         except Asset.DoesNotExist:
-            logger.warning(f"Asset {symbol} not found in database")
+            logger.warning("Asset %s not found in database", symbol)
         except Exception as e:
-            logger.error(f"Error updating asset price for {symbol}: {e}")
+            logger.error("Error updating asset price for %s: %s", symbol, e)
 
     async def _broadcast_asset_update(
         self, symbol: str, price_data: Dict[str, Any]
@@ -358,7 +358,7 @@ class PriceFeedService:
                 await self._broadcast_portfolio_update(portfolio_id)
 
         except Exception as e:
-            logger.error(f"Error updating portfolio values for {symbol}: {e}")
+            logger.error("Error updating portfolio values for %s: %s", symbol, e)
 
     async def _broadcast_portfolio_update(self, portfolio_id: int):
         """Broadcast portfolio value update to subscribers."""
@@ -400,7 +400,7 @@ class PriceFeedService:
             )
 
         except Portfolio.DoesNotExist:
-            logger.warning(f"Portfolio {portfolio_id} not found")
+            logger.warning("Portfolio %s not found", portfolio_id)
         except Exception as e:
             logger.error(
                 f"Error broadcasting portfolio update for {portfolio_id}: {e}"
@@ -465,7 +465,7 @@ class PriceFeedService:
                 # Message would be sent to the specific connection
 
         except Asset.DoesNotExist:
-            logger.warning(f"Asset {symbol} not found for subscription")
+            logger.warning("Asset %s not found for subscription", symbol)
 
     async def subscribe_to_portfolio(
         self, connection_id: str, portfolio_id: int

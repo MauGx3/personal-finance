@@ -187,7 +187,7 @@ class PerformanceAnalytics:
             }
 
         except Exception as e:
-            logger.error(f"Error calculating portfolio metrics: {e}")
+            logger.error("Error calculating portfolio metrics: %s", e)
             return self._empty_metrics()
 
     def calculate_asset_correlation_matrix(
@@ -235,7 +235,7 @@ class PerformanceAnalytics:
             return correlation_matrix
 
         except Exception as e:
-            logger.error(f"Error calculating correlation matrix: {e}")
+            logger.error("Error calculating correlation matrix: %s", e)
             return None
 
     def calculate_portfolio_allocation(
@@ -313,7 +313,7 @@ class PerformanceAnalytics:
             return allocations
 
         except Exception as e:
-            logger.error(f"Error calculating portfolio allocation: {e}")
+            logger.error("Error calculating portfolio allocation: %s", e)
             return {
                 "asset_type": {},
                 "sector": {},

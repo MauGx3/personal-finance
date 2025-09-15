@@ -283,7 +283,7 @@ class PortfolioCharts:
             }
 
         except Exception as e:
-            logger.error(f"Error creating performance chart: {e}")
+            logger.error("Error creating performance chart: %s", e)
             return self._create_empty_chart(
                 "Error generating performance chart"
             )
@@ -382,7 +382,7 @@ class PortfolioCharts:
             }
 
         except Exception as e:
-            logger.error(f"Error creating allocation chart: {e}")
+            logger.error("Error creating allocation chart: %s", e)
             return self._create_empty_chart(
                 "Error generating allocation chart"
             )
@@ -554,7 +554,7 @@ class PortfolioCharts:
             }
 
         except Exception as e:
-            logger.error(f"Error creating risk metrics chart: {e}")
+            logger.error("Error creating risk metrics chart: %s", e)
             return self._create_empty_chart(
                 "Error generating risk metrics chart"
             )
@@ -759,7 +759,7 @@ class AssetCharts:
             }
 
         except Exception as e:
-            logger.error(f"Error creating price chart: {e}")
+            logger.error("Error creating price chart: %s", e)
             return self._create_empty_chart("Error generating price chart")
 
     def _add_technical_indicators(
@@ -830,7 +830,7 @@ class AssetCharts:
                         )
 
             except Exception as e:
-                logger.warning(f"Failed to add indicator {indicator}: {e}")
+                logger.warning("Failed to add indicator %s: %s", indicator, e)
 
     def _create_empty_chart(self, message: str) -> Dict[str, Any]:
         """Create empty chart with message."""

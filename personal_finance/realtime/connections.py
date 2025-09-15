@@ -49,7 +49,7 @@ class ConnectionManager:
                 self.user_connections[user_id] = set()
             self.user_connections[user_id].add(connection_id)
 
-        logger.info(f"WebSocket connected: {connection_id}, user: {user_id}")
+        logger.info("WebSocket connected: %s, user: %s", connection_id, user_id)
 
     async def disconnect(self, connection_id: str):
         """
@@ -87,7 +87,7 @@ class ConnectionManager:
                     del self.asset_subscriptions[asset_symbol]
 
         del self.connections[connection_id]
-        logger.info(f"WebSocket disconnected: {connection_id}")
+        logger.info("WebSocket disconnected: %s", connection_id)
 
     async def subscribe_to_portfolio(
         self, connection_id: str, portfolio_id: int
@@ -109,7 +109,7 @@ class ConnectionManager:
         self.portfolio_subscriptions[portfolio_id].add(connection_id)
 
         logger.debug(
-            f"Connection {connection_id} subscribed to portfolio {portfolio_id}"
+            "Connection %s subscribed to portfolio %s", connection_id, portfolio_id
         )
 
     async def subscribe_to_asset(self, connection_id: str, asset_symbol: str):
@@ -130,7 +130,7 @@ class ConnectionManager:
         self.asset_subscriptions[asset_symbol].add(connection_id)
 
         logger.debug(
-            f"Connection {connection_id} subscribed to asset {asset_symbol}"
+            "Connection %s subscribed to asset %s", connection_id, asset_symbol
         )
 
     async def unsubscribe_from_portfolio(

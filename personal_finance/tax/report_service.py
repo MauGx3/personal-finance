@@ -125,7 +125,7 @@ class TaxReportService:
             },
         )
 
-        logger.info(f"Generated Schedule D report: {tax_report.id}")
+        logger.info("Generated Schedule D report: %s", tax_report.id)
         return tax_report
 
     def generate_dividend_report(
@@ -223,7 +223,7 @@ class TaxReportService:
             },
         )
 
-        logger.info(f"Generated dividend report: {tax_report.id}")
+        logger.info("Generated dividend report: %s", tax_report.id)
         return tax_report
 
     def generate_form_8949_report(
@@ -308,7 +308,7 @@ class TaxReportService:
             },
         )
 
-        logger.info(f"Generated Form 8949 report: {tax_report.id}")
+        logger.info("Generated Form 8949 report: %s", tax_report.id)
         return tax_report
 
     def generate_tax_summary_report(
@@ -428,7 +428,7 @@ class TaxReportService:
             },
         )
 
-        logger.info(f"Generated tax summary report: {tax_report.id}")
+        logger.info("Generated tax summary report: %s", tax_report.id)
         return tax_report
 
     def generate_loss_carryforward_report(
@@ -540,7 +540,7 @@ class TaxReportService:
             },
         )
 
-        logger.info(f"Generated loss carryforward report: {tax_report.id}")
+        logger.info("Generated loss carryforward report: %s", tax_report.id)
         return tax_report
 
     def generate_all_tax_reports(
@@ -578,10 +578,10 @@ class TaxReportService:
                 self.generate_loss_carryforward_report(user, tax_year)
             )
 
-            logger.info(f"Generated {len(reports)} tax reports successfully")
+            logger.info("Generated %s tax reports successfully", len(reports))
 
         except Exception as e:
-            logger.error(f"Error generating tax reports: {str(e)}")
+            logger.error("Error generating tax reports: %s", str(e))
             raise
 
         return reports

@@ -176,7 +176,7 @@ class Command(BaseCommand):
                 )
 
         except Exception as e:
-            logger.error(f"Command failed: {str(e)}")
+            logger.error("Command failed: %s", str(e))
             raise CommandError(f"Command execution failed: {str(e)}")
 
     def _create_and_run_strategy(self, options):

@@ -106,8 +106,9 @@ def _validate_dataframe(df: pd.DataFrame) -> bool:
     # Check for extremely large DataFrames that might cause memory issues
     if len(df) > 1_000_000 or len(df.columns) > 1000:
         logger.warning(
-            f"Large DataFrame detected: {len(df)} rows, {len(df.columns)} columns. "
-            "This may cause performance issues with DataProfiler."
+            "Large DataFrame detected: %s rows, %s columns. "
+            "This may cause performance issues with DataProfiler.",
+            len(df), len(df.columns)
         )
 
     # Check for problematic column names
@@ -152,7 +153,7 @@ def _validate_series(series: pd.Series) -> bool:
             f"Series name must be a string, integer, or float, got: {type(series.name).__name__}"
         )
 
-    logger.info(f"Series validation passed: {len(series)} values")
+    logger.info("Series validation passed: %s values", len(series))
     return True
 
 
@@ -211,7 +212,7 @@ def _validate_list_data(data: List[Any]) -> bool:
 
     # Check if it's a simple list of values
     if all(not isinstance(item, (dict, list)) for item in data):
-        logger.info(f"Simple list validation passed: {len(data)} items")
+        logger.info("Simple list validation passed: %s items", len(data))
         return True
 
     # Mixed types or nested structures might be problematic
@@ -222,7 +223,7 @@ def _validate_list_data(data: List[Any]) -> bool:
             "This may cause issues with DataProfiler."
         )
 
-    logger.info(f"List validation passed: {len(data)} items")
+    logger.info("List validation passed: %s items", len(data))
     return True
 
 
@@ -300,7 +301,7 @@ def _validate_dict_data(data: Dict[str, Any]) -> bool:
             # Scalar values are ok for single records
             continue
         else:
-            logger.warning(f"Complex nested structure detected in key '{key}'")
+            logger.warning("Complex nested structure detected in key '%s'", key)
 
     # If we have lists/arrays, they should all be the same length
     if list_lengths and len(set(list_lengths)) > 1:
@@ -308,7 +309,7 @@ def _validate_dict_data(data: Dict[str, Any]) -> bool:
             f"Inconsistent lengths in dictionary arrays: {dict(zip(data.keys(), list_lengths))}"
         )
 
-    logger.info(f"Dictionary validation passed: {len(data)} keys")
+    logger.info("Dictionary validation passed: %s keys", len(data))
     return True
 
 
@@ -344,7 +345,7 @@ def _validate_string_data(data: str) -> bool:
     # Note: We don't check if file exists here since DataProfiler will handle that
     # and this validation might be called before the file is created
 
-    logger.info(f"File path validation passed: '{data}'")
+    logger.info("File path validation passed: '%s'", data)
     return True
 
 

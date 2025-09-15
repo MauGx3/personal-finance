@@ -133,7 +133,7 @@ def update_all_ticker_prices(db_manager: DatabaseManager):
             if price > 0:
                 updated_count += 1
 
-        logging.info(f"Updated prices for {updated_count} tickers")
+        logging.info("Updated prices for %s tickers", updated_count)
         return updated_count
 
     except Exception as e:
