@@ -39,8 +39,10 @@ urlpatterns = [
         include("personal_finance.realtime.urls", namespace="realtime"),
     ),
     path(
-        "data-sources/", 
-        include("personal_finance.data_sources.urls", namespace="data_sources")
+        "data-sources/",
+        include(
+            "personal_finance.data_sources.urls", namespace="data_sources"
+        ),
     ),
     # ...
     # Media files
