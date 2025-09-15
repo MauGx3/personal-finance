@@ -49,7 +49,9 @@ class ConnectionManager:
                 self.user_connections[user_id] = set()
             self.user_connections[user_id].add(connection_id)
 
-        logger.info("WebSocket connected: %s, user: %s", connection_id, user_id)
+        logger.info(
+            "WebSocket connected: %s, user: %s", connection_id, user_id
+        )
 
     async def disconnect(self, connection_id: str):
         """
@@ -109,7 +111,9 @@ class ConnectionManager:
         self.portfolio_subscriptions[portfolio_id].add(connection_id)
 
         logger.debug(
-            "Connection %s subscribed to portfolio %s", connection_id, portfolio_id
+            "Connection %s subscribed to portfolio %s",
+            connection_id,
+            portfolio_id,
         )
 
     async def subscribe_to_asset(self, connection_id: str, asset_symbol: str):

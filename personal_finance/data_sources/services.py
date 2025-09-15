@@ -247,7 +247,9 @@ class YahooFinanceSource(DataSourceBase):
 
         try:
             # Placeholder implementation
-            logger.info("Fetching Yahoo Finance historical data for %s", symbol)
+            logger.info(
+                "Fetching Yahoo Finance historical data for %s", symbol
+            )
 
             # Would implement actual yfinance historical data fetch here
             historical_data = []
@@ -504,7 +506,9 @@ class DataSourceManager:
                             all_results.append(result)
                             seen_symbols.add(symbol)
             except Exception as e:
-                logger.warning("Symbol search failed for %s: %s", source.name, e)
+                logger.warning(
+                    "Symbol search failed for %s: %s", source.name, e
+                )
                 continue
 
         return all_results
