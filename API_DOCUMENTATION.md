@@ -88,7 +88,7 @@ Content-Type: application/json
 #### Market Data
 - `GET /api/analytics/market_data/` - Get market indices, sectors, currencies
 
-#### Risk Analytics  
+#### Risk Analytics
 - `GET /api/analytics/correlation_matrix/` - Asset correlation matrix
 - `GET /api/analytics/risk_metrics/` - Comprehensive risk metrics
 - `GET /api/analytics/asset_allocation_analysis/` - Allocation analysis
