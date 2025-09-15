@@ -367,10 +367,21 @@ class WebSocketClient {
         this.assetSubscriptions.forEach(symbol => {
             const li = document.createElement('li');
             li.className = 'mb-1';
-            li.innerHTML = `
-                <span class="badge badge-primary me-2">${symbol}</span>
-                <button class="btn btn-xs btn-outline-danger" onclick="wsClient.unsubscribeFromAsset('${symbol}')">×</button>
-            `;
+
+            // Badge span
+            const badge = document.createElement('span');
+            badge.className = 'badge badge-primary me-2';
+            badge.textContent = symbol;
+
+            // Unsubscribe button
+            const button = document.createElement('button');
+            button.className = 'btn btn-xs btn-outline-danger';
+            button.textContent = '×';
+            button.type = 'button';
+            button.addEventListener('click', () => this.unsubscribeFromAsset(symbol));
+
+            li.appendChild(badge);
+            li.appendChild(button);
             container.appendChild(li);
         });
     }
