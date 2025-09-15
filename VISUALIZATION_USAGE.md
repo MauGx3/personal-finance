@@ -118,7 +118,7 @@ All chart methods return a dictionary with the following structure:
 
 Available time periods for performance charts:
 - Last 30 Days
-- Last 3 Months  
+- Last 3 Months
 - Last 6 Months
 - Last Year (default)
 - Last 2 Years
