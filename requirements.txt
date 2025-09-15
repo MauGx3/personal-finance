@@ -30,7 +30,13 @@ yahoofinancials>=1.20
 stockdex>=1.2.0
 financepy>=1.0.1
 
-# Data analysis
+# Finance specific - Additional (S.C.A.F.F. requirements)
+pandas-market-calendars>=4.0.0
+FinanceDatabase>=2.0.0
+FinanceToolkit>=1.0.0
+bt>=0.2.9
+
+# Data analysis - Core
 pandas>=2.0.0
 matplotlib>=3.6.0
 numpy>=1.24.0
@@ -40,6 +46,11 @@ quantstats>=0.0.76
 scikit-learn>=1.2.0
 statsmodels>=0.14.0
 plotly>=5.13.0
+
+# Data analysis - Modern (S.C.A.F.F. requirements)
+polars>=0.20.0
+pyjanitor>=0.26.0
+bt>=0.2.9
 
 # Testing and development tools
 pytest>=6.0
