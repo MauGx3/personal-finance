@@ -159,7 +159,9 @@ class PriceFeedService:
                 logger.warning("Portfolio %s not found", portfolio_id)
             except Exception as e:
                 logger.error(
-                    "Error getting assets for portfolio %s: %s", portfolio_id, e
+                    "Error getting assets for portfolio %s: %s",
+                    portfolio_id,
+                    e,
                 )
 
         return assets
@@ -258,7 +260,8 @@ class PriceFeedService:
         # Skip if Asset model is not available
         if Asset is None:
             logger.debug(
-                "Asset model not available, skipping price update for %s", symbol
+                "Asset model not available, skipping price update for %s",
+                symbol,
             )
             return
 
@@ -295,7 +298,8 @@ class PriceFeedService:
             except (NotImplementedError, AttributeError):
                 # PriceHistory model is not available or implemented
                 logger.debug(
-                    "PriceHistory not available, skipping price history for %s", symbol
+                    "PriceHistory not available, skipping price history for %s",
+                    symbol,
                 )
 
         except Asset.DoesNotExist:
@@ -327,7 +331,9 @@ class PriceFeedService:
         )
 
         logger.debug(
-            "Broadcasting asset update for %s to %s subscribers", symbol, len(subscribers)
+            "Broadcasting asset update for %s to %s subscribers",
+            symbol,
+            len(subscribers),
         )
 
         # Note: Actual message sending would be handled by the WebSocket handler
@@ -340,7 +346,8 @@ class PriceFeedService:
         # Skip if portfolio models are not available
         if Position is None or Portfolio is None:
             logger.debug(
-                "Portfolio models not available, skipping portfolio updates for %s", symbol
+                "Portfolio models not available, skipping portfolio updates for %s",
+                symbol,
             )
             return
 
@@ -367,7 +374,8 @@ class PriceFeedService:
         # Skip if Portfolio model is not available
         if Portfolio is None:
             logger.debug(
-                "Portfolio model not available, skipping broadcast for portfolio %s", portfolio_id
+                "Portfolio model not available, skipping broadcast for portfolio %s",
+                portfolio_id,
             )
             return
 
@@ -398,14 +406,18 @@ class PriceFeedService:
             )
 
             logger.debug(
-                "Broadcasting portfolio update for %s to %s subscribers", portfolio_id, len(subscribers)
+                "Broadcasting portfolio update for %s to %s subscribers",
+                portfolio_id,
+                len(subscribers),
             )
 
         except Portfolio.DoesNotExist:
             logger.warning("Portfolio %s not found", portfolio_id)
         except Exception as e:
             logger.error(
-                "Error broadcasting portfolio update for %s: %s", portfolio_id, e
+                "Error broadcasting portfolio update for %s: %s",
+                portfolio_id,
+                e,
             )
 
     async def _calculate_portfolio_value(self, portfolio) -> Decimal:
@@ -449,7 +461,8 @@ class PriceFeedService:
         # Send current price immediately (if Asset model is available)
         if Asset is None:
             logger.debug(
-                "Asset model not available, skipping initial price for %s", symbol
+                "Asset model not available, skipping initial price for %s",
+                symbol,
             )
             return
 

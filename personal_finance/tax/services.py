@@ -60,7 +60,9 @@ class TaxCalculationService:
             Dict containing capital gains/losses breakdown
         """
         logger.info(
-            "Calculating capital gains/losses for %s - %s", user.username, tax_year.year
+            "Calculating capital gains/losses for %s - %s",
+            user.username,
+            tax_year.year,
         )
 
         # Get all capital gains/losses for the tax year
@@ -133,7 +135,9 @@ class TaxCalculationService:
             Dict containing dividend income breakdown
         """
         logger.info(
-            "Calculating dividend income for %s - %s", user.username, tax_year.year
+            "Calculating dividend income for %s - %s",
+            user.username,
+            tax_year.year,
         )
 
         dividends = DividendIncome.objects.filter(user=user, tax_year=tax_year)
@@ -213,8 +217,10 @@ class TaxCalculationService:
         )
 
         logger.info(
-            "Created tax lot for %s: %s shares @ $%s", 
-            transaction.position.asset.symbol, transaction.quantity, cost_basis_per_share
+            "Created tax lot for %s: %s shares @ $%s",
+            transaction.position.asset.symbol,
+            transaction.quantity,
+            cost_basis_per_share,
         )
         return tax_lot
 
@@ -303,8 +309,11 @@ class TaxCalculationService:
             remaining_to_sell -= shares_to_sell
 
             logger.info(
-                "Processed sale: %s shares of %s, %s %+.2f", 
-                shares_to_sell, transaction.position.asset.symbol, term, gain_loss_amount
+                "Processed sale: %s shares of %s, %s %+.2f",
+                shares_to_sell,
+                transaction.position.asset.symbol,
+                term,
+                gain_loss_amount,
             )
 
         return gains_losses
@@ -351,8 +360,9 @@ class TaxCalculationService:
         )
 
         logger.info(
-            "Processed dividend: %s $%s", 
-            transaction.position.asset.symbol, dividend_income.total_amount
+            "Processed dividend: %s $%s",
+            transaction.position.asset.symbol,
+            dividend_income.total_amount,
         )
         return dividend_income
 
@@ -377,7 +387,8 @@ class TaxLossHarvestingService:
             List of tax loss harvesting opportunities
         """
         logger.info(
-            "Identifying tax loss harvesting opportunities for %s", user.username
+            "Identifying tax loss harvesting opportunities for %s",
+            user.username,
         )
 
         opportunities = []
