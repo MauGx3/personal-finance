@@ -504,12 +504,12 @@ class DataProfilerService:
         - Area number (first 3 digits): not 000, 666, or 900-999
         - Group number (next 2 digits): not 00
         - Serial number (last 4 digits): not 0000
-        Accepts formats: XXX-XX-XXXX or XXXXXXXXX
+        Accepts formats: XXX-XX-XXXX, XXXXXXXXX, or XXX XX XXXX
         """
         import re
         value = str(value).strip()
-        # Accept both XXX-XX-XXXX and XXXXXXXXX formats
-        match = re.match(r'^(\d{3})-?(\d{2})-?(\d{4})$', value)
+        # Accept XXX-XX-XXXX, XXXXXXXXX, and XXX XX XXXX formats
+        match = re.match(r'^(\d{3})[-\s]?(\d{2})[-\s]?(\d{4})$', value)
         if not match:
             return False
         area, group, serial = match.group(1), match.group(2), match.group(3)
