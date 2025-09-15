@@ -3,6 +3,7 @@
 from datetime import date, timedelta
 from decimal import Decimal
 
+import logging
 from django.utils import timezone
 from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
@@ -27,6 +28,8 @@ from ..serializers import (
 from personal_finance.analytics.services import PerformanceAnalytics
 from personal_finance.assets.models import Asset
 
+
+logger = logging.getLogger(__name__)
 
 class PortfolioViewSet(viewsets.ModelViewSet):
     """ViewSet for portfolio management with comprehensive analytics."""
@@ -132,8 +135,9 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         except Exception as e:
+            logger.exception("Error calculating portfolio performance metrics")
             return Response(
-                {"error": f"Failed to calculate metrics: {str(e)}"},
+                {"error": "Failed to calculate metrics due to an internal error."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
