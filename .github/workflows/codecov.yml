@@ -21,12 +21,12 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Upload coverage to Codecov (arg token)
-        uses: codecov/codecov-action@main
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
+      # - name: Upload coverage to Codecov (arg token)
+      #   uses: codecov/codecov-action@main
+      #   with:
+      #     fail_ci_if_error: true
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     verbose: true
       - name: Upload coverage to Codecov (env token)
         uses: codecov/codecov-action@main
         with:
@@ -34,14 +34,14 @@ jobs:
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - name: Upload coverage to Codecov (no token)
-        uses: codecov/codecov-action@main
-        with:
-          fail_ci_if_error: true
-          verbose: true
-      - name: Upload coverage to Codecov (oidc)
-        uses: codecov/codecov-action@main
-        with:
-          fail_ci_if_error: true
-          use_oidc: true
-          verbose: true
+      # - name: Upload coverage to Codecov (no token)
+      #   uses: codecov/codecov-action@main
+      #   with:
+      #     fail_ci_if_error: true
+      #     verbose: true
+      # - name: Upload coverage to Codecov (oidc)
+      #   uses: codecov/codecov-action@main
+      #   with:
+      #     fail_ci_if_error: true
+      #     use_oidc: true
+      #     verbose: true
