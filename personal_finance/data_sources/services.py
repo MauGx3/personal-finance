@@ -399,7 +399,7 @@ class AlphaVantageSource(DataSourceBase):
 
 class B3DataSource(DataSourceBase):
     """B3 (Brazilian Stock Exchange) data source implementation.
-    
+
     Provides import capabilities for B3 documents and Brazilian market data.
     Supports both document import and real-time data for Brazilian tickers.
     """
@@ -407,11 +407,12 @@ class B3DataSource(DataSourceBase):
     def __init__(self):
         super().__init__("B3 Brazil")
         from .b3_import import B3DocumentImporter
+
         self.importer = B3DocumentImporter()
 
     def get_current_price(self, symbol: str) -> Optional[PriceData]:
         """Get current price for Brazilian ticker.
-        
+
         Note: This is a placeholder implementation. In production,
         you would integrate with B3 APIs or Yahoo Finance for .SA tickers.
         """
@@ -420,14 +421,16 @@ class B3DataSource(DataSourceBase):
 
         try:
             # Convert to B3 format if needed (e.g., PETR4 -> PETR4.SA)
-            yahoo_symbol = symbol if symbol.endswith('.SA') else f"{symbol}.SA"
-            
+            yahoo_symbol = symbol if symbol.endswith(".SA") else f"{symbol}.SA"
+
             logger.info(f"Fetching B3 data for {symbol} ({yahoo_symbol})")
 
             # Placeholder implementation - would use actual B3 API or Yahoo Finance
             price_data = PriceData(
                 symbol=symbol,
-                current_price=Decimal("25.50"),  # Placeholder for Brazilian stock
+                current_price=Decimal(
+                    "25.50"
+                ),  # Placeholder for Brazilian stock
                 previous_close=Decimal("25.20"),
                 day_high=Decimal("26.00"),
                 day_low=Decimal("25.00"),
@@ -464,15 +467,17 @@ class B3DataSource(DataSourceBase):
         # Placeholder implementation for Brazilian stocks
         common_b3_stocks = [
             {"symbol": "PETR4", "name": "Petrobras PN", "currency": "BRL"},
-            {"symbol": "VALE3", "name": "Vale ON", "currency": "BRL"}, 
+            {"symbol": "VALE3", "name": "Vale ON", "currency": "BRL"},
             {"symbol": "ITUB4", "name": "Itaú Unibanco PN", "currency": "BRL"},
             {"symbol": "BBDC4", "name": "Bradesco PN", "currency": "BRL"},
         ]
-        
+
         query_lower = query.lower()
         return [
-            stock for stock in common_b3_stocks 
-            if query_lower in stock["symbol"].lower() or query_lower in stock["name"].lower()
+            stock
+            for stock in common_b3_stocks
+            if query_lower in stock["symbol"].lower()
+            or query_lower in stock["name"].lower()
         ]
 
     def get_company_info(self, symbol: str) -> Optional[Dict[str, Any]]:
@@ -482,16 +487,16 @@ class B3DataSource(DataSourceBase):
             "symbol": symbol,
             "market": "B3",
             "currency": "BRL",
-            "country": "Brazil"
+            "country": "Brazil",
         }
 
     def import_document(self, content: str, document_type: str):
         """Import B3 document (Nota de Corretagem or Extrato).
-        
+
         Args:
             content: Document content (text or extracted from PDF)
             document_type: Type of document ('nota_corretagem' or 'extrato')
-            
+
         Returns:
             B3ImportResult with parsed data
         """
