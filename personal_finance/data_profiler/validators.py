@@ -90,9 +90,15 @@ def _validate_dataframe(df: pd.DataFrame) -> bool:
     Raises:
         ProfileDataError: If DataFrame is invalid
     """
-    if df.empty:
+    # Check for completely empty DataFrame (no rows and no columns)
+    if len(df.columns) == 0 and len(df) == 0:
         raise ProfileDataError("DataFrame cannot be empty")
     
+    # Check for DataFrame with columns but no rows
+    if len(df) == 0:
+        raise ProfileDataError("DataFrame cannot be empty")
+    
+    # Check for DataFrame with rows but no columns
     if len(df.columns) == 0:
         raise ProfileDataError("DataFrame must have at least one column")
     
@@ -341,18 +347,22 @@ def validate_and_prepare_data(profile_data: Any) -> Union[pd.DataFrame, pd.Serie
     Raises:
         ProfileDataError: If data is not compatible
     """
-    # First validate the data
-    validate_profile_data(profile_data)
-    
-    # If it's a list of dictionaries, convert to DataFrame for better performance
+    # If it's a list of dictionaries, try to convert to DataFrame for better performance
     if isinstance(profile_data, list) and profile_data and isinstance(profile_data[0], dict):
         try:
+            # First try to validate as records format to check schema consistency
+            validate_profile_data(profile_data)
+            # If validation passes, convert to DataFrame
             df = pd.DataFrame(profile_data)
             logger.info("Converted list of dictionaries to pandas DataFrame")
             return df
-        except Exception as e:
-            logger.warning(f"Failed to convert to DataFrame: {e}. Using original data.")
+        except ProfileDataError:
+            # If validation fails (e.g., inconsistent schema), return original data with warning
+            logger.warning("Failed to validate data structure. Using original data.")
             return profile_data
+    
+    # For all other cases, validate first then process
+    validate_profile_data(profile_data)
     
     # If it's a dictionary with consistent list values, convert to DataFrame
     if isinstance(profile_data, dict):
