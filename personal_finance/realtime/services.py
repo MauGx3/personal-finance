@@ -253,9 +253,7 @@ class PriceFeedService:
             logger.error(f"Error processing price update for {symbol}: {e}")
 
     @staticmethod
-    async def _update_asset_price(
-        symbol: str, price_data: Dict[str, Any]
-    ):
+    async def _update_asset_price(symbol: str, price_data: Dict[str, Any]):
         """Update asset price in the database."""
         # Skip if Asset model is not available
         if Asset is None:
@@ -306,9 +304,7 @@ class PriceFeedService:
             logger.error(f"Error updating asset price for {symbol}: {e}")
 
     @staticmethod
-    async def _broadcast_asset_update(
-        symbol: str, price_data: Dict[str, Any]
-    ):
+    async def _broadcast_asset_update(symbol: str, price_data: Dict[str, Any]):
         """Broadcast asset price update to subscribers."""
         subscribers = connection_manager.get_asset_subscribers(symbol)
 

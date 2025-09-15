@@ -240,9 +240,7 @@ class DataProfilerService:
             return {}
 
     @staticmethod
-    def _extract_column_profiles(
-        report: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _extract_column_profiles(report: Dict[str, Any]) -> Dict[str, Any]:
         """Extract column-specific profiles from report.
 
         Args:
@@ -515,9 +513,7 @@ class DataProfilerService:
         )
 
     @staticmethod
-    def _looks_like_date_column(
-        col_name: str, col_data: pd.Series
-    ) -> bool:
+    def _looks_like_date_column(col_name: str, col_data: pd.Series) -> bool:
         """Check if column looks like date data by name or by actual data content."""
         date_keywords = ["date", "time", "created", "updated", "timestamp"]
         # Check column name first
@@ -536,9 +532,7 @@ class DataProfilerService:
         return False
 
     @staticmethod
-    def _looks_like_amount_column(
-        col_name: str, col_data: pd.Series
-    ) -> bool:
+    def _looks_like_amount_column(col_name: str, col_data: pd.Series) -> bool:
         """Check if column contains financial amounts."""
         try:
             # Check if numeric and has reasonable decimal precision for money

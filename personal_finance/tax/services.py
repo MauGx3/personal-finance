@@ -220,7 +220,7 @@ class TaxCalculationService:
 
     @staticmethod
     def _process_sale_transaction(
-        transaction: Transaction
+        transaction: Transaction,
     ) -> List[CapitalGainLoss]:
         """Process a sale transaction and create capital gains/losses.
 
@@ -312,7 +312,7 @@ class TaxCalculationService:
 
     @staticmethod
     def _process_dividend_transaction(
-        transaction: Transaction
+        transaction: Transaction,
     ) -> Optional[DividendIncome]:
         """Process a dividend transaction.
 

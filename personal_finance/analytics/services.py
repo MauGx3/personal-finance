@@ -241,7 +241,7 @@ class PerformanceAnalytics:
 
     @staticmethod
     def calculate_portfolio_allocation(
-        portfolio: Portfolio
+        portfolio: Portfolio,
     ) -> Dict[str, Dict[str, float]]:
         """Calculate portfolio allocation by various dimensions.
 

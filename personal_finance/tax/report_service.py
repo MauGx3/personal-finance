@@ -227,9 +227,7 @@ class TaxReportService:
         return tax_report
 
     @staticmethod
-    def generate_form_8949_report(
-        user: User, tax_year: TaxYear
-    ) -> TaxReport:
+    def generate_form_8949_report(user: User, tax_year: TaxYear) -> TaxReport:
         """Generate Form 8949 (Sales and Other Dispositions) report.
 
         Args:
