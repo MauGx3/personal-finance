@@ -51,7 +51,9 @@ class AssetAPISecurityTestCase(TestCase):
         response = viewset.performance_metrics(request, pk=1)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
 
         # Verify error message is generic
@@ -88,9 +90,13 @@ class AssetAPISecurityTestCase(TestCase):
         response = viewset.technical_indicators(request, pk=1)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
-        self.assertEqual(response_data["error"], "Failed to calculate indicators")
+        self.assertEqual(
+            response_data["error"], "Failed to calculate indicators"
+        )
 
         # Verify no API key exposed
         response_content = json.dumps(response_data)
@@ -117,9 +123,9 @@ class AssetAPISecurityTestCase(TestCase):
         viewset.get_object = Mock(return_value=mock_asset)
 
         request = self.factory.patch(
-            "/api/assets/1/update-price/", 
+            "/api/assets/1/update-price/",
             data={"price": "../../etc/passwd"},
-            format="json"
+            format="json",
         )
         request.user = self.user
 
@@ -160,7 +166,9 @@ class AssetAPISecurityTestCase(TestCase):
         response = viewset.refresh_data(request, pk=1)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
         self.assertEqual(response_data["error"], "Failed to refresh data")
 
@@ -187,20 +195,28 @@ class AssetAPISecurityTestCase(TestCase):
 
         for sensitive_msg in sensitive_exceptions:
             with self.subTest(sensitive_msg=sensitive_msg):
-                with patch("personal_finance.assets.api.views.AnalyticsService") as mock_service:
-                    mock_service.return_value.calculate_asset_performance_metrics.side_effect = Exception(sensitive_msg)
+                with patch(
+                    "personal_finance.assets.api.views.AnalyticsService"
+                ) as mock_service:
+                    mock_service.return_value.calculate_asset_performance_metrics.side_effect = Exception(
+                        sensitive_msg
+                    )
 
                     viewset = AssetViewSet()
                     viewset.get_object = Mock()
 
-                    request = self.factory.get("/api/assets/1/performance-metrics/")
+                    request = self.factory.get(
+                        "/api/assets/1/performance-metrics/"
+                    )
                     request.user = self.user
 
                     response = viewset.performance_metrics(request, pk=1)
 
                     # Verify response structure
                     response_data = response.data
-                    self.assertEqual(set(response_data.keys()), expected_error_fields)
+                    self.assertEqual(
+                        set(response_data.keys()), expected_error_fields
+                    )
 
                     # Verify no sensitive data leakage
                     response_content = json.dumps(response_data)

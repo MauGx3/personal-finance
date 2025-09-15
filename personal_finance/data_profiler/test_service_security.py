@@ -1,7 +1,7 @@
 """Security tests for data profiler services."""
 
 import json
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from django.test import TestCase
 
 try:
@@ -18,7 +18,9 @@ class DataProfilerServiceSecurityTestCase(TestCase):
         """Set up test fixtures."""
         self.service = DataProfilerService() if DataProfilerService else None
 
-    def test_extract_profile_results_error_does_not_expose_exception_details(self):
+    def test_extract_profile_results_error_does_not_expose_exception_details(
+        self,
+    ):
         """Test that profile extraction errors don't expose internal details."""
         if self.service is None:
             self.skipTest("DataProfilerService not available")
@@ -39,7 +41,9 @@ class DataProfilerServiceSecurityTestCase(TestCase):
             self.assertIn("error", result)
 
             # Verify error message is generic
-            self.assertEqual(result["error"], "Failed to extract profile results")
+            self.assertEqual(
+                result["error"], "Failed to extract profile results"
+            )
 
             # Verify no sensitive information is exposed
             result_str = json.dumps(result)
@@ -72,7 +76,7 @@ class DataProfilerServiceSecurityTestCase(TestCase):
 
                     # Verify no sensitive data leakage
                     result_str = json.dumps(result)
-                    
+
                     # Check for specific patterns that should NOT appear
                     sensitive_patterns = [
                         "AKIA1234567890",
@@ -83,12 +87,14 @@ class DataProfilerServiceSecurityTestCase(TestCase):
                         "abcd1234",
                         "sensitive_payload",
                     ]
-                    
+
                     for pattern in sensitive_patterns:
                         self.assertNotIn(pattern, result_str)
 
                     # Verify only generic error message
-                    self.assertEqual(result["error"], "Failed to extract profile results")
+                    self.assertEqual(
+                        result["error"], "Failed to extract profile results"
+                    )
 
     def test_error_response_structure_is_consistent(self):
         """Test that error responses have consistent structure across different exceptions."""
@@ -117,7 +123,9 @@ class DataProfilerServiceSecurityTestCase(TestCase):
 
                     # Verify consistent structure
                     self.assertEqual(set(result.keys()), expected_keys)
-                    self.assertEqual(result["error"], "Failed to extract profile results")
+                    self.assertEqual(
+                        result["error"], "Failed to extract profile results"
+                    )
 
     def test_successful_execution_maintains_normal_behavior(self):
         """Test that normal execution path is not affected by security changes."""
@@ -130,14 +138,17 @@ class DataProfilerServiceSecurityTestCase(TestCase):
             "column_stats": {"column1": {"type": "int", "mean": 50}},
         }
 
-        with patch.object(
-            self.service, "_extract_summary_stats"
-        ) as mock_summary, patch.object(
-            self.service, "_extract_column_stats"
-        ) as mock_columns, patch.object(
-            self.service, "_extract_sensitive_data"
-        ) as mock_sensitive:
-            
+        with (
+            patch.object(
+                self.service, "_extract_summary_stats"
+            ) as mock_summary,
+            patch.object(
+                self.service, "_extract_column_stats"
+            ) as mock_columns,
+            patch.object(
+                self.service, "_extract_sensitive_data"
+            ) as mock_sensitive,
+        ):
             mock_summary.return_value = {"total_rows": 100}
             mock_columns.return_value = {"column1": {"type": "int"}}
             mock_sensitive.return_value = {"pii_detected": False}
@@ -158,12 +169,14 @@ class DataProfilerServiceSecurityTestCase(TestCase):
 
         sensitive_error = "Database connection failed: postgresql://admin:secret@db.internal:5432/prod"
 
-        with patch.object(
-            self.service, "_extract_summary_stats"
-        ) as mock_extract, patch(
-            "personal_finance.data_profiler.services.logger"
-        ) as mock_logger:
-            
+        with (
+            patch.object(
+                self.service, "_extract_summary_stats"
+            ) as mock_extract,
+            patch(
+                "personal_finance.data_profiler.services.logger"
+            ) as mock_logger,
+        ):
             mock_extract.side_effect = Exception(sensitive_error)
 
             # Call the method
@@ -173,10 +186,12 @@ class DataProfilerServiceSecurityTestCase(TestCase):
             mock_logger.error.assert_called_once()
             logged_message = mock_logger.error.call_args[0][0]
             self.assertIn("Error extracting profile results", logged_message)
-            
+
             # Verify the actual exception was passed to logger (for server-side debugging)
             logged_exception = mock_logger.error.call_args[0][1]
             self.assertEqual(str(logged_exception), sensitive_error)
 
             # Verify client response is still sanitized
-            self.assertEqual(result["error"], "Failed to extract profile results")
+            self.assertEqual(
+                result["error"], "Failed to extract profile results"
+            )

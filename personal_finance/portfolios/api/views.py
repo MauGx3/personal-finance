@@ -131,7 +131,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             return Response(serializer.data)
 
-        except Exception as e:
+        except Exception:
             return Response(
                 {"error": "Failed to calculate metrics"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -269,7 +269,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             serializer = AllocationDataSerializer(allocation_data, many=True)
             return Response(serializer.data)
 
-        except Exception as e:
+        except Exception:
             return Response(
                 {"error": "Failed to get allocation data"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -346,7 +346,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 }
             )
 
-        except Exception as e:
+        except Exception:
             return Response(
                 {"error": "Failed to get historical data"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

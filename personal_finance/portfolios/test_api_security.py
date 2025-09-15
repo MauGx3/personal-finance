@@ -51,7 +51,9 @@ class PortfolioAPISecurityTestCase(TestCase):
         response = viewset.performance_metrics(request, pk=1)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
 
         # Verify error message is generic
@@ -88,13 +90,19 @@ class PortfolioAPISecurityTestCase(TestCase):
         response = viewset.allocation_data(request, pk=1)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
-        self.assertEqual(response_data["error"], "Failed to get allocation data")
+        self.assertEqual(
+            response_data["error"], "Failed to get allocation data"
+        )
 
         # Verify no JWT token or service details exposed
         response_content = json.dumps(response_data)
-        self.assertNotIn("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9", response_content)
+        self.assertNotIn(
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9", response_content
+        )
         self.assertNotIn("auth.financial-data.com", response_content)
         self.assertNotIn("secret_payload", response_content)
 
@@ -122,9 +130,13 @@ class PortfolioAPISecurityTestCase(TestCase):
         response = viewset.historical_performance(request, pk=1)
 
         # Verify response
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
         response_data = response.data
-        self.assertEqual(response_data["error"], "Failed to get historical data")
+        self.assertEqual(
+            response_data["error"], "Failed to get historical data"
+        )
 
         # Verify no system information exposed
         response_content = json.dumps(response_data)
@@ -149,20 +161,28 @@ class PortfolioAPISecurityTestCase(TestCase):
 
         for sensitive_msg in sensitive_exceptions:
             with self.subTest(sensitive_msg=sensitive_msg):
-                with patch("personal_finance.portfolios.api.views.AnalyticsService") as mock_service:
-                    mock_service.return_value.calculate_portfolio_metrics.side_effect = Exception(sensitive_msg)
+                with patch(
+                    "personal_finance.portfolios.api.views.AnalyticsService"
+                ) as mock_service:
+                    mock_service.return_value.calculate_portfolio_metrics.side_effect = Exception(
+                        sensitive_msg
+                    )
 
                     viewset = PortfolioViewSet()
                     viewset.get_object = Mock()
 
-                    request = self.factory.get("/api/portfolios/1/performance-metrics/")
+                    request = self.factory.get(
+                        "/api/portfolios/1/performance-metrics/"
+                    )
                     request.user = self.user
 
                     response = viewset.performance_metrics(request, pk=1)
 
                     # Verify response structure
                     response_data = response.data
-                    self.assertEqual(set(response_data.keys()), expected_error_fields)
+                    self.assertEqual(
+                        set(response_data.keys()), expected_error_fields
+                    )
 
                     # Verify no sensitive data leakage
                     response_content = json.dumps(response_data)
@@ -186,21 +206,29 @@ class PortfolioAPISecurityTestCase(TestCase):
 
         for error_msg in system_errors:
             with self.subTest(error_msg=error_msg):
-                with patch("personal_finance.portfolios.api.views.AnalyticsService") as mock_service:
-                    mock_service.return_value.calculate_portfolio_metrics.side_effect = Exception(error_msg)
+                with patch(
+                    "personal_finance.portfolios.api.views.AnalyticsService"
+                ) as mock_service:
+                    mock_service.return_value.calculate_portfolio_metrics.side_effect = Exception(
+                        error_msg
+                    )
 
                     viewset = PortfolioViewSet()
                     viewset.get_object = Mock()
 
-                    request = self.factory.get("/api/portfolios/1/performance-metrics/")
+                    request = self.factory.get(
+                        "/api/portfolios/1/performance-metrics/"
+                    )
                     request.user = self.user
 
                     response = viewset.performance_metrics(request, pk=1)
 
                     # Verify user sees generic, actionable message
                     response_data = response.data
-                    self.assertEqual(response_data["error"], "Failed to calculate metrics")
-                    
+                    self.assertEqual(
+                        response_data["error"], "Failed to calculate metrics"
+                    )
+
                     # Verify no technical jargon exposed
                     response_content = json.dumps(response_data)
                     self.assertNotIn("SQLException", response_content)

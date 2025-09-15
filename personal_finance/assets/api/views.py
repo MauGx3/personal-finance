@@ -268,7 +268,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             return Response(serializer.data)
 
-        except Exception as e:
+        except Exception:
             return Response(
                 {"error": "Failed to calculate metrics"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -302,7 +302,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             return Response(serializer.data)
 
-        except Exception as e:
+        except Exception:
             return Response(
                 {"error": "Failed to calculate indicators"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -411,12 +411,12 @@ class AssetViewSet(viewsets.ModelViewSet):
             serializer = AssetDetailSerializer(asset)
             return Response(serializer.data)
 
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError):
             return Response(
                 {"error": "Invalid price data"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except Exception as e:
+        except Exception:
             return Response(
                 {"error": "Failed to update price"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -469,7 +469,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_503_SERVICE_UNAVAILABLE,
                 )
 
-        except Exception as e:
+        except Exception:
             return Response(
                 {"error": "Failed to refresh data"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
