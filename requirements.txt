@@ -48,6 +48,7 @@ flake8>=4.0.0
 factory-boy>=3.3.0  # Test factories for Django models
 requests-mock>=1.11.0  # HTTP request mocking for tests
 memory-profiler>=0.61.0  # Memory profiling for performance tests
+pre-commit>=4.3.0  # Git hook manager
 
 # Django dependencies for CI/CD
 django-crispy-forms>=2.4
