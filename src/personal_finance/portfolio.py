@@ -5,15 +5,15 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 # Import dependency management system
-from .dependencies import dependency_manager, get_module, require_dependency
+from .dependencies import dependency_manager, get_module
 from .database import DatabaseManager
 
 # Register and get stockdex dependency
 dependency_manager.register_dependency(
     name="stockdex",
-    import_path="stockdex", 
+    import_path="stockdex",
     required=False,
-    fallback_available=True
+    fallback_available=True,
 )
 
 # Get stockdex module using dependency manager

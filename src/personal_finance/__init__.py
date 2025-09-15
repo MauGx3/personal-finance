@@ -27,19 +27,20 @@ logger: Optional[Any] = None
 def _import_module_safely(module_name: str, import_path: str) -> Optional[Any]:
     """
     Safely import a module using the dependency management system.
-    
+
     Args:
         module_name: Human-readable name for logging
         import_path: Python import path
-        
+
     Returns:
         Imported module or None if not available
     """
     try:
-        if import_path.startswith('.'):
+        if import_path.startswith("."):
             # Relative import
             from importlib import import_module
-            return import_module(import_path, package='personal_finance')
+
+            return import_module(import_path, package="personal_finance")
         else:
             # Absolute import
             return __import__(import_path)
@@ -51,12 +52,12 @@ def _import_module_safely(module_name: str, import_path: str) -> Optional[Any]:
 def _initialize_modules():
     """Initialize core modules with structured dependency management."""
     global portfolio, yahoo_finance, database, logger
-    
+
     # Import core modules using the dependency system
     portfolio = _import_module_safely("portfolio", ".portfolio")
-    yahoo_finance = _import_module_safely("yahoo_finance", ".yahoo_finance") 
+    yahoo_finance = _import_module_safely("yahoo_finance", ".yahoo_finance")
     database = _import_module_safely("database", ".database")
-    
+
     # Import logger separately as it might have different dependencies
     logger = _import_module_safely("logger", ".logs.logger")
 

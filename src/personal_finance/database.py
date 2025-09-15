@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from typing import Optional, List, Generator, Any
 
 # Import dependency management system
-from .dependencies import dependency_manager, require_dependency
+from .dependencies import require_dependency
 
 from sqlalchemy import (
     create_engine,
@@ -164,10 +164,12 @@ class DatabaseManager:
         ):
             # MongoDB backend
             self.backend = "mongodb"
-            
+
             # Use dependency management for pymongo
-            MongoClient = require_dependency("pymongo", "MongoDB support").MongoClient
-            
+            MongoClient = require_dependency(
+                "pymongo", "MongoDB support"
+            ).MongoClient
+
             # Lazily create client and DB
             self._mongo_client = MongoClient(database_url)
             # If a DB name is present in the URL, use it; otherwise default to
