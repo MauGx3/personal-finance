@@ -13,7 +13,8 @@ from django.test import TestCase
 class TestBasicDjango:
     """Test only that Django itself works."""
 
-    def test_database_works(self):
+    @staticmethod
+    def test_database_works():
         """Test that database connection works."""
         # Just test that we can import Django and access the database
         from django.contrib.auth import get_user_model
@@ -24,7 +25,8 @@ class TestBasicDjango:
         user_count = User.objects.count()
         assert user_count >= 0
 
-    def test_user_model_works(self):
+    @staticmethod
+    def test_user_model_works():
         """Test basic Django user model functionality."""
         from django.contrib.auth import get_user_model
 
@@ -39,7 +41,8 @@ class TestBasicDjango:
         assert user.username == "testuser"
         assert user.check_password("testpass123")
 
-    def test_django_settings_loaded(self):
+    @staticmethod
+    def test_django_settings_loaded():
         """Test that Django settings are properly loaded."""
         from django.conf import settings
 

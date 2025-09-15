@@ -190,8 +190,9 @@ class PerformanceAnalytics:
             logger.error(f"Error calculating portfolio metrics: {e}")
             return self._empty_metrics()
 
+    @staticmethod
     def calculate_asset_correlation_matrix(
-        self, assets: List[Asset], start_date: date, end_date: date
+        assets: List[Asset], start_date: date, end_date: date
     ) -> Optional[pd.DataFrame]:
         """Calculate correlation matrix for a list of assets.
 
@@ -238,8 +239,9 @@ class PerformanceAnalytics:
             logger.error(f"Error calculating correlation matrix: {e}")
             return None
 
+    @staticmethod
     def calculate_portfolio_allocation(
-        self, portfolio: Portfolio
+        portfolio: Portfolio
     ) -> Dict[str, Dict[str, float]]:
         """Calculate portfolio allocation by various dimensions.
 
@@ -321,7 +323,8 @@ class PerformanceAnalytics:
                 "individual_assets": {},
             }
 
-    def _empty_metrics(self) -> Dict[str, None]:
+    @staticmethod
+    def _empty_metrics() -> Dict[str, None]:
         """Return empty metrics dictionary."""
         return {
             "total_return": None,

@@ -216,7 +216,8 @@ class DataProfilerService:
             logger.error(f"Error extracting profile results: {e}")
             return {"error": "Failed to extract profile results"}
 
-    def _extract_summary_stats(self, report: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _extract_summary_stats(report: Dict[str, Any]) -> Dict[str, Any]:
         """Extract summary statistics from profile report.
 
         Args:
@@ -238,8 +239,9 @@ class DataProfilerService:
             logger.warning(f"Error extracting summary stats: {e}")
             return {}
 
+    @staticmethod
     def _extract_column_profiles(
-        self, report: Dict[str, Any]
+        report: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Extract column-specific profiles from report.
 
@@ -268,7 +270,8 @@ class DataProfilerService:
             logger.warning(f"Error extracting column profiles: {e}")
             return {}
 
-    def _extract_data_types(self, report: Dict[str, Any]) -> Dict[str, str]:
+    @staticmethod
+    def _extract_data_types(report: Dict[str, Any]) -> Dict[str, str]:
         """Extract detected data types for each column.
 
         Args:
@@ -289,7 +292,8 @@ class DataProfilerService:
             logger.warning(f"Error extracting data types: {e}")
             return {}
 
-    def _extract_null_analysis(self, report: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _extract_null_analysis(report: Dict[str, Any]) -> Dict[str, Any]:
         """Extract null value analysis from report.
 
         Args:
@@ -397,7 +401,8 @@ class DataProfilerService:
 
         return patterns
 
-    def _analyze_data_quality(self, df: pd.DataFrame) -> Dict[str, Any]:
+    @staticmethod
+    def _analyze_data_quality(df: pd.DataFrame) -> Dict[str, Any]:
         """Analyze data quality issues in financial data.
 
         Args:
@@ -491,8 +496,9 @@ class DataProfilerService:
 
         return sensitive_patterns
 
+    @staticmethod
     def _looks_like_currency_column(
-        self, col_name: str, col_data: pd.Series
+        col_name: str, col_data: pd.Series
     ) -> bool:
         """Check if column looks like currency data."""
         currency_keywords = [
@@ -508,8 +514,9 @@ class DataProfilerService:
             keyword in col_name.lower() for keyword in currency_keywords
         )
 
+    @staticmethod
     def _looks_like_date_column(
-        self, col_name: str, col_data: pd.Series
+        col_name: str, col_data: pd.Series
     ) -> bool:
         """Check if column looks like date data by name or by actual data content."""
         date_keywords = ["date", "time", "created", "updated", "timestamp"]
@@ -528,8 +535,9 @@ class DataProfilerService:
             return True
         return False
 
+    @staticmethod
     def _looks_like_amount_column(
-        self, col_name: str, col_data: pd.Series
+        col_name: str, col_data: pd.Series
     ) -> bool:
         """Check if column contains financial amounts."""
         try:
@@ -543,8 +551,9 @@ class DataProfilerService:
             pass
         return False
 
+    @staticmethod
     def _check_suspicious_patterns(
-        self, col_name: str, col_data: pd.Series
+        col_name: str, col_data: pd.Series
     ) -> List[Dict[str, Any]]:
         """Check for suspicious patterns in the data."""
         suspicious = []
@@ -564,7 +573,8 @@ class DataProfilerService:
 
         return suspicious
 
-    def _looks_like_ssn(self, value: str) -> bool:
+    @staticmethod
+    def _looks_like_ssn(value: str) -> bool:
         """Check if value looks like a valid Social Security Number (SSN).
 
         Excludes invalid ranges:

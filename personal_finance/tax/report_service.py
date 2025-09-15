@@ -226,8 +226,9 @@ class TaxReportService:
         logger.info(f"Generated dividend report: {tax_report.id}")
         return tax_report
 
+    @staticmethod
     def generate_form_8949_report(
-        self, user: User, tax_year: TaxYear
+        user: User, tax_year: TaxYear
     ) -> TaxReport:
         """Generate Form 8949 (Sales and Other Dispositions) report.
 

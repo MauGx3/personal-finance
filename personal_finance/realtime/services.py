@@ -134,7 +134,8 @@ class PriceFeedService:
         for batch in symbol_batches:
             await self._update_asset_batch(batch)
 
-    async def _get_portfolio_assets(self) -> Set[str]:
+    @staticmethod
+    async def _get_portfolio_assets() -> Set[str]:
         """Get all asset symbols from subscribed portfolios."""
         # Skip if portfolio models are not available
         if Portfolio is None or Position is None:
@@ -251,8 +252,9 @@ class PriceFeedService:
         except Exception as e:
             logger.error(f"Error processing price update for {symbol}: {e}")
 
+    @staticmethod
     async def _update_asset_price(
-        self, symbol: str, price_data: Dict[str, Any]
+        symbol: str, price_data: Dict[str, Any]
     ):
         """Update asset price in the database."""
         # Skip if Asset model is not available
@@ -303,8 +305,9 @@ class PriceFeedService:
         except Exception as e:
             logger.error(f"Error updating asset price for {symbol}: {e}")
 
+    @staticmethod
     async def _broadcast_asset_update(
-        self, symbol: str, price_data: Dict[str, Any]
+        symbol: str, price_data: Dict[str, Any]
     ):
         """Broadcast asset price update to subscribers."""
         subscribers = connection_manager.get_asset_subscribers(symbol)
@@ -406,7 +409,8 @@ class PriceFeedService:
                 f"Error broadcasting portfolio update for {portfolio_id}: {e}"
             )
 
-    async def _calculate_portfolio_value(self, portfolio) -> Decimal:
+    @staticmethod
+    async def _calculate_portfolio_value(portfolio) -> Decimal:
         """Calculate current portfolio value."""
         # Skip if Position model is not available
         if Position is None:
@@ -440,7 +444,8 @@ class PriceFeedService:
         # You would implement proper daily change calculation here
         return {"amount": Decimal("0"), "percent": Decimal("0")}
 
-    async def subscribe_to_asset(self, connection_id: str, symbol: str):
+    @staticmethod
+    async def subscribe_to_asset(connection_id: str, symbol: str):
         """Subscribe a connection to asset updates and send current price."""
         await connection_manager.subscribe_to_asset(connection_id, symbol)
 

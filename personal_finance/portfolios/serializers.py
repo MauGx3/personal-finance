@@ -189,7 +189,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created", "modified"]
 
-    def get_position_info(self, obj):
+    @staticmethod
+    def get_position_info(obj):
         """Get position information for the transaction."""
         return {
             "portfolio_name": obj.position.portfolio.name,

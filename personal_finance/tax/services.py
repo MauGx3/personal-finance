@@ -43,8 +43,8 @@ class TaxCalculationService:
         """Initialize tax calculation service."""
         self.current_date = timezone.now().date()
 
+    @staticmethod
     def calculate_capital_gains_losses(
-        self,
         user: User,
         tax_year: TaxYear,
         portfolio: Optional[Portfolio] = None,
@@ -116,8 +116,8 @@ class TaxCalculationService:
             "transactions_count": gains_losses.count(),
         }
 
+    @staticmethod
     def calculate_dividend_income(
-        self,
         user: User,
         tax_year: TaxYear,
         portfolio: Optional[Portfolio] = None,
@@ -185,7 +185,8 @@ class TaxCalculationService:
         elif transaction.transaction_type == "dividend":
             self._process_dividend_transaction(transaction)
 
-    def _create_tax_lot(self, transaction: Transaction) -> TaxLot:
+    @staticmethod
+    def _create_tax_lot(transaction: Transaction) -> TaxLot:
         """Create a tax lot for a buy transaction.
 
         Args:
@@ -217,8 +218,9 @@ class TaxCalculationService:
         )
         return tax_lot
 
+    @staticmethod
     def _process_sale_transaction(
-        self, transaction: Transaction
+        transaction: Transaction
     ) -> List[CapitalGainLoss]:
         """Process a sale transaction and create capital gains/losses.
 
@@ -308,8 +310,9 @@ class TaxCalculationService:
 
         return gains_losses
 
+    @staticmethod
     def _process_dividend_transaction(
-        self, transaction: Transaction
+        transaction: Transaction
     ) -> Optional[DividendIncome]:
         """Process a dividend transaction.
 
@@ -505,7 +508,8 @@ class TaxLossHarvestingService:
 
             opportunity.save()
 
-    def _suggest_alternative_investments(self, asset) -> List[str]:
+    @staticmethod
+    def _suggest_alternative_investments(asset) -> List[str]:
         """Suggest alternative investments to avoid wash sale rules.
 
         Args:
@@ -536,7 +540,8 @@ class TaxLossHarvestingService:
 
         return alternatives
 
-    def _estimate_tax_benefit(self, loss_amount: Decimal) -> Decimal:
+    @staticmethod
+    def _estimate_tax_benefit(loss_amount: Decimal) -> Decimal:
         """Estimate tax benefit from realizing a loss.
 
         Args:
@@ -606,8 +611,9 @@ class TaxOptimizationService:
 
         return recommendations
 
+    @staticmethod
     def _analyze_asset_location(
-        self, user: User, portfolio: Portfolio, tax_year: TaxYear
+        user: User, portfolio: Portfolio, tax_year: TaxYear
     ) -> List[TaxOptimizationRecommendation]:
         """Analyze asset location optimization opportunities.
 
@@ -650,8 +656,9 @@ class TaxOptimizationService:
 
         return recommendations
 
+    @staticmethod
     def _analyze_rebalancing_opportunities(
-        self, user: User, portfolio: Portfolio, tax_year: TaxYear
+        user: User, portfolio: Portfolio, tax_year: TaxYear
     ) -> List[TaxOptimizationRecommendation]:
         """Analyze tax-efficient rebalancing opportunities.
 

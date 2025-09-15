@@ -46,7 +46,8 @@ class StrategySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
-    def get_backtest_count(self, obj) -> int:
+    @staticmethod
+    def get_backtest_count(obj) -> int:
         """Get number of backtests for this strategy."""
         return obj.backtests.count()
 
@@ -166,11 +167,13 @@ class BacktestResultSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
-    def get_profit_factor(self, obj) -> float:
+    @staticmethod
+    def get_profit_factor(obj) -> float:
         """Get calculated profit factor."""
         return float(obj.profit_factor) if obj.profit_factor else None
 
-    def get_expectancy(self, obj) -> float:
+    @staticmethod
+    def get_expectancy(obj) -> float:
         """Get calculated expectancy."""
         return float(obj.expectancy) if obj.expectancy else None
 
@@ -218,11 +221,13 @@ class BacktestSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def get_duration_days(self, obj) -> int:
+    @staticmethod
+    def get_duration_days(obj) -> int:
         """Get backtest duration in days."""
         return obj.duration_days
 
-    def get_execution_time(self, obj) -> float:
+    @staticmethod
+    def get_execution_time(obj) -> float:
         """Get execution time in seconds."""
         return obj.execution_time
 
@@ -251,11 +256,13 @@ class BacktestPortfolioSnapshotSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id"]
 
-    def get_cash_percentage(self, obj) -> float:
+    @staticmethod
+    def get_cash_percentage(obj) -> float:
         """Get cash as percentage of total portfolio."""
         return float(obj.cash_percentage)
 
-    def get_invested_percentage(self, obj) -> float:
+    @staticmethod
+    def get_invested_percentage(obj) -> float:
         """Get invested amount as percentage of total portfolio."""
         return float(obj.invested_percentage)
 
@@ -292,15 +299,18 @@ class BacktestTradeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id"]
 
-    def get_total_cost(self, obj) -> float:
+    @staticmethod
+    def get_total_cost(obj) -> float:
         """Get total trade cost."""
         return float(obj.total_cost)
 
-    def get_is_opening_trade(self, obj) -> bool:
+    @staticmethod
+    def get_is_opening_trade(obj) -> bool:
         """Check if this is an opening trade."""
         return obj.is_opening_trade
 
-    def get_is_closing_trade(self, obj) -> bool:
+    @staticmethod
+    def get_is_closing_trade(obj) -> bool:
         """Check if this is a closing trade."""
         return obj.is_closing_trade
 
