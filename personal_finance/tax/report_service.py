@@ -566,7 +566,8 @@ class TaxReportService:
             Dictionary of report type to TaxReport instance
         """
         logger.info(
-            "Generating all tax reports for {user.username} - %s",
+            "Generating all tax reports for %s - %s",
+            user.username,
             tax_year.year,
         )
 
