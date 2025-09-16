@@ -17,6 +17,10 @@ class DocumentImport(TimeStampedModel):
         ),
         ("BANCO_INTER_BROKERAGE_NOTE", "Banco Inter - Nota de Corretagem"),
         ("BANCO_INTER_EXTRACT", "Banco Inter - Extrato"),
+        (
+            "BANCO_INTER_CONSOLIDATED_REPORT", 
+            "Banco Inter - Relatório Consolidado"
+        ),
     ]
 
     STATUS_CHOICES = [

@@ -4,17 +4,18 @@ This document describes the Banco Inter document import functionality added to t
 
 ## Overview
 
-The application now supports importing financial data from three types of Banco Inter documents:
+The application now supports importing financial data from four types of Banco Inter documents:
 
 1. **Relatório Mensal de Investimentos** (Monthly Investment Report)
 2. **Nota de Corretagem** (Brokerage Note)
 3. **Extrato** (Bank Statement)
+4. **Relatório Consolidado** (Consolidated Report) - NEW
 
 ## Supported File Formats
 
 - CSV (.csv)
 - Excel (.xlsx, .xls)
-- PDF (.pdf) - Limited support, mainly for brokerage notes and extracts
+- PDF (.pdf) - Full support for Consolidated Reports, limited support for brokerage notes and extracts
 
 ## API Endpoints
 
@@ -33,6 +34,13 @@ curl -X POST \
   -H "Authorization: Token YOUR_TOKEN" \
   -F "file=@monthly_report.csv" \
   -F "document_type=BANCO_INTER_MONTHLY_REPORT" \
+  http://localhost:8000/api/data-sources/import/upload/
+
+# For consolidated reports
+curl -X POST \
+  -H "Authorization: Token YOUR_TOKEN" \
+  -F "file=@relatorio_consolidado.pdf" \
+  -F "document_type=BANCO_INTER_CONSOLIDATED_REPORT" \
   http://localhost:8000/api/data-sources/import/upload/
 ```
 
@@ -110,6 +118,30 @@ Data,Descrição,Valor,Saldo
 - Amount (Valor)
 - Balance (Saldo) - Optional
 
+### BANCO_INTER_CONSOLIDATED_REPORT (NEW)
+Comprehensive monthly investment report in PDF format containing detailed positions and transactions.
+
+**Expected PDF Format:**
+- PDF document from Banco Inter with "Relatório Consolidado" title
+- Contains detailed investment positions with current values, returns, and allocations
+- Includes monthly transaction history
+- Supports all asset types: stocks, bonds, funds, ETFs, international assets
+
+**Extracted Data:**
+- **Positions**: Asset name, current balance, monthly/yearly returns, allocation percentages
+- **Transactions**: Dates, descriptions, amounts, transaction types (deposits, withdrawals, payments)
+- **Asset Types**: Automatically detected and created (stocks, funds, bonds, etc.)
+
+**Example Usage:**
+```bash
+# Upload a consolidated report PDF
+curl -X POST \
+  -H "Authorization: Token YOUR_TOKEN" \
+  -F "file=@relatorio_consolidado_agosto_2025.pdf" \
+  -F "document_type=BANCO_INTER_CONSOLIDATED_REPORT" \
+  http://localhost:8000/api/data-sources/import/upload/
+```
+
 ## Number Format Support
 
 The import system supports Brazilian number formats:
@@ -125,6 +157,7 @@ Supported date formats:
 - `dd-mm-yyyy` (e.g., 31-12-2024)
 - `yyyy-mm-dd` (e.g., 2024-12-31)
 - `dd.mm.yyyy` (e.g., 31.12.2024)
+- `dd de mês de yyyy` (e.g., 29 de Agosto de 2025) - Portuguese format in PDFs
 
 ## Import Process
 

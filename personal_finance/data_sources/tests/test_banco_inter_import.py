@@ -7,7 +7,12 @@ from pathlib import Path
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..importers import BancoInterImportService, BancoInterMonthlyReportParser
+from ..importers import (
+    BancoInterImportService,
+    BancoInterMonthlyReportParser,
+    BancoInterConsolidatedReportParser,
+    PDF_AVAILABLE,
+)
 from ..models import DocumentImport
 
 User = get_user_model()
@@ -77,6 +82,7 @@ class BancoInterImportTestCase(TestCase):
         self.assertIn("BANCO_INTER_MONTHLY_REPORT", choices)
         self.assertIn("BANCO_INTER_BROKERAGE_NOTE", choices)
         self.assertIn("BANCO_INTER_EXTRACT", choices)
+        self.assertIn("BANCO_INTER_CONSOLIDATED_REPORT", choices)
 
         self.assertEqual(
             choices["BANCO_INTER_MONTHLY_REPORT"],
@@ -89,3 +95,57 @@ class BancoInterImportTestCase(TestCase):
         self.assertEqual(
             choices["BANCO_INTER_EXTRACT"], "Banco Inter - Extrato"
         )
+        self.assertEqual(
+            choices["BANCO_INTER_CONSOLIDATED_REPORT"],
+            "Banco Inter - Relatório Consolidado",
+        )
+
+    def test_consolidated_report_parser_availability(self):
+        """Test that consolidated report parser can be instantiated."""
+        if not PDF_AVAILABLE:
+            self.skipTest("PDF processing not available")
+
+        # Create a temporary file path
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            parser = BancoInterConsolidatedReportParser(temp_path, self.user)
+            self.assertIsInstance(parser, BancoInterConsolidatedReportParser)
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
+
+    def test_parser_mapping_includes_consolidated(self):
+        """Test that the import service includes consolidated report parser."""
+        parser = self.import_service._get_parser(
+            "BANCO_INTER_CONSOLIDATED_REPORT", "/tmp/test.pdf", self.user
+        )
+        if PDF_AVAILABLE:
+            self.assertIsInstance(parser, BancoInterConsolidatedReportParser)
+        else:
+            # Should work but validation will fail due to missing PDF support
+            self.assertIsInstance(parser, BancoInterConsolidatedReportParser)
+
+    def test_consolidated_report_date_parsing(self):
+        """Test Portuguese date parsing for consolidated reports."""
+        if not PDF_AVAILABLE:
+            self.skipTest("PDF processing not available")
+
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            parser = BancoInterConsolidatedReportParser(temp_path, self.user)
+            
+            # Test Portuguese date parsing
+            date_result = parser._extract_date_from_line("29 de Agosto de 2025")
+            self.assertIsNotNone(date_result)
+            self.assertEqual(date_result.day, 29)
+            self.assertEqual(date_result.month, 8)
+            self.assertEqual(date_result.year, 2025)
+            
+            # Test invalid date
+            invalid_result = parser._extract_date_from_line("invalid date")
+            self.assertIsNone(invalid_result)
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
