@@ -136,14 +136,16 @@ class BancoInterImportTestCase(TestCase):
 
         try:
             parser = BancoInterConsolidatedReportParser(temp_path, self.user)
-            
+
             # Test Portuguese date parsing
-            date_result = parser._extract_date_from_line("29 de Agosto de 2025")
+            date_result = parser._extract_date_from_line(
+                "29 de Agosto de 2025"
+            )
             self.assertIsNotNone(date_result)
             self.assertEqual(date_result.day, 29)
             self.assertEqual(date_result.month, 8)
             self.assertEqual(date_result.year, 2025)
-            
+
             # Test invalid date
             invalid_result = parser._extract_date_from_line("invalid date")
             self.assertIsNone(invalid_result)
