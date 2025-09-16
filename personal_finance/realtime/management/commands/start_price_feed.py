@@ -71,7 +71,8 @@ class Command(BaseCommand):
                 self.style.ERROR(f"Price feed service error: {e}")
             )
 
-    async def _run_service(self):
+    @staticmethod
+    async def _run_service():
         """Run the price feed service."""
         await price_feed_service.start()
 

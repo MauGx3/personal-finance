@@ -352,8 +352,9 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+    @staticmethod
     def _parse_date_param(
-        self, request: Request, param_name: str, default: date
+        request: Request, param_name: str, default: date
     ) -> date:
         """Parse date parameter from request."""
         date_str = request.query_params.get(param_name)
