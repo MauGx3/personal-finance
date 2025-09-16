@@ -143,7 +143,8 @@ class TaxReportService:
             Generated TaxReport instance
         """
         logger.info(
-            "Generating dividend report for {user.username} - %s",
+            "Generating dividend report for %s - %s",
+            user.username,
             tax_year.year,
         )
 
