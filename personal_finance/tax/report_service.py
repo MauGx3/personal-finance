@@ -243,7 +243,8 @@ class TaxReportService:
             Generated TaxReport instance
         """
         logger.info(
-            "Generating Form 8949 report for {user.username} - %s",
+            "Generating Form 8949 report for %s - %s",
+            user.username,
             tax_year.year,
         )
 
