@@ -355,7 +355,7 @@ class Command(BaseCommand):
 
         except Exception as e:
             logger.error(
-                "Historical data update error for {asset.symbol}: %s", e
+                "Historical data update error for %s: %s", asset.symbol, e
             )
             return False
 
