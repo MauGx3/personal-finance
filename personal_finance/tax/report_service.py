@@ -452,7 +452,8 @@ class TaxReportService:
             Generated TaxReport instance
         """
         logger.info(
-            "Generating loss carryforward report for {user.username} - %s",
+            "Generating loss carryforward report for %s - %s",
+            user.username,
             tax_year.year,
         )
 
