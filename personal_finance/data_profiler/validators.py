@@ -269,7 +269,8 @@ def _validate_records_format(records: List[Dict[str, Any]]) -> bool:
             )
 
     logger.info(
-        "Records validation passed: {len(records)} records with %s fields",
+        "Records validation passed: %s records with %s fields",
+        len(records),
         len(first_keys),
     )
     return True
