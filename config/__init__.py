@@ -1,15 +1,41 @@
-"""Make Celery import optional during Django import-time.
+"""
+Celery Configuration with Structured Feature Management
 
-Tests or environments that don't have Celery installed should not
-fail import of the Django project. Import Celery lazily if present.
+Makes Celery import optional during Django import-time using a structured
+approach instead of fragile try/except blocks.
 """
 
-try:
-    # Import Celery app only when Celery is installed. If import fails,
-    # don't raise during Django project import (e.g., in CI without Celery).
-    from .celery_app import app as celery_app  # type: ignore  # noqa: F401
+import logging
+from typing import Optional, Any
 
+logger = logging.getLogger(__name__)
+
+
+def _import_celery_app() -> Optional[Any]:
+    """
+    Import Celery app with structured error handling.
+    
+    Returns:
+        Celery app instance if available, None otherwise
+    """
+    try:
+        from .celery_app import app as celery_app
+        logger.debug("Celery app imported successfully")
+        return celery_app
+    except ImportError as e:
+        logger.debug(f"Celery not available: {e}")
+        return None
+    except Exception as e:
+        logger.warning(f"Unexpected error importing Celery: {e}")
+        return None
+
+
+# Import Celery app only when available
+# This structured approach replaces fragile try/except blocks
+celery_app = _import_celery_app()
+
+# Configure exports based on availability
+if celery_app is not None:
     __all__ = ("celery_app",)
-except Exception:  # pragma: no cover - defensive import
-    # Celery isn't available in this environment; continue without it.
+else:
     __all__ = ()

@@ -8,50 +8,70 @@ from personal_finance.assets.api.views import (
     PortfolioViewSet as LegacyPortfolioViewSet,
 )
 
-# Graceful import handling for missing views
-try:
-    from personal_finance.assets.api.views import PriceHistoryViewSet
-except ImportError:
-    PriceHistoryViewSet = None
+# Import the Django feature registry for structured component management
+from .django_feature_registry import register_optional_viewsets, get_viewset
 
-try:
-    from personal_finance.portfolios.api.views import (
-        PortfolioViewSet,
-        PositionViewSet,
-        TransactionViewSet,
-        PortfolioSnapshotViewSet,
-    )
-except ImportError:
-    PortfolioViewSet = PositionViewSet = TransactionViewSet = (
-        PortfolioSnapshotViewSet
-    ) = None
+# Register optional ViewSets using structured feature registry
+# This replaces fragile try/except blocks with explicit feature management
 
-try:
-    from personal_finance.users.api.views import UserViewSet
-except ImportError:
-    UserViewSet = None
+# Asset-related optional ViewSets
+asset_viewsets = register_optional_viewsets(
+    "asset_features",
+    "personal_finance.assets.api.views",
+    ["PriceHistoryViewSet"]
+)
+PriceHistoryViewSet = asset_viewsets["PriceHistoryViewSet"]
 
-try:
-    from personal_finance.realtime.api import RealtimeViewSet
-except ImportError:
-    RealtimeViewSet = None
+# Portfolio management ViewSets  
+portfolio_viewsets = register_optional_viewsets(
+    "portfolio_features",
+    "personal_finance.portfolios.api.views",
+    ["PortfolioViewSet", "PositionViewSet", "TransactionViewSet", "PortfolioSnapshotViewSet"]
+)
+PortfolioViewSet = portfolio_viewsets["PortfolioViewSet"]
+PositionViewSet = portfolio_viewsets["PositionViewSet"]
+TransactionViewSet = portfolio_viewsets["TransactionViewSet"]
+PortfolioSnapshotViewSet = portfolio_viewsets["PortfolioSnapshotViewSet"]
 
-try:
-    from personal_finance.tax.views import (
-        TaxYearViewSet,
-        TaxLotViewSet,
-        CapitalGainLossViewSet,
-        DividendIncomeViewSet,
-        TaxLossHarvestingOpportunityViewSet,
-        TaxOptimizationRecommendationViewSet,
-        TaxReportViewSet,
-        TaxAnalyticsViewSet,
-    )
-except ImportError:
-    TaxYearViewSet = TaxLotViewSet = CapitalGainLossViewSet = None
-    DividendIncomeViewSet = TaxLossHarvestingOpportunityViewSet = None
-    TaxOptimizationRecommendationViewSet = TaxReportViewSet = None
-    TaxAnalyticsViewSet = None
+# User management ViewSets
+user_viewsets = register_optional_viewsets(
+    "user_features",
+    "personal_finance.users.api.views",
+    ["UserViewSet"]
+)
+UserViewSet = user_viewsets["UserViewSet"]
+
+# Real-time ViewSets
+realtime_viewsets = register_optional_viewsets(
+    "realtime_features",
+    "personal_finance.realtime.api",
+    ["RealtimeViewSet"]
+)
+RealtimeViewSet = realtime_viewsets["RealtimeViewSet"]
+
+# Tax management ViewSets
+tax_viewsets = register_optional_viewsets(
+    "tax_features", 
+    "personal_finance.tax.views",
+    [
+        "TaxYearViewSet",
+        "TaxLotViewSet", 
+        "CapitalGainLossViewSet",
+        "DividendIncomeViewSet",
+        "TaxLossHarvestingOpportunityViewSet",
+        "TaxOptimizationRecommendationViewSet",
+        "TaxReportViewSet",
+        "TaxAnalyticsViewSet"
+    ]
+)
+TaxYearViewSet = tax_viewsets["TaxYearViewSet"]
+TaxLotViewSet = tax_viewsets["TaxLotViewSet"]
+CapitalGainLossViewSet = tax_viewsets["CapitalGainLossViewSet"]
+DividendIncomeViewSet = tax_viewsets["DividendIncomeViewSet"]
+TaxLossHarvestingOpportunityViewSet = tax_viewsets["TaxLossHarvestingOpportunityViewSet"]
+TaxOptimizationRecommendationViewSet = tax_viewsets["TaxOptimizationRecommendationViewSet"]
+TaxReportViewSet = tax_viewsets["TaxReportViewSet"]
+TaxAnalyticsViewSet = tax_viewsets["TaxAnalyticsViewSet"]
 
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
 

@@ -4,28 +4,14 @@ Personal Finance Package
 A package for managing personal finance data and analysis.
 """
 
-# Import main modules defensively to avoid failing import when optional
-# dependencies are missing (e.g., external data libraries used by portfolio).
-try:  # pragma: no cover - best-effort optional imports
-    from . import portfolio  # type: ignore  # noqa: F401
-except Exception:
-    portfolio = None  # type: ignore
+from .feature_registry import register_optional_feature
 
-try:  # pragma: no cover
-    from . import yahoo_finance  # type: ignore  # noqa: F401
-except Exception:
-    yahoo_finance = None  # type: ignore
-
-try:  # pragma: no cover
-    from . import database  # type: ignore  # noqa: F401
-except Exception:
-    database = None  # type: ignore
-
-# Optional: expose logger if available without causing circular import on init
-try:  # pragma: no cover - defensive
-    from .logs.logger import logger  # type: ignore  # noqa: F401
-except Exception:
-    logger = None  # type: ignore
+# Register optional modules using the feature registry
+# This replaces fragile try/except blocks with structured feature management
+portfolio = register_optional_feature("portfolio", "personal_finance.portfolio")
+yahoo_finance = register_optional_feature("yahoo_finance", "personal_finance.yahoo_finance")
+database = register_optional_feature("database", "personal_finance.database")
+logger = register_optional_feature("logger", "personal_finance.logs.logger", "logger")
 
 # Define what gets imported with "from personal_finance import *"
 __all__ = ["portfolio", "yahoo_finance", "database", "logger"]
