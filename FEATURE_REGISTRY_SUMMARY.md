@@ -19,7 +19,7 @@ Replaced fragile import patterns with a structured feature registry system that 
 
 ### 3. Updated Import Patterns
 - **`src/personal_finance/__init__.py`**: Replaced 4 try/except blocks
-- **`config/api_router.py`**: Replaced 6 try/except blocks  
+- **`config/api_router.py`**: Replaced 6 try/except blocks
 - **`config/__init__.py`**: Replaced 1 try/except block
 
 ## Benefits Achieved

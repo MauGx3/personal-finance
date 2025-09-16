@@ -7,7 +7,7 @@ import patterns with structured feature management.
 """
 
 import logging
-from typing import Any, Dict, Optional, List, Type
+from typing import Any, Dict, Optional, List
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

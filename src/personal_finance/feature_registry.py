@@ -7,7 +7,7 @@ with a more structured approach.
 """
 
 import logging
-from typing import Any, Dict, Optional, Callable, Type
+from typing import Any, Dict, Optional
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

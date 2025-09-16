@@ -6,8 +6,6 @@ components works correctly and replaces fragile try/except patterns.
 """
 
 import pytest
-import sys
-from unittest.mock import patch, MagicMock
 
 
 class TestFeatureRegistry:
@@ -101,7 +99,6 @@ class TestFeatureRegistry:
         """Test the convenience functions work correctly."""
         from src.personal_finance.feature_registry import (
             register_optional_feature,
-            register_required_feature,
             is_feature_available,
             get_feature,
         )

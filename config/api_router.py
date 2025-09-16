@@ -9,7 +9,7 @@ from personal_finance.assets.api.views import (
 )
 
 # Import the Django feature registry for structured component management
-from .django_feature_registry import register_optional_viewsets, get_viewset
+from .django_feature_registry import register_optional_viewsets
 
 # Register optional ViewSets using structured feature registry
 # This replaces fragile try/except blocks with explicit feature management
