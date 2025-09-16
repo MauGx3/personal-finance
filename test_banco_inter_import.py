@@ -9,7 +9,6 @@ and testing the core components.
 import os
 import sys
 from pathlib import Path
-from decimal import Decimal
 
 # Add the project root to Python path
 project_root = Path(__file__).parent

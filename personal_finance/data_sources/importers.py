@@ -24,7 +24,6 @@ except ImportError:
     import pandas as pd
 
 from django.contrib.auth import get_user_model
-from django.core.files.storage import default_storage
 from django.utils import timezone
 
 from personal_finance.assets.models import Asset

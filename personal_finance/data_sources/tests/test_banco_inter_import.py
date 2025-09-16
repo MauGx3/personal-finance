@@ -7,8 +7,6 @@ from pathlib import Path
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from personal_finance.assets.models import Asset
-from personal_finance.portfolios.models import Portfolio
 from ..importers import BancoInterImportService, BancoInterMonthlyReportParser
 from ..models import DocumentImport
 
