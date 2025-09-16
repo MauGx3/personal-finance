@@ -4,7 +4,7 @@ Personal Finance Package
 A package for managing personal finance data and analysis.
 """
 
-from .feature_registry import register_optional_feature
+from src.feature_registry import register_optional_feature
 
 # Register optional modules using the feature registry
 # This replaces fragile try/except blocks with structured feature management
