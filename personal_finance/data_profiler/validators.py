@@ -190,7 +190,7 @@ def _validate_numpy_array(arr: np.ndarray) -> bool:
         )
 
     logger.info(
-        "numpy array validation passed: shape {arr.shape}, dtype %s", arr.dtype
+        "numpy array validation passed: shape %s, dtype %s", arr.shape, arr.dtype
     )
     return True
 
