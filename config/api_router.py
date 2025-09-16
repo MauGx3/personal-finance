@@ -18,15 +18,20 @@ from .django_feature_registry import register_optional_viewsets, get_viewset
 asset_viewsets = register_optional_viewsets(
     "asset_features",
     "personal_finance.assets.api.views",
-    ["PriceHistoryViewSet"]
+    ["PriceHistoryViewSet"],
 )
 PriceHistoryViewSet = asset_viewsets["PriceHistoryViewSet"]
 
-# Portfolio management ViewSets  
+# Portfolio management ViewSets
 portfolio_viewsets = register_optional_viewsets(
     "portfolio_features",
     "personal_finance.portfolios.api.views",
-    ["PortfolioViewSet", "PositionViewSet", "TransactionViewSet", "PortfolioSnapshotViewSet"]
+    [
+        "PortfolioViewSet",
+        "PositionViewSet",
+        "TransactionViewSet",
+        "PortfolioSnapshotViewSet",
+    ],
 )
 PortfolioViewSet = portfolio_viewsets["PortfolioViewSet"]
 PositionViewSet = portfolio_viewsets["PositionViewSet"]
@@ -35,41 +40,41 @@ PortfolioSnapshotViewSet = portfolio_viewsets["PortfolioSnapshotViewSet"]
 
 # User management ViewSets
 user_viewsets = register_optional_viewsets(
-    "user_features",
-    "personal_finance.users.api.views",
-    ["UserViewSet"]
+    "user_features", "personal_finance.users.api.views", ["UserViewSet"]
 )
 UserViewSet = user_viewsets["UserViewSet"]
 
 # Real-time ViewSets
 realtime_viewsets = register_optional_viewsets(
-    "realtime_features",
-    "personal_finance.realtime.api",
-    ["RealtimeViewSet"]
+    "realtime_features", "personal_finance.realtime.api", ["RealtimeViewSet"]
 )
 RealtimeViewSet = realtime_viewsets["RealtimeViewSet"]
 
 # Tax management ViewSets
 tax_viewsets = register_optional_viewsets(
-    "tax_features", 
+    "tax_features",
     "personal_finance.tax.views",
     [
         "TaxYearViewSet",
-        "TaxLotViewSet", 
+        "TaxLotViewSet",
         "CapitalGainLossViewSet",
         "DividendIncomeViewSet",
         "TaxLossHarvestingOpportunityViewSet",
         "TaxOptimizationRecommendationViewSet",
         "TaxReportViewSet",
-        "TaxAnalyticsViewSet"
-    ]
+        "TaxAnalyticsViewSet",
+    ],
 )
 TaxYearViewSet = tax_viewsets["TaxYearViewSet"]
 TaxLotViewSet = tax_viewsets["TaxLotViewSet"]
 CapitalGainLossViewSet = tax_viewsets["CapitalGainLossViewSet"]
 DividendIncomeViewSet = tax_viewsets["DividendIncomeViewSet"]
-TaxLossHarvestingOpportunityViewSet = tax_viewsets["TaxLossHarvestingOpportunityViewSet"]
-TaxOptimizationRecommendationViewSet = tax_viewsets["TaxOptimizationRecommendationViewSet"]
+TaxLossHarvestingOpportunityViewSet = tax_viewsets[
+    "TaxLossHarvestingOpportunityViewSet"
+]
+TaxOptimizationRecommendationViewSet = tax_viewsets[
+    "TaxOptimizationRecommendationViewSet"
+]
 TaxReportViewSet = tax_viewsets["TaxReportViewSet"]
 TaxAnalyticsViewSet = tax_viewsets["TaxAnalyticsViewSet"]
 

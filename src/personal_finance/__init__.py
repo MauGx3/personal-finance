@@ -8,10 +8,16 @@ from .feature_registry import register_optional_feature
 
 # Register optional modules using the feature registry
 # This replaces fragile try/except blocks with structured feature management
-portfolio = register_optional_feature("portfolio", "personal_finance.portfolio")
-yahoo_finance = register_optional_feature("yahoo_finance", "personal_finance.yahoo_finance")
+portfolio = register_optional_feature(
+    "portfolio", "personal_finance.portfolio"
+)
+yahoo_finance = register_optional_feature(
+    "yahoo_finance", "personal_finance.yahoo_finance"
+)
 database = register_optional_feature("database", "personal_finance.database")
-logger = register_optional_feature("logger", "personal_finance.logs.logger", "logger")
+logger = register_optional_feature(
+    "logger", "personal_finance.logs.logger", "logger"
+)
 
 # Define what gets imported with "from personal_finance import *"
 __all__ = ["portfolio", "yahoo_finance", "database", "logger"]

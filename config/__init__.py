@@ -14,12 +14,13 @@ logger = logging.getLogger(__name__)
 def _import_celery_app() -> Optional[Any]:
     """
     Import Celery app with structured error handling.
-    
+
     Returns:
         Celery app instance if available, None otherwise
     """
     try:
         from .celery_app import app as celery_app
+
         logger.debug("Celery app imported successfully")
         return celery_app
     except ImportError as e:
