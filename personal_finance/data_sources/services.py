@@ -487,7 +487,8 @@ class DataSourceManager:
                 continue
             except Exception as e:
                 logger.error(
-                    "Unexpected historical data error from {source.name}: %s",
+                    "Unexpected historical data error from %s: %s",
+                    source.name,
                     e,
                 )
                 continue
