@@ -22,7 +22,7 @@ class DjangoFeatureInfo:
     component_names: List[str]
     is_available: bool
     import_error: Optional[str] = None
-    components: Dict[str, Any] = None
+    components: Dict[str, Any] = field(default_factory=dict)
 
 
 class DjangoFeatureRegistry:
