@@ -14,13 +14,14 @@ if typing.TYPE_CHECKING:
 
 
 class AccountAdapter(DefaultAccountAdapter):
-    def is_open_for_signup(self, request: HttpRequest) -> bool:
+    @staticmethod
+    def is_open_for_signup(request: HttpRequest) -> bool:
         return getattr(settings, "ACCOUNT_ALLOW_REGISTRATION", True)
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    @staticmethod
     def is_open_for_signup(
-        self,
         request: HttpRequest,
         sociallogin: SocialLogin,
     ) -> bool:

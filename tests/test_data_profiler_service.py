@@ -11,7 +11,8 @@ from personal_finance.data_profiler.validators import ProfileDataError
 class TestDataProfilerService:
     """Test cases for DataProfiler service."""
 
-    def test_service_initialization_with_dataprofiler_available(self):
+    @staticmethod
+    def test_service_initialization_with_dataprofiler_available():
         """Test service initialization when DataProfiler is available."""
         with patch(
             "personal_finance.data_profiler.services.logger"
@@ -27,7 +28,8 @@ class TestDataProfilerService:
 
                 assert service.is_available() is True
 
-    def test_service_initialization_without_dataprofiler(self):
+    @staticmethod
+    def test_service_initialization_without_dataprofiler():
         """Test service initialization when DataProfiler is not available."""
         with patch(
             "personal_finance.data_profiler.services.logger"
@@ -52,7 +54,8 @@ class TestDataProfilerService:
                 "DataProfiler not available. Install with: pip install dataprofiler"
             )
 
-    def test_create_profile_without_dataprofiler_returns_none(self):
+    @staticmethod
+    def test_create_profile_without_dataprofiler_returns_none():
         """Test that create_profile returns None when DataProfiler is unavailable."""
         service = DataProfilerService()
         service._dp_available = False
@@ -68,7 +71,8 @@ class TestDataProfilerService:
                 "DataProfiler is not available"
             )
 
-    def test_create_profile_with_invalid_data_raises_error(self):
+    @staticmethod
+    def test_create_profile_with_invalid_data_raises_error():
         """Test that create_profile raises error for invalid data."""
         service = DataProfilerService()
         service._dp_available = True
@@ -77,7 +81,8 @@ class TestDataProfilerService:
         with pytest.raises(ProfileDataError):
             service.create_profile(None)
 
-    def test_create_profile_success_path(self):
+    @staticmethod
+    def test_create_profile_success_path():
         """Test successful profile creation."""
         service = DataProfilerService()
         service._dp_available = True
@@ -131,7 +136,8 @@ class TestDataProfilerService:
             )
             mock_logger.info.assert_any_call("Profile created successfully")
 
-    def test_create_profile_dataprofiler_error_handling(self):
+    @staticmethod
+    def test_create_profile_dataprofiler_error_handling():
         """Test error handling during DataProfiler execution."""
         service = DataProfilerService()
         service._dp_available = True
@@ -146,7 +152,8 @@ class TestDataProfilerService:
         with pytest.raises(ProfileDataError, match="Failed to create profile"):
             service.create_profile(df)
 
-    def test_analyze_financial_data_invalid_input(self):
+    @staticmethod
+    def test_analyze_financial_data_invalid_input():
         """Test financial data analysis with invalid input."""
         service = DataProfilerService()
 
@@ -155,7 +162,8 @@ class TestDataProfilerService:
         ):
             service.analyze_financial_data([1, 2, 3])
 
-    def test_analyze_financial_data_success(self):
+    @staticmethod
+    def test_analyze_financial_data_success():
         """Test successful financial data analysis."""
         service = DataProfilerService()
         service._dp_available = False  # Disable DataProfiler for simpler test
@@ -190,7 +198,8 @@ class TestDataProfilerService:
         assert "constant_columns" in quality
         assert "outlier_candidates" in quality
 
-    def test_analyze_financial_data_with_dataprofiler(self):
+    @staticmethod
+    def test_analyze_financial_data_with_dataprofiler():
         """Test financial data analysis with DataProfiler enabled."""
         service = DataProfilerService()
         service._dp_available = True
@@ -211,7 +220,8 @@ class TestDataProfilerService:
             assert result["basic_profile"] == {"mock": "profile"}
             mock_create_profile.assert_called_once_with(financial_df)
 
-    def test_analyze_financial_data_dataprofiler_error(self):
+    @staticmethod
+    def test_analyze_financial_data_dataprofiler_error():
         """Test financial data analysis when DataProfiler fails."""
         service = DataProfilerService()
         service._dp_available = True
@@ -238,7 +248,8 @@ class TestDataProfilerService:
 class TestFinancialPatternAnalysis:
     """Test financial pattern analysis methods."""
 
-    def test_looks_like_currency_column(self):
+    @staticmethod
+    def test_looks_like_currency_column():
         """Test currency column detection."""
         service = DataProfilerService()
 
@@ -264,7 +275,8 @@ class TestFinancialPatternAnalysis:
             "id", pd.Series([1, 2, 3])
         )
 
-    def test_looks_like_date_column(self):
+    @staticmethod
+    def test_looks_like_date_column():
         """Test date column detection."""
         service = DataProfilerService()
 
@@ -287,7 +299,8 @@ class TestFinancialPatternAnalysis:
             "name", pd.Series(["a", "b", "c"])
         )
 
-    def test_looks_like_amount_column(self):
+    @staticmethod
+    def test_looks_like_amount_column():
         """Test amount column detection."""
         service = DataProfilerService()
 
@@ -302,7 +315,8 @@ class TestFinancialPatternAnalysis:
         string_series = pd.Series(["a", "b", "c"])
         assert not service._looks_like_amount_column("name", string_series)
 
-    def test_check_suspicious_patterns(self):
+    @staticmethod
+    def test_check_suspicious_patterns():
         """Test suspicious pattern detection."""
         service = DataProfilerService()
 
@@ -324,7 +338,8 @@ class TestFinancialPatternAnalysis:
         )
         assert len(suspicious) == 0
 
-    def test_looks_like_ssn(self):
+    @staticmethod
+    def test_looks_like_ssn():
         """Test SSN pattern detection."""
         service = DataProfilerService()
 
@@ -342,7 +357,8 @@ class TestFinancialPatternAnalysis:
 class TestDataQualityAnalysis:
     """Test data quality analysis methods."""
 
-    def test_analyze_data_quality_comprehensive(self):
+    @staticmethod
+    def test_analyze_data_quality_comprehensive():
         """Test comprehensive data quality analysis."""
         service = DataProfilerService()
 
@@ -385,7 +401,8 @@ class TestDataQualityAnalysis:
 class TestSensitiveDataDetection:
     """Test sensitive data detection methods."""
 
-    def test_detect_sensitive_financial_data(self):
+    @staticmethod
+    def test_detect_sensitive_financial_data():
         """Test detection of sensitive financial information."""
         service = DataProfilerService(enable_sensitive_data_detection=True)
 
@@ -419,7 +436,8 @@ class TestSensitiveDataDetection:
         assert len(ssn_findings) > 0
         assert ssn_findings[0]["column"] == "ssn"
 
-    def test_sensitive_data_detection_disabled(self):
+    @staticmethod
+    def test_sensitive_data_detection_disabled():
         """Test that sensitive data detection can be disabled."""
         service = DataProfilerService(enable_sensitive_data_detection=False)
 
@@ -432,7 +450,8 @@ class TestSensitiveDataDetection:
 class TestProfilerOptions:
     """Test DataProfiler configuration options."""
 
-    def test_get_profiler_options_default(self):
+    @staticmethod
+    def test_get_profiler_options_default():
         """Test default profiler options."""
         service = DataProfilerService()
 
@@ -443,7 +462,8 @@ class TestProfilerOptions:
         assert options["samples_per_update"] is None
         assert options["min_true_samples"] == 0
 
-    def test_get_profiler_options_with_user_options(self):
+    @staticmethod
+    def test_get_profiler_options_with_user_options():
         """Test profiler options with user overrides."""
         service = DataProfilerService()
 
@@ -458,7 +478,8 @@ class TestProfilerOptions:
         assert options["custom_option"] == "custom_value"
         assert options["min_true_samples"] == 0  # Default preserved
 
-    def test_get_profiler_options_sensitive_data_disabled(self):
+    @staticmethod
+    def test_get_profiler_options_sensitive_data_disabled():
         """Test profiler options when sensitive data detection is disabled."""
         service = DataProfilerService(enable_sensitive_data_detection=False)
 
@@ -471,7 +492,8 @@ class TestProfilerOptions:
 class TestProfileResultExtraction:
     """Test profile result extraction methods."""
 
-    def test_extract_profile_results_no_profiler(self):
+    @staticmethod
+    def test_extract_profile_results_no_profiler():
         """Test profile extraction when no profiler exists."""
         service = DataProfilerService()
         service._profiler = None
@@ -479,7 +501,8 @@ class TestProfileResultExtraction:
         result = service._extract_profile_results()
         assert result == {}
 
-    def test_extract_summary_stats(self):
+    @staticmethod
+    def test_extract_summary_stats():
         """Test summary statistics extraction."""
         service = DataProfilerService()
 
@@ -501,7 +524,8 @@ class TestProfileResultExtraction:
         assert summary["file_type"] == "csv"
         assert summary["encoding"] == "utf-8"
 
-    def test_extract_column_profiles(self):
+    @staticmethod
+    def test_extract_column_profiles():
         """Test column profile extraction."""
         service = DataProfilerService()
 
@@ -533,7 +557,8 @@ class TestProfileResultExtraction:
         assert profiles["name"]["data_type"] == "string"
         assert profiles["name"]["null_count"] == 0
 
-    def test_extract_sensitive_data_disabled(self):
+    @staticmethod
+    def test_extract_sensitive_data_disabled():
         """Test sensitive data extraction when disabled."""
         service = DataProfilerService(enable_sensitive_data_detection=False)
 
@@ -546,7 +571,8 @@ class TestProfileResultExtraction:
 class TestIntegrationScenarios:
     """Integration test scenarios."""
 
-    def test_full_financial_analysis_workflow(self):
+    @staticmethod
+    def test_full_financial_analysis_workflow():
         """Test complete financial data analysis workflow."""
         service = DataProfilerService(enable_sensitive_data_detection=True)
         service._dp_available = (

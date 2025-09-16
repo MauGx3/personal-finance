@@ -287,7 +287,8 @@ class DatabaseManager:
             # For MongoDB yield a dummy session object. Methods use mongo
             # collections directly.
             class _DummySession:
-                def execute(self, *_a, **_k):
+                @staticmethod
+                def execute(*_a, **_k):
                     return None
 
             yield _DummySession()

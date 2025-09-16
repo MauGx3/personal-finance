@@ -176,7 +176,8 @@ class RealtimeViewSet(viewsets.ViewSet):
 
         return Response(market_data)
 
-    def _is_market_open(self, exchange: str, current_time) -> bool:
+    @staticmethod
+    def _is_market_open(exchange: str, current_time) -> bool:
         """Check if a market is currently open (simplified)."""
         # Simplified - would use real market hours API
         hour = current_time.hour
@@ -190,12 +191,14 @@ class RealtimeViewSet(viewsets.ViewSet):
         est_hour = (hour - 5) % 24
         return 9 <= est_hour < 16
 
-    def _get_next_market_open(self, exchange: str, current_time):
+    @staticmethod
+    def _get_next_market_open(exchange: str, current_time):
         """Get next market open time (simplified)."""
         # Simplified implementation
         return current_time + timedelta(hours=1)
 
-    def _get_next_market_close(self, exchange: str, current_time):
+    @staticmethod
+    def _get_next_market_close(exchange: str, current_time):
         """Get next market close time (simplified)."""
         # Simplified implementation
         return current_time + timedelta(hours=6)

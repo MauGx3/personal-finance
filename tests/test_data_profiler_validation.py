@@ -19,14 +19,16 @@ from personal_finance.data_profiler.validators import (
 class TestValidateProfileData:
     """Test cases for profile data validation."""
 
-    def test_validate_none_data_raises_error(self):
+    @staticmethod
+    def test_validate_none_data_raises_error():
         """Test that None data raises ProfileDataError."""
         with pytest.raises(
             ProfileDataError, match="profile_data cannot be None"
         ):
             validate_profile_data(None)
 
-    def test_validate_valid_dataframe(self):
+    @staticmethod
+    def test_validate_valid_dataframe():
         """Test validation of valid DataFrame."""
         df = pd.DataFrame(
             {
@@ -37,7 +39,8 @@ class TestValidateProfileData:
         )
         assert validate_profile_data(df) is True
 
-    def test_validate_empty_dataframe_raises_error(self):
+    @staticmethod
+    def test_validate_empty_dataframe_raises_error():
         """Test that empty DataFrame raises ProfileDataError."""
         df = pd.DataFrame()
         with pytest.raises(
@@ -45,7 +48,8 @@ class TestValidateProfileData:
         ):
             validate_profile_data(df)
 
-    def test_validate_dataframe_no_columns_raises_error(self):
+    @staticmethod
+    def test_validate_dataframe_no_columns_raises_error():
         """Test that DataFrame with no columns raises ProfileDataError."""
         df = pd.DataFrame(index=[0, 1, 2])
         with pytest.raises(
@@ -53,28 +57,33 @@ class TestValidateProfileData:
         ):
             validate_profile_data(df)
 
-    def test_validate_valid_series(self):
+    @staticmethod
+    def test_validate_valid_series():
         """Test validation of valid Series."""
         series = pd.Series([1, 2, 3, 4, 5])
         assert validate_profile_data(series) is True
 
-    def test_validate_empty_series_raises_error(self):
+    @staticmethod
+    def test_validate_empty_series_raises_error():
         """Test that empty Series raises ProfileDataError."""
         series = pd.Series([], dtype="float64")
         with pytest.raises(ProfileDataError, match="Series cannot be empty"):
             validate_profile_data(series)
 
-    def test_validate_valid_numpy_array(self):
+    @staticmethod
+    def test_validate_valid_numpy_array():
         """Test validation of valid numpy array."""
         arr = np.array([1, 2, 3, 4, 5])
         assert validate_profile_data(arr) is True
 
-    def test_validate_2d_numpy_array(self):
+    @staticmethod
+    def test_validate_2d_numpy_array():
         """Test validation of 2D numpy array."""
         arr = np.array([[1, 2], [3, 4], [5, 6]])
         assert validate_profile_data(arr) is True
 
-    def test_validate_empty_numpy_array_raises_error(self):
+    @staticmethod
+    def test_validate_empty_numpy_array_raises_error():
         """Test that empty numpy array raises ProfileDataError."""
         arr = np.array([])
         with pytest.raises(
@@ -82,7 +91,8 @@ class TestValidateProfileData:
         ):
             validate_profile_data(arr)
 
-    def test_validate_high_dimension_array_raises_error(self):
+    @staticmethod
+    def test_validate_high_dimension_array_raises_error():
         """Test that high-dimensional arrays raise ProfileDataError."""
         arr = np.zeros((2, 2, 2, 2))  # 4D array
         with pytest.raises(
@@ -90,7 +100,8 @@ class TestValidateProfileData:
         ):
             validate_profile_data(arr)
 
-    def test_validate_list_of_dicts(self):
+    @staticmethod
+    def test_validate_list_of_dicts():
         """Test validation of list of dictionaries."""
         data = [
             {"name": "John", "age": 30, "amount": 100.0},
@@ -99,17 +110,20 @@ class TestValidateProfileData:
         ]
         assert validate_profile_data(data) is True
 
-    def test_validate_simple_list(self):
+    @staticmethod
+    def test_validate_simple_list():
         """Test validation of simple list."""
         data = [1, 2, 3, 4, 5]
         assert validate_profile_data(data) is True
 
-    def test_validate_empty_list_raises_error(self):
+    @staticmethod
+    def test_validate_empty_list_raises_error():
         """Test that empty list raises ProfileDataError."""
         with pytest.raises(ProfileDataError, match="List cannot be empty"):
             validate_profile_data([])
 
-    def test_validate_inconsistent_dict_list_raises_error(self):
+    @staticmethod
+    def test_validate_inconsistent_dict_list_raises_error():
         """Test that inconsistent dictionary list raises ProfileDataError."""
         data = [
             {"name": "John", "age": 30},
@@ -118,12 +132,14 @@ class TestValidateProfileData:
         with pytest.raises(ProfileDataError, match="Inconsistent schema"):
             validate_profile_data(data)
 
-    def test_validate_single_dict(self):
+    @staticmethod
+    def test_validate_single_dict():
         """Test validation of single dictionary."""
         data = {"name": "John", "age": 30, "amount": 100.0}
         assert validate_profile_data(data) is True
 
-    def test_validate_column_oriented_dict(self):
+    @staticmethod
+    def test_validate_column_oriented_dict():
         """Test validation of column-oriented dictionary."""
         data = {
             "names": ["John", "Jane", "Bob"],
@@ -132,7 +148,8 @@ class TestValidateProfileData:
         }
         assert validate_profile_data(data) is True
 
-    def test_validate_inconsistent_dict_lengths_raises_error(self):
+    @staticmethod
+    def test_validate_inconsistent_dict_lengths_raises_error():
         """Test that dictionary with inconsistent lengths raises error."""
         data = {
             "names": ["John", "Jane"],
@@ -141,13 +158,15 @@ class TestValidateProfileData:
         with pytest.raises(ProfileDataError, match="Inconsistent lengths"):
             validate_profile_data(data)
 
-    def test_validate_file_path_string(self):
+    @staticmethod
+    def test_validate_file_path_string():
         """Test validation of file path string."""
         assert validate_profile_data("/path/to/data.csv") is True
         assert validate_profile_data("data.json") is True
         assert validate_profile_data("financial_data.xlsx") is True
 
-    def test_validate_empty_string_raises_error(self):
+    @staticmethod
+    def test_validate_empty_string_raises_error():
         """Test that empty string raises ProfileDataError."""
         with pytest.raises(
             ProfileDataError, match="File path cannot be empty"
@@ -158,7 +177,8 @@ class TestValidateProfileData:
         ):
             validate_profile_data("   ")
 
-    def test_validate_unsupported_type_raises_error(self):
+    @staticmethod
+    def test_validate_unsupported_type_raises_error():
         """Test that unsupported data types raise ProfileDataError."""
         with pytest.raises(ProfileDataError, match="Unsupported data type"):
             validate_profile_data({1, 2, 3})
@@ -169,7 +189,8 @@ class TestValidateProfileData:
 class TestDataFrameValidation:
     """Test cases specifically for DataFrame validation."""
 
-    def test_validate_large_dataframe_warning(self, caplog):
+    @staticmethod
+    def test_validate_large_dataframe_warning(caplog):
         """Test that large DataFrames generate warnings."""
         # Create a large DataFrame (using smaller size for test efficiency)
         large_df = pd.DataFrame({f"col_{i}": range(1000) for i in range(10)})
@@ -183,7 +204,8 @@ class TestDataFrameValidation:
                 f"DataFrame validation passed: {len(large_df)} rows, {len(large_df.columns)} columns"
             )
 
-    def test_validate_problematic_column_names(self):
+    @staticmethod
+    def test_validate_problematic_column_names():
         """Test validation of DataFrames with problematic column names."""
         # Empty string column name
         df_empty_col = pd.DataFrame({"good_col": [1, 2, 3], "": [4, 5, 6]})
@@ -201,12 +223,14 @@ class TestDataFrameValidation:
 class TestSeriesValidation:
     """Test cases specifically for Series validation."""
 
-    def test_validate_series_with_name(self):
+    @staticmethod
+    def test_validate_series_with_name():
         """Test validation of Series with valid name."""
         series = pd.Series([1, 2, 3], name="valid_name")
         assert _validate_series(series) is True
 
-    def test_validate_series_invalid_name_raises_error(self):
+    @staticmethod
+    def test_validate_series_invalid_name_raises_error():
         """Test that Series with invalid name raises error."""
         # In modern pandas, creating a Series with unhashable name raises TypeError
         with pytest.raises(
@@ -218,14 +242,16 @@ class TestSeriesValidation:
 class TestListValidation:
     """Test cases specifically for list validation."""
 
-    def test_validate_records_format_empty_raises_error(self):
+    @staticmethod
+    def test_validate_records_format_empty_raises_error():
         """Test that empty records list raises error."""
         with pytest.raises(
             ProfileDataError, match="Records list cannot be empty"
         ):
             _validate_records_format([])
 
-    def test_validate_records_format_invalid_keys(self):
+    @staticmethod
+    def test_validate_records_format_invalid_keys():
         """Test validation of records with invalid keys."""
         records = [
             {"": "value1", "valid_key": "value2"},
@@ -238,7 +264,8 @@ class TestListValidation:
 class TestValidateAndPrepareData:
     """Test cases for the validation and preparation function."""
 
-    def test_prepare_list_of_dicts_to_dataframe(self):
+    @staticmethod
+    def test_prepare_list_of_dicts_to_dataframe():
         """Test conversion of list of dicts to DataFrame."""
         data = [{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]
         result = validate_and_prepare_data(data)
@@ -246,7 +273,8 @@ class TestValidateAndPrepareData:
         assert len(result) == 2
         assert list(result.columns) == ["name", "age"]
 
-    def test_prepare_column_dict_to_dataframe(self):
+    @staticmethod
+    def test_prepare_column_dict_to_dataframe():
         """Test conversion of column-oriented dict to DataFrame."""
         data = {"names": ["John", "Jane"], "ages": [30, 25]}
         result = validate_and_prepare_data(data)
@@ -254,7 +282,8 @@ class TestValidateAndPrepareData:
         assert len(result) == 2
         assert list(result.columns) == ["names", "ages"]
 
-    def test_prepare_data_conversion_failure_returns_original(self, caplog):
+    @staticmethod
+    def test_prepare_data_conversion_failure_returns_original(caplog):
         """Test that conversion failure returns original data."""
         # Create data that will fail DataFrame conversion
         data = [
@@ -270,7 +299,8 @@ class TestValidateAndPrepareData:
             assert result == data
             mock_logger.warning.assert_called()
 
-    def test_prepare_data_no_conversion_needed(self):
+    @staticmethod
+    def test_prepare_data_no_conversion_needed():
         """Test that data needing no conversion is returned as-is."""
         df = pd.DataFrame({"col1": [1, 2, 3]})
         result = validate_and_prepare_data(df)
@@ -284,7 +314,8 @@ class TestValidateAndPrepareData:
 class TestErrorHandling:
     """Test error handling and edge cases."""
 
-    def test_profile_data_error_inheritance(self):
+    @staticmethod
+    def test_profile_data_error_inheritance():
         """Test that ProfileDataError is properly inheritable from Exception."""
         error = ProfileDataError("Test error")
         assert isinstance(error, Exception)
@@ -323,7 +354,8 @@ class TestFilePathValidation:
         """Test validation of supported file extensions."""
         assert _validate_string_data(file_path) is True
 
-    def test_validate_unsupported_extension_warning(self, caplog):
+    @staticmethod
+    def test_validate_unsupported_extension_warning(caplog):
         """Test that unsupported extensions generate warnings."""
         with patch(
             "personal_finance.data_profiler.validators.logger"
@@ -337,7 +369,8 @@ class TestFilePathValidation:
 class TestIntegrationScenarios:
     """Integration test scenarios with realistic financial data."""
 
-    def test_validate_financial_dataframe(self):
+    @staticmethod
+    def test_validate_financial_dataframe():
         """Test validation of realistic financial DataFrame."""
         financial_df = pd.DataFrame(
             {
@@ -352,7 +385,8 @@ class TestIntegrationScenarios:
         )
         assert validate_profile_data(financial_df) is True
 
-    def test_validate_portfolio_data(self):
+    @staticmethod
+    def test_validate_portfolio_data():
         """Test validation of portfolio data structure."""
         portfolio_data = [
             {
@@ -378,7 +412,8 @@ class TestIntegrationScenarios:
         assert len(result) == 2
         assert "symbol" in result.columns
 
-    def test_validate_price_history_array(self):
+    @staticmethod
+    def test_validate_price_history_array():
         """Test validation of price history numpy array."""
         # Simulate OHLCV data
         price_data = np.array(

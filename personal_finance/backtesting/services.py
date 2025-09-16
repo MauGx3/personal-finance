@@ -490,7 +490,8 @@ class BacktestEngine:
             backtest.save()
             raise RuntimeError(f"Backtest execution failed: {str(e)}")
 
-    def _load_price_data(self, backtest: Backtest) -> pd.DataFrame:
+    @staticmethod
+    def _load_price_data(backtest: Backtest) -> pd.DataFrame:
         """Load historical price data for backtest assets."""
         assets = list(backtest.strategy.asset_universe.all())
         if backtest.benchmark_asset:
@@ -525,8 +526,9 @@ class BacktestEngine:
 
         return pd.DataFrame()
 
+    @staticmethod
     def _create_strategy_instance(
-        self, strategy: Strategy, price_data: pd.DataFrame
+        strategy: Strategy, price_data: pd.DataFrame
     ) -> BaseStrategy:
         """Create strategy instance based on strategy type."""
         strategy_classes = {
@@ -640,8 +642,8 @@ class BacktestEngine:
 
         return simulation_results
 
+    @staticmethod
     def _update_portfolio_prices(
-        self,
         portfolio: PortfolioState,
         price_data: pd.DataFrame,
         current_date: pd.Timestamp,
@@ -655,8 +657,8 @@ class BacktestEngine:
                 current_price = price_data.loc[current_date, symbol]
                 position.current_price = Decimal(str(current_price))
 
+    @staticmethod
     def _execute_trade(
-        self,
         backtest: Backtest,
         trade: Trade,
         portfolio: PortfolioState,
@@ -817,8 +819,8 @@ class BacktestEngine:
                 if executed_trade:
                     simulation_results["trades"].append(executed_trade)
 
+    @staticmethod
     def _create_portfolio_snapshot(
-        self,
         backtest: Backtest,
         portfolio: PortfolioState,
         snapshot_date: date,
@@ -1079,8 +1081,9 @@ class BacktestEngine:
 
         return result
 
+    @staticmethod
     def _calculate_trade_pnl(
-        self, sell_trade: BacktestTrade, all_trades: List[BacktestTrade]
+        sell_trade: BacktestTrade, all_trades: List[BacktestTrade]
     ) -> float:
         """Calculate profit/loss for a completed trade."""
         # This is a simplified calculation - in reality you'd match specific buy/sell pairs
@@ -1090,7 +1093,8 @@ class BacktestEngine:
             - sell_trade.portfolio_value_before
         )
 
-    def _serialize_trade(self, trade: BacktestTrade) -> Dict[str, Any]:
+    @staticmethod
+    def _serialize_trade(trade: BacktestTrade) -> Dict[str, Any]:
         """Serialize trade for JSON storage."""
         return {
             "date": trade.date.isoformat(),

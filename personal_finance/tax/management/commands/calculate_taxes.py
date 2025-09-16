@@ -236,7 +236,8 @@ class Command(BaseCommand):
                 )
             )
 
-    def _is_transaction_processed(self, trans: Transaction) -> bool:
+    @staticmethod
+    def _is_transaction_processed(trans: Transaction) -> bool:
         """Check if a transaction has already been processed for taxes.
 
         Args:
