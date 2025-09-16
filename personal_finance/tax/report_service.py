@@ -41,7 +41,8 @@ class TaxReportService:
             Generated TaxReport instance
         """
         logger.info(
-            "Generating Schedule D report for {user.username} - %s",
+            "Generating Schedule D report for %s - %s",
+            user.username,
             tax_year.year,
         )
 
