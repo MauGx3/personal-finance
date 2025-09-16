@@ -482,7 +482,7 @@ class DataSourceManager:
                         return historical_data
             except (APIError, RateLimitError) as e:
                 logger.warning(
-                    "Historical data source {source.name} failed: %s", e
+                    "Historical data source %s failed: %s", source.name, e
                 )
                 continue
             except Exception as e:
