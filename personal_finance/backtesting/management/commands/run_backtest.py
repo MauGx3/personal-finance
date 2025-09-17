@@ -471,7 +471,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"Backtest failed: {str(e)}"))
             raise
 
-    def _calculate_dates(self, options) -> tuple[date, date]:
+    @staticmethod
+    def _calculate_dates(options) -> tuple[date, date]:
         """Calculate start and end dates for backtest."""
 
         if options.get("start_date") and options.get("end_date"):

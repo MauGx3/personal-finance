@@ -559,7 +559,8 @@ class PortfolioCharts:
                 "Error generating risk metrics chart"
             )
 
-    def _get_risk_color(self, value: float, metric_type: str) -> str:
+    @staticmethod
+    def _get_risk_color(value: float, metric_type: str) -> str:
         """Get appropriate color based on risk metric value.
 
         Args:
@@ -600,7 +601,8 @@ class PortfolioCharts:
 
         return "blue"  # Default color
 
-    def _create_empty_chart(self, message: str) -> Dict[str, Any]:
+    @staticmethod
+    def _create_empty_chart(message: str) -> Dict[str, Any]:
         """Create empty chart with message.
 
         Args:
@@ -832,7 +834,8 @@ class AssetCharts:
             except Exception as e:
                 logger.warning("Failed to add indicator %s: %s", indicator, e)
 
-    def _create_empty_chart(self, message: str) -> Dict[str, Any]:
+    @staticmethod
+    def _create_empty_chart(message: str) -> Dict[str, Any]:
         """Create empty chart with message."""
         fig = go.Figure()
         fig.add_annotation(

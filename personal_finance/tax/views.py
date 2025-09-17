@@ -564,7 +564,8 @@ class TaxAnalyticsViewSet(viewsets.ViewSet):
             }
         )
 
-    def _is_transaction_processed(self, transaction):
+    @staticmethod
+    def _is_transaction_processed(transaction):
         """Check if a transaction has already been processed for taxes."""
         if transaction.transaction_type == "buy":
             return TaxLot.objects.filter(transaction=transaction).exists()
