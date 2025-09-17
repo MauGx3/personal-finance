@@ -226,11 +226,12 @@ class TestDataProfilerService:
         service = DataProfilerService()
         service._dp_available = True
 
+        # Create the exception instance that will be raised
+        test_exception = Exception("Profile creation failed")
+
         # Mock failed profile creation
         with patch.object(service, "create_profile") as mock_create_profile:
-            mock_create_profile.side_effect = Exception(
-                "Profile creation failed"
-            )
+            mock_create_profile.side_effect = test_exception
 
             with patch(
                 "personal_finance.data_profiler.services.logger"
@@ -242,7 +243,7 @@ class TestDataProfilerService:
                 assert result["basic_profile"] is None
                 mock_logger.warning.assert_called_with(
                     "Basic profiling failed: %s",
-                    Exception("Profile creation failed"),
+                    test_exception,
                 )
 
 
