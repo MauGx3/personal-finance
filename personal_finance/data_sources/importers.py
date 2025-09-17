@@ -1275,4 +1275,8 @@ class BancoInterImportService:
             return [self._sanitize_for_json(v) for v in obj]
 
         # Fallback: leave as-is (JSONField will error if truly unserializable)
+        self.logger.warning(
+            "Fallback serialization for type %s in _sanitize_for_json",
+            type(obj).__name__,
+        )
         return obj
