@@ -201,7 +201,7 @@ class TestDataFrameValidation:
             result = _validate_dataframe(large_df)
             assert result is True
             mock_logger.info.assert_called_with(
-                f"DataFrame validation passed: {len(large_df)} rows, {len(large_df.columns)} columns"
+                "DataFrame validation passed: %s rows, %s columns", 1000, 10
             )
 
     @staticmethod

@@ -241,7 +241,7 @@ class TestDataProfilerService:
 
                 assert result["basic_profile"] is None
                 mock_logger.warning.assert_called_with(
-                    "Basic profiling failed: Profile creation failed"
+                    "Basic profiling failed: %s", Exception("Profile creation failed")
                 )
 
 
