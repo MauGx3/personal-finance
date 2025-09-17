@@ -19,7 +19,7 @@ from math import isfinite
 import pandas as pd
 
 try:
-    import pdfplumber
+    import kreuzberg
 
     PDF_AVAILABLE = True
 except ImportError:
@@ -419,8 +419,8 @@ class BancoInterBrokerageNoteParser(BancoInterDocumentParser):
 
     def _parse_pdf_brokerage_note(self) -> Dict[str, Any]:
         """Parse PDF brokerage note (placeholder implementation)."""
-        # This would require PDF parsing libraries like PyPDF2,
-        # pdfplumber, etc.
+        # This would require PDF parsing libraries like kreuzberg,
+        # PyPDF2, etc.
         # For now, return a placeholder structure
         return {
             "transactions": [],
@@ -633,22 +633,28 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
             if self.file_path.suffix.lower() != ".pdf":
                 return False
 
-            with pdfplumber.open(self.file_path) as pdf:
-                # Check first few pages for characteristic content
-                for page_num in range(min(3, len(pdf.pages))):
-                    page = pdf.pages[page_num]
-                    text = page.extract_text()
-                    if text:
-                        text_lower = text.lower()
-                        # Look for consolidated report patterns
-                        patterns = [
-                            "relatório consolidado",
-                            "posição detalhada",
-                            "ganhos financeiros",
-                            "movimentações no mês",
-                        ]
-                        if any(pattern in text_lower for pattern in patterns):
-                            return True
+            # Use kreuzberg to extract text content for validation
+            config = kreuzberg.ExtractionConfig(
+                extract_tables=False,
+                extract_images=False,
+                force_ocr=False,
+                max_chars=5000  # Limit for validation
+            )
+            
+            result = kreuzberg.extract_file_sync(self.file_path, config=config)
+            text = result.content
+            
+            if text:
+                text_lower = text.lower()
+                # Look for consolidated report patterns
+                patterns = [
+                    "relatório consolidado",
+                    "posição detalhada",
+                    "ganhos financeiros",
+                    "movimentações no mês",
+                ]
+                if any(pattern in text_lower for pattern in patterns):
+                    return True
 
             return False
 
@@ -664,54 +670,172 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
             if not PDF_AVAILABLE:
                 raise ImportError("PDF processing not available")
 
-            with pdfplumber.open(self.file_path) as pdf:
-                # Parse positions and transactions
-                positions = self._extract_positions(pdf)
-                transactions = self._extract_transactions(pdf)
+            # Use kreuzberg to extract content from PDF
+            config = kreuzberg.ExtractionConfig(
+                extract_tables=False,  # We'll parse manually from text
+                extract_images=False,
+                force_ocr=False,
+                max_chars=None  # Get full content
+            )
+            
+            result = kreuzberg.extract_file_sync(self.file_path, config=config)
+            text_content = result.content
+            
+            # Parse positions and transactions from the extracted text
+            positions = self._extract_positions_from_text(text_content)
+            transactions = self._extract_transactions_from_text(text_content)
 
-                return {
-                    "positions": positions,
-                    "transactions": transactions,
-                    "report_date": timezone.now().date(),
-                    "source": "banco_inter_consolidated_report",
-                }
+            return {
+                "positions": positions,
+                "transactions": transactions,
+                "report_date": timezone.now().date(),
+                "source": "banco_inter_consolidated_report",
+            }
 
         except Exception as e:
             raise ParseError(f"Failed to parse consolidated report: {e}")
 
-    def _extract_positions(self, pdf) -> List[Dict[str, Any]]:
-        """Extract investment positions from the PDF."""
+    def _extract_positions_from_text(self, text_content: str) -> List[Dict[str, Any]]:
+        """Extract investment positions from the extracted PDF text."""
         positions = []
-
-        for page_num, page in enumerate(pdf.pages):
-            text = page.extract_text()
-            if not text:
+        
+        # Split content into lines for processing
+        lines = text_content.split('\n')
+        
+        # Look for position data sections
+        position_section = False
+        current_section_lines = []
+        
+        for i, line in enumerate(lines):
+            line_lower = line.lower().strip()
+            
+            # Detect position sections by keywords
+            if ("saldo anterior" in line_lower and "saldo bruto" in line_lower) or \
+               ("ativos" in line_lower and ("posição" in line_lower or "valor" in line_lower)):
+                position_section = True
+                current_section_lines = [line]
                 continue
-
-            # Look for position tables (usually on pages 9-12 based on
-            # the sample)
-            if (
-                "saldo anterior" in text.lower()
-                and "saldo bruto" in text.lower()
+            
+            # End of section detection
+            if position_section and (
+                line_lower.startswith(("total", "sub-total", "relatório consolidado")) or
+                len(line.strip()) == 0 and len(current_section_lines) > 5
             ):
-                # This page contains position data
-                tables = page.extract_tables()
-                for table in tables:
-                    if not table:
-                        continue
-
-                    # Process position table rows
-                    for row in table:
-                        if (
-                            not row or len(row) < 7
-                        ):  # Need at least asset name and some values
-                            continue
-
-                        position = self._parse_position_from_table_row(row)
-                        if position:
-                            positions.append(position)
-
+                # Process accumulated section
+                section_positions = self._parse_position_section(current_section_lines)
+                positions.extend(section_positions)
+                position_section = False
+                current_section_lines = []
+                continue
+            
+            # Accumulate lines in position section
+            if position_section:
+                current_section_lines.append(line)
+        
+        # Process any remaining section
+        if current_section_lines:
+            section_positions = self._parse_position_section(current_section_lines)
+            positions.extend(section_positions)
+        
         return positions
+
+    def _parse_position_section(self, section_lines: List[str]) -> List[Dict[str, Any]]:
+        """Parse a section of lines that contains position data."""
+        positions = []
+        
+        for line in section_lines:
+            line = line.strip()
+            if not line or len(line) < 10:  # Skip short/empty lines
+                continue
+            
+            # Look for lines that contain asset symbols and financial data
+            # Pattern: asset name/symbol followed by R$ amounts
+            if self._line_contains_position_data(line):
+                position = self._parse_position_from_line(line)
+                if position:
+                    positions.append(position)
+        
+        return positions
+
+    def _line_contains_position_data(self, line: str) -> bool:
+        """Check if a line contains position data."""
+        line_lower = line.lower()
+        
+        # Skip header lines and summaries
+        skip_patterns = [
+            "saldo anterior", "aplicações", "resgates", "eventos", 
+            "saldo bruto", "rentabilidade", "desde o início", "part.",
+            "31/07/2025", "31/08/2025", "no mês", "12 meses",
+            "ativos", "r$", "%"
+        ]
+        
+        if any(pattern in line_lower for pattern in skip_patterns):
+            return False
+        
+        # Look for financial amounts (R$ pattern) and potential asset names
+        import re
+        has_amounts = bool(re.search(r'R?\$?\s*[\d.,]+', line))
+        has_asset_pattern = bool(re.search(r'[A-Z]{2,}', line))  # All caps patterns (asset symbols)
+        
+        return has_amounts and has_asset_pattern and len(line.split()) >= 3
+
+    def _parse_position_from_line(self, line: str) -> Optional[Dict[str, Any]]:
+        """Parse a position from a text line."""
+        try:
+            # Split line into parts
+            parts = line.split()
+            if len(parts) < 3:
+                return None
+            
+            # First part is usually the asset symbol/name
+            symbol = parts[0].strip()
+            
+            # Skip if symbol looks like a number or common text
+            if symbol.replace(',', '').replace('.', '').isdigit() or \
+               symbol.lower() in ['r$', 'total', 'sub-total', 'liquidez']:
+                return None
+            
+            # Extract all amounts from the line
+            import re
+            amounts = []
+            for part in parts[1:]:
+                # Clean and try to parse as decimal
+                cleaned = re.sub(r'[^\d,.-]', '', part)
+                if cleaned and not cleaned.isalpha():
+                    try:
+                        amount = self._parse_decimal(cleaned)
+                        if amount != 0:  # Skip zero amounts
+                            amounts.append(amount)
+                    except:
+                        continue
+            
+            if not amounts:
+                return None
+            
+            # Create position data structure
+            position_data = {
+                "symbol": symbol,
+                "asset_name": symbol,
+                "previous_balance": amounts[0] if len(amounts) > 0 else Decimal("0"),
+                "deposits": amounts[1] if len(amounts) > 1 else Decimal("0"),
+                "withdrawals": amounts[2] if len(amounts) > 2 else Decimal("0"),
+                "events": amounts[3] if len(amounts) > 3 else Decimal("0"),
+                "current_balance": amounts[4] if len(amounts) > 4 else amounts[0],
+                "monthly_return": Decimal("0"),
+                "yearly_return": Decimal("0"),
+                "total_return": Decimal("0"),
+                "allocation_percent": Decimal("0"),
+            }
+            
+            # Only return if we have meaningful data
+            if position_data["current_balance"] > 0 or position_data["previous_balance"] > 0:
+                return position_data
+            
+            return None
+            
+        except Exception as e:
+            self.logger.warning(f"Failed to parse position from line '{line}': {e}")
+            return None
 
     def _parse_position_from_table_row(
         self, row: List[str]
@@ -799,23 +923,18 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
             self.logger.warning(f"Failed to parse position row: {e}")
             return None
 
-    def _extract_transactions(self, pdf) -> List[Dict[str, Any]]:
-        """Extract transactions from the PDF."""
+    def _extract_transactions_from_text(self, text_content: str) -> List[Dict[str, Any]]:
+        """Extract transactions from the extracted PDF text."""
         transactions = []
 
-        for page_num, page in enumerate(pdf.pages):
-            text = page.extract_text()
-            if not text:
-                continue
-
-            # Look for transaction pages (usually pages 13-15 based on sample)
-            if (
-                "movimentações no mês" in text.lower()
-                or self._contains_transaction_patterns(text)
-            ):
-                # Extract transactions from this page
-                page_transactions = self._parse_transactions_from_text(text)
-                transactions.extend(page_transactions)
+        # Look for transaction sections in the full text
+        if (
+            "movimentações no mês" in text_content.lower()
+            or self._contains_transaction_patterns(text_content)
+        ):
+            # Extract transactions from the full text
+            page_transactions = self._parse_transactions_from_text(text_content)
+            transactions.extend(page_transactions)
 
         return transactions
 
