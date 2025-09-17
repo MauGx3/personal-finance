@@ -842,7 +842,7 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
                         amount = self._parse_decimal(cleaned)
                         if amount != 0:  # Skip zero amounts
                             amounts.append(amount)
-                    except:
+                    except Exception:
                         continue
 
             if not amounts:
