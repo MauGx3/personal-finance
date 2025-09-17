@@ -7,21 +7,16 @@ This module provides parsers for Banco Inter documents:
 """
 
 import logging
+import asyncio
 import re
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union, Awaitable
+from math import isfinite
 
-try:
-    import pandas as pd
-    import polars as pl
-
-    POLARS_AVAILABLE = True
-except ImportError:
-    POLARS_AVAILABLE = False
-    import pandas as pd
+import pandas as pd
 
 try:
     import pdfplumber
@@ -40,20 +35,23 @@ from .models import DocumentImport
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
+# Polars optional support removed for now; mark as unavailable
+POLARS_AVAILABLE = False
 
-class ImportError(Exception):
+
+class ImporterError(Exception):
     """Base exception for import operations."""
 
     pass
 
 
-class ParseError(ImportError):
+class ParseError(ImporterError):
     """Exception raised when document parsing fails."""
 
     pass
 
 
-class DataValidationError(ImportError):
+class DataValidationError(ImporterError):
     """Exception raised when imported data validation fails."""
 
     pass
@@ -62,7 +60,7 @@ class DataValidationError(ImportError):
 class BancoInterDocumentParser(ABC):
     """Abstract base class for Banco Inter document parsers."""
 
-    def __init__(self, file_path: str, user: User):
+    def __init__(self, file_path: str, user: Any):
         self.file_path = Path(file_path)
         self.user = user
         self.logger = logging.getLogger(
@@ -76,7 +74,8 @@ class BancoInterDocumentParser(ABC):
         Returns:
             Dictionary with parsed data including transactions, positions, etc.
         """
-        pass
+
+    raise NotImplementedError()
 
     @abstractmethod
     def validate_format(self) -> bool:
@@ -85,10 +84,11 @@ class BancoInterDocumentParser(ABC):
         Returns:
             True if format is valid, False otherwise.
         """
-        pass
+
+    raise NotImplementedError()
 
     def _parse_decimal(
-        self, value: str, default: Decimal = Decimal("0")
+        self, value: Any, default: Decimal = Decimal("0")
     ) -> Decimal:
         """Parse Brazilian number format to Decimal.
 
@@ -97,42 +97,129 @@ class BancoInterDocumentParser(ABC):
         - 1.234,56
         - (1.234,56) for negative values
         """
-        if not value or pd.isna(value):
+        # Handle None-like and pandas missing values safely
+        try:
+            if value is None or pd.isna(value):
+                return default
+        except Exception:
+            # pd.isna may raise for exotic types; ignore and continue
+            pass
+
+        # If it's already a Decimal, return as-is
+        if isinstance(value, Decimal):
+            return value
+
+        # Handle integers directly
+        if isinstance(value, int) and not isinstance(value, bool):
+            return Decimal(value)
+
+        # Handle floats carefully: use str() to avoid binary float artifacts
+        if isinstance(value, float):
+            # Guard against NaN/Inf
+            try:
+                if not isfinite(value):
+                    return default
+            except Exception:
+                pass
+            return Decimal(str(value))
+
+        # Convert to string and normalize
+        s = str(value).strip()
+        if not s:
             return default
 
-        # Convert to string and clean
-        value = str(value).strip()
+        # Normalize unicode minus sign to ASCII hyphen
+        s = s.replace("\u2212", "-")
 
-        # Handle negative values in parentheses
-        is_negative = value.startswith("(") and value.endswith(")")
-        if is_negative:
-            value = value[1:-1]
-
-        # Remove currency symbol and spaces
-        value = re.sub(r"[R$\s]", "", value)
-
-        # Handle Brazilian number format (1.234,56 -> 1234.56)
-        if "," in value:
-            # Check if comma is thousands separator or decimal separator
-            parts = value.split(",")
-            if len(parts) == 2 and len(parts[1]) <= 2:
-                # Comma is decimal separator
-                value = value.replace(".", "").replace(",", ".")
-            else:
-                # Comma might be thousands separator
-                value = value.replace(",", "")
-
+        # Normalize fullwidth digits and punctuation (e.g. '１' -> '1',
+        # '，' -> ',') to handle PDF-extracted numerals and punctuation.
+        # This helps handle PDF-extracted fullwidth numerals and punctuation.
         try:
-            result = Decimal(value)
+            trans = {
+                ord("０"): "0",
+                ord("１"): "1",
+                ord("２"): "2",
+                ord("３"): "3",
+                ord("４"): "4",
+                ord("５"): "5",
+                ord("６"): "6",
+                ord("７"): "7",
+                ord("８"): "8",
+                ord("９"): "9",
+                ord("，"): ",",
+                ord("．"): ".",
+                ord("％"): "%",
+                ord("＋"): "+",
+                ord("－"): "-",
+            }
+            s = s.translate(trans)
+        except Exception:
+            # If translation fails for any reason, continue with original
+            # string
+            pass
+
+        # Remove BOM and various control/odd whitespace characters that
+        # sometimes appear in PDF-extracted strings (NUL, NBSP, ZWSP, NNBSP)
+        s = s.replace("\ufeff", "")
+        s = re.sub(r"[\x00-\x1F\x7F\u00A0\u200B\u202F\u2060]+", "", s)
+
+        # Remove percent characters (ASCII and fullwidth) but keep the
+        # numeric value (do not convert to ratio)
+        s = re.sub(r"[%％]", "", s).strip()
+
+        # Detect negative numbers in parentheses or leading minus
+        is_negative = False
+        s_strip = s.strip()
+        if s_strip.startswith("(") and s_strip.endswith(")"):
+            is_negative = True
+            s = s_strip[1:-1].strip()
+
+        # Remove common currency markers like 'R$' (case-insensitive)
+        s = re.sub(r"(?i)r\$", "", s)
+
+        # Remove spaces that might separate thousands (including thin space)
+        s = s.replace("\u2009", "").replace(" ", "")
+
+        # Normalize number separators:
+        if "." in s and "," in s:
+            # Decide which is decimal by the last occurrence: the separator
+            # that appears later is likely the decimal separator.
+            last_dot = s.rfind(".")
+            last_comma = s.rfind(",")
+            if last_dot > last_comma:
+                # '.' is decimal separator, remove commas as thousands
+                s = s.replace(",", "")
+            else:
+                # ',' is decimal separator, remove dots as thousands and
+                # swap comma to dot for Decimal conversion
+                s = s.replace(".", "").replace(",", ".")
+        elif "," in s and "." not in s:
+            # only comma present -> decimal separator
+            s = s.replace(",", ".")
+        else:
+            # multiple dots -> thousands separators, keep last as decimal
+            if s.count(".") > 1:
+                parts = s.split(".")
+                s = "".join(parts[:-1]) + "." + parts[-1]
+
+        # Strip any remaining non-digit (keep leading '-' and one '.')
+        # This removes currency letters like 'Isento' -> will be detected below
+        s = re.sub(r"[^0-9\.-]", "", s)
+
+        # After cleaning, if there's no digit, return default
+        if not re.search(r"\d", s):
+            return default
+
+        # Final conversion to Decimal
+        try:
+            result = Decimal(s)
             return -result if is_negative else result
         except (InvalidOperation, ValueError) as e:
-            self.logger.warning(
-                f"Failed to parse decimal value '{value}': {e}"
-            )
+            self.logger.warning("Failed to parse decimal '%s': %s", s, str(e))
             return default
 
     def _parse_date(
-        self, value: str, formats: List[str] = None
+        self, value: Any, formats: List[str] = None
     ) -> Optional[datetime]:
         """Parse date from string using common Brazilian formats."""
         if not value or pd.isna(value):
@@ -185,7 +272,10 @@ class BancoInterDocumentParser(ABC):
 
 
 class BancoInterMonthlyReportParser(BancoInterDocumentParser):
-    """Parser for Banco Inter Monthly Investment Reports (Relatório Mensal de Investimentos)."""
+    """Parser for Banco Inter Monthly Investment Reports.
+
+    (Relatório Mensal de Investimentos)
+    """
 
     def validate_format(self) -> bool:
         """Validate if file is a Banco Inter monthly report."""
@@ -329,7 +419,8 @@ class BancoInterBrokerageNoteParser(BancoInterDocumentParser):
 
     def _parse_pdf_brokerage_note(self) -> Dict[str, Any]:
         """Parse PDF brokerage note (placeholder implementation)."""
-        # This would require PDF parsing libraries like PyPDF2, pdfplumber, etc.
+        # This would require PDF parsing libraries like PyPDF2,
+        # pdfplumber, etc.
         # For now, return a placeholder structure
         return {
             "transactions": [],
@@ -534,7 +625,8 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
         try:
             if not PDF_AVAILABLE:
                 self.logger.warning(
-                    "PDF processing not available, cannot parse consolidated reports"
+                    "PDF processing not available, cannot parse consolidated"
+                    " reports"
                 )
                 return False
 
@@ -596,7 +688,8 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
             if not text:
                 continue
 
-            # Look for position tables (usually on pages 9-12 based on the sample)
+            # Look for position tables (usually on pages 9-12 based on
+            # the sample)
             if (
                 "saldo anterior" in text.lower()
                 and "saldo bruto" in text.lower()
@@ -661,7 +754,9 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
             }
 
             # Parse values from the row based on expected columns
-            # Expected format: Asset, Previous Balance, Deposits, Withdrawals, Events, Current Balance, Monthly %, 12 Month %, Total %, Allocation %
+            # Expected format: Asset, Previous Balance, Deposits,
+            # Withdrawals, Events, Current Balance, Monthly %,
+            # 12 Month %, Total %, Allocation %
             if len(row) >= 10:
                 position_data["previous_balance"] = self._parse_decimal(
                     row[1] if len(row) > 1 else "0"
@@ -765,7 +860,6 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
     def _extract_date_from_line(self, line: str) -> Optional[datetime]:
         """Extract date from a line if it contains one."""
         # Look for Brazilian date patterns
-        import re
 
         # Pattern for dates like "29 de Agosto de 2025"
         date_pattern = r"(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})"
@@ -802,7 +896,6 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
         """Parse a transaction from a line."""
         try:
             # Look for transaction patterns with amounts
-            import re
 
             # Pattern for amounts like "R$ 1.234,56" or "R$ 1,23"
             amount_pattern = r"R\$\s*([\d.,]+)"
@@ -853,7 +946,6 @@ class BancoInterConsolidatedReportParser(BancoInterDocumentParser):
     def _extract_symbol_from_description(self, description: str) -> str:
         """Extract asset symbol from transaction description."""
         # Look for common patterns in Brazilian investment descriptions
-        import re
 
         # Look for stock codes (e.g., ITUB4, PETR4)
         stock_pattern = r"\b([A-Z]{4}\d{1,2})\b"
@@ -882,18 +974,14 @@ class BancoInterImportService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def import_document(
+    def _import_document_sync(
         self, file_path: str, document_type: str, user: User
     ) -> DocumentImport:
-        """Import a Banco Inter document.
+        """Synchronous implementation of import_document.
 
-        Args:
-            file_path: Path to the uploaded file
-            document_type: Type of document (from DocumentImport.DOCUMENT_TYPES)
-            user: User who owns the import
-
-        Returns:
-            DocumentImport instance with import results
+        This contains the original logic and performs ORM operations.
+        It's intentionally kept synchronous and may only be called from
+        a background thread when invoked from an async context.
         """
         # Create import record
         import_record = DocumentImport.objects.create(
@@ -925,11 +1013,16 @@ class BancoInterImportService:
             # Update import record
             import_record.status = "COMPLETED"
             import_record.imported_transactions_count = imported_count
-            import_record.processing_log = parsed_data
+            # Sanitize parsed_data to ensure JSON serializable primitives
+            # are stored in the processing_log (Decimals -> str,
+            # dates -> isoformat)
+            import_record.processing_log = self._sanitize_for_json(parsed_data)
             import_record.save()
 
             self.logger.info(
-                f"Successfully imported {imported_count} transactions from {file_path}"
+                "Successfully imported "
+                f"{imported_count} transactions from "
+                f"{file_path}"
             )
 
         except Exception as e:
@@ -943,6 +1036,31 @@ class BancoInterImportService:
 
         return import_record
 
+    def import_document(
+        self, file_path: str, document_type: str, user: User
+    ) -> Union[DocumentImport, Awaitable[DocumentImport]]:
+        """Async-aware wrapper for importing documents.
+
+        If called from a synchronous context, this will execute the
+        synchronous import implementation and return the DocumentImport
+        instance. If called from an async context (i.e. an event loop is
+        running), this function will return an awaitable (a coroutine)
+        that should be awaited; internally it will run the synchronous
+        import implementation in a thread to avoid Django's
+        SynchronousOnlyOperation.
+        """
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            # No running loop: safe to run synchronously
+            return self._import_document_sync(file_path, document_type, user)
+
+        # Running inside an event loop: delegate to a thread and return
+        # the coroutine to be awaited by the caller.
+        return asyncio.to_thread(
+            self._import_document_sync, file_path, document_type, user
+        )
+
     def _get_parser(
         self, document_type: str, file_path: str, user: User
     ) -> BancoInterDocumentParser:
@@ -951,7 +1069,9 @@ class BancoInterImportService:
             "BANCO_INTER_MONTHLY_REPORT": BancoInterMonthlyReportParser,
             "BANCO_INTER_BROKERAGE_NOTE": BancoInterBrokerageNoteParser,
             "BANCO_INTER_EXTRACT": BancoInterExtractParser,
-            "BANCO_INTER_CONSOLIDATED_REPORT": BancoInterConsolidatedReportParser,
+            "BANCO_INTER_CONSOLIDATED_REPORT": (
+                BancoInterConsolidatedReportParser
+            ),
         }
 
         parser_class = parser_map.get(document_type)
@@ -974,7 +1094,9 @@ class BancoInterImportService:
             user=user,
             name="Banco Inter Import",
             defaults={
-                "description": "Portfolio created for Banco Inter document imports",
+                "description": (
+                    "Portfolio created for Banco Inter document imports"
+                ),
                 "is_active": True,
             },
         )
@@ -983,7 +1105,8 @@ class BancoInterImportService:
         if "transactions" in parsed_data:
             for transaction_data in parsed_data["transactions"]:
                 try:
-                    # Get or create asset (handle different transaction formats)
+                    # Get or create asset (handle different transaction
+                    # formats)
                     symbol = transaction_data.get("symbol", "CASH")
                     asset = self._get_or_create_asset(symbol)
 
@@ -1001,7 +1124,8 @@ class BancoInterImportService:
                     )
 
                     # Create transaction (handle different formats)
-                    # For consolidated reports, transactions are more like cash flows
+                    # For consolidated reports, transactions are more like
+                    # cash flows
                     if "amount" in transaction_data:
                         # Consolidated report transaction (cash flow)
                         Transaction.objects.create(
@@ -1019,7 +1143,14 @@ class BancoInterImportService:
                             transaction_date=transaction_data.get(
                                 "date", timezone.now().date()
                             ),
-                            notes=f"Imported from {import_record.get_document_type_display()}: {transaction_data.get('description', '')}",
+                            notes=(
+                                "Imported from "
+                                + str(
+                                    import_record.get_document_type_display()
+                                )
+                                + ": "
+                                + str(transaction_data.get("description", ""))
+                            ),
                         )
                     else:
                         # Standard brokerage note transaction
@@ -1036,7 +1167,10 @@ class BancoInterImportService:
                             transaction_date=transaction_data.get(
                                 "date", timezone.now().date()
                             ),
-                            notes=f"Imported from {import_record.get_document_type_display()}",
+                            notes=(
+                                "Imported from "
+                                f"{import_record.get_document_type_display()}"
+                            ),
                         )
 
                     imported_count += 1
@@ -1053,7 +1187,8 @@ class BancoInterImportService:
                     # Get or create asset
                     asset = self._get_or_create_asset(position_data["symbol"])
 
-                    # For consolidated reports, we have more detailed position data
+                    # For consolidated reports, we have more detailed
+                    # position data
                     if "current_balance" in position_data:
                         # Consolidated report position
                         quantity = position_data.get(
@@ -1112,3 +1247,32 @@ class BancoInterImportService:
             self.logger.info(f"Created new asset: {asset}")
 
         return asset
+
+    def _sanitize_for_json(self, obj: Any) -> Any:
+        """Recursively convert non-JSON-serializable objects into
+        JSON-friendly primitives.
+
+        - Decimal -> str (preserve exactness)
+        - datetime/date -> ISO 8601 string
+        - tuples -> lists
+        - dicts/lists are walked recursively
+        """
+
+        # Local imports/types are fine
+        if isinstance(obj, Decimal):
+            return str(obj)
+
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+
+        if isinstance(obj, date) and not isinstance(obj, datetime):
+            return obj.isoformat()
+
+        if isinstance(obj, dict):
+            return {k: self._sanitize_for_json(v) for k, v in obj.items()}
+
+        if isinstance(obj, (list, tuple)):
+            return [self._sanitize_for_json(v) for v in obj]
+
+        # Fallback: leave as-is (JSONField will error if truly unserializable)
+        return obj

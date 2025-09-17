@@ -66,13 +66,36 @@ if PriceHistoryViewSet:
 
 # Portfolio management (new comprehensive system)
 if PortfolioViewSet:
-    router.register("portfolios", PortfolioViewSet)
+    # The viewset implements get_queryset() rather than providing
+    # a module-level `queryset` attribute. DRF's router needs either
+    # that attribute or an explicit "basename" when registering.
+    router.register(
+        "portfolios",
+        PortfolioViewSet,
+        basename="portfolio",
+    )
 if PositionViewSet:
-    router.register("positions", PositionViewSet)
+    # PositionViewSet uses get_queryset(); register with basename.
+    router.register(
+        "positions",
+        PositionViewSet,
+        basename="position",
+    )
 if TransactionViewSet:
-    router.register("transactions", TransactionViewSet)
+    # TransactionViewSet uses get_queryset(); register with basename.
+    router.register(
+        "transactions",
+        TransactionViewSet,
+        basename="transaction",
+    )
 if PortfolioSnapshotViewSet:
-    router.register("portfolio-snapshots", PortfolioSnapshotViewSet)
+    # PortfolioSnapshotViewSet uses get_queryset(); register with
+    # an explicit basename to avoid router assertions.
+    router.register(
+        "portfolio-snapshots",
+        PortfolioSnapshotViewSet,
+        basename="portfolio-snapshot",
+    )
 
 # Legacy endpoints for backward compatibility
 router.register("legacy-portfolios", LegacyPortfolioViewSet)

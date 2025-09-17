@@ -191,7 +191,8 @@ class BacktestViewSet(viewsets.ModelViewSet):
         try:
             # Run backtest asynchronously in production, synchronously for demo
             engine = BacktestEngine()
-            result = engine.run_backtest(backtest)
+            # We only need the engine side-effects; discard the returned result
+            engine.run_backtest(backtest)
 
             # Return updated backtest with results
             backtest.refresh_from_db()
@@ -518,9 +519,12 @@ def quick_backtest(request):
         # Create temporary strategy
         from ..services import create_strategy
 
+        timestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
+        strategy_name = f"Quick {request.data['strategy_type']} - {timestamp}"
+
         strategy = create_strategy(
             user=request.user,
-            name=f"Quick {request.data['strategy_type']} - {timezone.now().strftime('%Y%m%d_%H%M%S')}",
+            name=strategy_name,
             strategy_type=request.data["strategy_type"],
             parameters=request.data.get("parameters", {}),
             asset_symbols=request.data["asset_symbols"],
@@ -550,7 +554,8 @@ def quick_backtest(request):
 
         # Run backtest
         engine = BacktestEngine()
-        result = engine.run_backtest(backtest)
+        # The returned result is not used here; execute for side-effects only
+        engine.run_backtest(backtest)
 
         # Return results
         backtest.refresh_from_db()

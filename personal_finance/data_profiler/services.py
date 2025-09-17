@@ -541,8 +541,8 @@ class DataProfilerService:
                 "int64",
             ] or pd.api.types.is_numeric_dtype(col_data):
                 return True
-        except:
-            pass
+        except Exception as e:
+            logger.debug("_looks_like_amount_column: exception %s", e)
         return False
 
     @staticmethod
