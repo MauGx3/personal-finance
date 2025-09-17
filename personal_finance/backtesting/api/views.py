@@ -192,7 +192,7 @@ class BacktestViewSet(viewsets.ModelViewSet):
             # Run backtest asynchronously in production, synchronously for demo
             engine = BacktestEngine()
             # We only need the engine side-effects; discard the returned result
-            engine.run_backtest(backtest)
+            _ = engine.run_backtest(backtest)
 
             # Return updated backtest with results
             backtest.refresh_from_db()
