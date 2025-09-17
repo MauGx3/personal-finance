@@ -28,7 +28,7 @@ class TestUserViewSet:
 
         view = UserViewSet()
         request = api_rf.get("/fake-url/")
-        
+
         # Create a mock user with non-integer ID
         mock_user = Mock()
         mock_user.id = "not_an_integer"
@@ -36,7 +36,9 @@ class TestUserViewSet:
 
         view.request = request
 
-        with pytest.raises(PermissionDenied, match="User ID must be an integer"):
+        with pytest.raises(
+            PermissionDenied, match="User ID must be an integer"
+        ):
             view.get_queryset()
 
     @staticmethod

@@ -53,7 +53,9 @@ class TestUserUpdateView:
 
         view.request = request
 
-        with pytest.raises(PermissionDenied, match="User must be authenticated"):
+        with pytest.raises(
+            PermissionDenied, match="User must be authenticated"
+        ):
             view.get_success_url()
 
     @staticmethod
@@ -74,7 +76,9 @@ class TestUserUpdateView:
 
         view.request = request
 
-        with pytest.raises(PermissionDenied, match="User must be authenticated"):
+        with pytest.raises(
+            PermissionDenied, match="User must be authenticated"
+        ):
             view.get_object()
 
     def test_form_valid(self, user: User, rf: RequestFactory):
