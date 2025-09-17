@@ -74,8 +74,8 @@ class BancoInterDocumentParser(ABC):
         Returns:
             Dictionary with parsed data including transactions, positions, etc.
         """
-
-    raise NotImplementedError()
+        # Implementations must override this method.
+        raise NotImplementedError
 
     @abstractmethod
     def validate_format(self) -> bool:
@@ -84,8 +84,8 @@ class BancoInterDocumentParser(ABC):
         Returns:
             True if format is valid, False otherwise.
         """
-
-    raise NotImplementedError()
+        # Implementations must override this method.
+        raise NotImplementedError
 
     def _parse_decimal(
         self, value: Any, default: Decimal = Decimal("0")
