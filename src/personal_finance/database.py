@@ -273,7 +273,8 @@ class DatabaseManager:
         """
         # Provide a compatible context manager for both SQL and MongoDB.
         if self.backend == "sql":
-            assert self.SessionLocal is not None
+            if self.SessionLocal is None:
+                raise RuntimeError("SessionLocal is not initialized for SQL backend")
             session: Session = self.SessionLocal()
             try:
                 yield session

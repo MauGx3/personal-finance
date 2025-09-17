@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.http import HttpResponseRedirect
 from django.test import RequestFactory
@@ -45,6 +46,17 @@ class TestUserUpdateView:
         assert view.get_success_url() == f"/users/{user.username}/"
 
     @staticmethod
+    def test_get_success_url_unauthenticated_user(rf: RequestFactory):
+        view = UserUpdateView()
+        request = rf.get("/fake-url/")
+        request.user = AnonymousUser()
+
+        view.request = request
+
+        with pytest.raises(PermissionDenied, match="User must be authenticated"):
+            view.get_success_url()
+
+    @staticmethod
     def test_get_object(user: User, rf: RequestFactory):
         view = UserUpdateView()
         request = rf.get("/fake-url/")
@@ -53,6 +65,17 @@ class TestUserUpdateView:
         view.request = request
 
         assert view.get_object() == user
+
+    @staticmethod
+    def test_get_object_unauthenticated_user(rf: RequestFactory):
+        view = UserUpdateView()
+        request = rf.get("/fake-url/")
+        request.user = AnonymousUser()
+
+        view.request = request
+
+        with pytest.raises(PermissionDenied, match="User must be authenticated"):
+            view.get_object()
 
     def test_form_valid(self, user: User, rf: RequestFactory):
         view = UserUpdateView()

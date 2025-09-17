@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -26,12 +27,12 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     def get_success_url(self) -> str:
         if not self.request.user.is_authenticated:
-            raise AssertionError
+            raise PermissionDenied("User must be authenticated")
         return self.request.user.get_absolute_url()
 
     def get_object(self, queryset: QuerySet | None = None) -> User:
         if not self.request.user.is_authenticated:
-            raise AssertionError
+            raise PermissionDenied("User must be authenticated")
         return self.request.user
 
 

@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.mixins import ListModelMixin
 from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.mixins import UpdateModelMixin
@@ -19,7 +20,8 @@ class UserViewSet(
     lookup_field = "username"
 
     def get_queryset(self, *args, **kwargs):
-        assert isinstance(self.request.user.id, int)
+        if not isinstance(self.request.user.id, int):
+            raise PermissionDenied("User ID must be an integer")
         return self.queryset.filter(id=self.request.user.id)
 
     @action(detail=False)
