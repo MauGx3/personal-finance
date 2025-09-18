@@ -246,7 +246,8 @@ class AssetViewSet(viewsets.ModelViewSet):
                     benchmark_asset = Asset.objects.get(
                         symbol=benchmark_symbol
                     )
-                    benchmark_metrics = analytics.calculate_asset_metrics(
+                    # We only need the beta calculation side-effect; discard unused metrics
+                    analytics.calculate_asset_metrics(
                         benchmark_asset, start_date, end_date
                     )
                     metrics["beta"] = analytics.calculate_beta(

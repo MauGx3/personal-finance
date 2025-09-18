@@ -38,6 +38,12 @@ urlpatterns = [
         "realtime/",
         include("personal_finance.realtime.urls", namespace="realtime"),
     ),
+    path(
+        "data-sources/",
+        include(
+            "personal_finance.data_sources.urls", namespace="data_sources"
+        ),
+    ),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
@@ -50,6 +56,8 @@ if settings.DEBUG:
 urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
+    # Data sources import API
+    path("api/data-sources/", include("personal_finance.data_sources.urls")),
     # DRF auth token
     path("api/auth-token/", obtain_auth_token, name="obtain_auth_token"),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),

@@ -234,7 +234,7 @@ class BacktestAdmin(admin.ModelAdmin):
                 color,
                 total_return,
             )
-        except:
+        except Exception:
             return "-"
 
     @admin.display(description="Sharpe Ratio")
@@ -257,8 +257,8 @@ class BacktestAdmin(admin.ModelAdmin):
                     color,
                     sharpe,
                 )
-        except:
-            pass
+        except Exception:
+            return "-"
         return "-"
 
     @admin.display(description="Execution Time")

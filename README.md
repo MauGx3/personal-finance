@@ -10,6 +10,7 @@ A comprehensive personal finance management tool built with Python that integrat
 - 🗄️ PostgreSQL database integration
 - 🔄 Automatic data synchronization with Yahoo Finance
 - 📱 Modern Python package structure
+- 🏦 **NEW**: Banco Inter document import (Monthly Reports, Brokerage Notes, Bank Statements)
 
 ## Installation
 
@@ -206,6 +207,13 @@ personal-finance/
 3. Make your changes
 4. Add tests if applicable
 5. Submit a pull request
+
+## Documentation
+
+- [Banco Inter Import Documentation](BANCO_INTER_IMPORT.md) - Complete guide for importing Brazilian bank documents
+- [API Documentation](API_DOCUMENTATION.md) - REST API reference
+- [Tax Usage Guide](TAX_USAGE.md) - Tax reporting and optimization features
+- [Finance Implementation](FINANCE_IMPLEMENTATION.md) - Core finance features overview
 
 ## License
 
