@@ -23,7 +23,7 @@ class TestDependencyConsistency:
         """Extract dependency names and versions from a requirements file."""
         dependencies = {}
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 content = f.read()
 
             for line in content.split("\n"):
@@ -182,7 +182,7 @@ class TestDependencyConsistency:
         # Test that production.txt includes base.txt
         prod_file = repo_root / "requirements" / "production.txt"
         if prod_file.exists():
-            with open(prod_file, "r") as f:
+            with open(prod_file) as f:
                 content = f.read()
             assert "-r base.txt" in content, (
                 "requirements/production.txt should include base.txt"
@@ -191,7 +191,7 @@ class TestDependencyConsistency:
         # Test that local.txt includes production.txt
         local_file = repo_root / "requirements" / "local.txt"
         if local_file.exists():
-            with open(local_file, "r") as f:
+            with open(local_file) as f:
                 content = f.read()
             assert "-r production.txt" in content, (
                 "requirements/local.txt should include production.txt"
@@ -201,7 +201,7 @@ class TestDependencyConsistency:
         """Test that main requirements.txt properly includes base requirements."""
         main_requirements = repo_root / "requirements.txt"
 
-        with open(main_requirements, "r") as f:
+        with open(main_requirements) as f:
             content = f.read()
 
         assert "-r requirements/base.txt" in content, (
