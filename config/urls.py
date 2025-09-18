@@ -17,21 +17,28 @@ def health_check(request):
     try:
         # Basic Django health check
         from django.db import connection
+
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
-        
-        return JsonResponse({
-            "status": "healthy",
-            "timestamp": "2025-01-08T22:19:35Z",
-            "service": "personal-finance-django"
-        })
+
+        return JsonResponse(
+            {
+                "status": "healthy",
+                "timestamp": "2025-01-08T22:19:35Z",
+                "service": "personal-finance-django",
+            }
+        )
     except Exception as e:
-        return JsonResponse({
-            "status": "unhealthy", 
-            "error": str(e),
-            "timestamp": "2025-01-08T22:19:35Z",
-            "service": "personal-finance-django"
-        }, status=503)
+        return JsonResponse(
+            {
+                "status": "unhealthy",
+                "error": str(e),
+                "timestamp": "2025-01-08T22:19:35Z",
+                "service": "personal-finance-django",
+            },
+            status=503,
+        )
+
 
 urlpatterns = [
     path(
