@@ -108,7 +108,7 @@ class DataProfilerService:
             # Re-raise validation errors
             raise
         except Exception as e:
-            logger.error(f"Error creating DataProfiler profile: {e}")
+            logger.error("Error creating DataProfiler profile: %s", e)
             raise ProfileDataError(f"Failed to create profile: {e}")
 
     def analyze_financial_data(
@@ -145,7 +145,7 @@ class DataProfilerService:
                     financial_data
                 )
             except Exception as e:
-                logger.warning(f"Basic profiling failed: {e}")
+                logger.warning("Basic profiling failed: %s", e)
 
         # Financial-specific analysis
         analysis_results["financial_patterns"] = (
@@ -213,7 +213,7 @@ class DataProfilerService:
             return results
 
         except Exception as e:
-            logger.error(f"Error extracting profile results: {e}")
+            logger.error("Error extracting profile results: %s", e)
             return {"error": "Failed to extract profile results"}
 
     @staticmethod
@@ -236,7 +236,7 @@ class DataProfilerService:
                 "encoding": global_stats.get("encoding", "unknown"),
             }
         except Exception as e:
-            logger.warning(f"Error extracting summary stats: {e}")
+            logger.warning("Error extracting summary stats: %s", e)
             return {}
 
     @staticmethod
@@ -265,7 +265,7 @@ class DataProfilerService:
             return column_profiles
 
         except Exception as e:
-            logger.warning(f"Error extracting column profiles: {e}")
+            logger.warning("Error extracting column profiles: %s", e)
             return {}
 
     @staticmethod
@@ -287,7 +287,7 @@ class DataProfilerService:
                 for col_stat in data_stats
             }
         except Exception as e:
-            logger.warning(f"Error extracting data types: {e}")
+            logger.warning("Error extracting data types: %s", e)
             return {}
 
     @staticmethod
@@ -315,7 +315,7 @@ class DataProfilerService:
             return null_analysis
 
         except Exception as e:
-            logger.warning(f"Error extracting null analysis: {e}")
+            logger.warning("Error extracting null analysis: %s", e)
             return {}
 
     def _extract_sensitive_data(
@@ -356,7 +356,7 @@ class DataProfilerService:
             return sensitive_findings
 
         except Exception as e:
-            logger.warning(f"Error extracting sensitive data findings: {e}")
+            logger.warning("Error extracting sensitive data findings: %s", e)
             return []
 
     def _analyze_financial_patterns(self, df: pd.DataFrame) -> Dict[str, Any]:

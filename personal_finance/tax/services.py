@@ -378,7 +378,8 @@ class TaxLossHarvestingService:
             List of tax loss harvesting opportunities
         """
         logger.info(
-            f"Identifying tax loss harvesting opportunities for {user.username}"
+            "Identifying tax loss harvesting opportunities for %s",
+            user.username,
         )
 
         opportunities = []

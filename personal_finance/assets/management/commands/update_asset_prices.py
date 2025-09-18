@@ -203,7 +203,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f"Error updating {asset.symbol}: {e}")
                     )
-                    logger.error(f"Error updating {asset.symbol}: {e}")
+                    logger.error("Error updating %s: %s", asset.symbol, e)
 
         return updated_count
 
