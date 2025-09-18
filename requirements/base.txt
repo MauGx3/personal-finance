@@ -32,9 +32,9 @@ drf-spectacular==0.28.0  # https://github.com/tfranzel/drf-spectacular
 
 # Finance-specific dependencies
 # ------------------------------------------------------------------------------
-yfinance>=0.2.18  # https://github.com/ranaroussi/yfinance - Yahoo Finance data
+yfinance>=0.2.65  # https://github.com/ranaroussi/yfinance - Yahoo Finance data
 pandas>=2.0.0  # https://pandas.pydata.org/ - Data manipulation and analysis
 numpy>=1.24.0  # https://numpy.org/ - Numerical computing
 plotly>=5.17.0  # https://plotly.com/python/ - Interactive charts
 quantstats>=0.0.62  # https://github.com/ranaroussi/quantstats - Performance analytics
-stockdex>=1.2.0  # https://github.com/ahnazary/stockdex - Stock market data
+stockdex>=1.2.1  # https://github.com/ahnazary/stockdex - Stock market data
