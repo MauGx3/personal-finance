@@ -29,7 +29,9 @@ class TestDependencyCompatibility:
 
             # Check for key compressor functionality instead of specific attributes
             # The 'filters' module is available as a submodule, not as an attribute
-            assert hasattr(compressor, '__version__') or hasattr(compressor, 'conf')
+            assert hasattr(compressor, "__version__") or hasattr(
+                compressor, "conf"
+            )
         except ImportError:
             pytest.skip(
                 "django-compressor not installed - expected in production environment"
@@ -78,7 +80,7 @@ class TestDependencyCompatibility:
 
             # Test CSS content for the filter
             test_css = "body { margin: 0; }"
-            
+
             # Verify the filter can be instantiated with content (new API requirement)
             filter_instance = rCSSMinFilter(content=test_css)
             assert filter_instance is not None
