@@ -357,7 +357,9 @@ class PriceFeedService:
                 await self._broadcast_portfolio_update(portfolio_id)
 
         except Exception as e:
-            logger.error("Error updating portfolio values for %s: %s", symbol, e)
+            logger.error(
+                "Error updating portfolio values for %s: %s", symbol, e
+            )
 
     async def _broadcast_portfolio_update(self, portfolio_id: int):
         """Broadcast portfolio value update to subscribers."""
