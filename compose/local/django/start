@@ -4,6 +4,16 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+echo "[start] Starting Personal Finance Django service"
+echo "[start] Python: $(python --version)"
 
-python manage.py migrate
-exec uvicorn config.asgi:application --host 0.0.0.0 --reload --reload-include '*.html'
+if [[ "${RUN_MIGRATIONS_ON_START:-1}" == "1" ]]; then
+  echo "[start] Applying Django migrations..."
+  python manage.py migrate
+
+  echo "[start] Collecting static files..."
+  python manage.py collectstatic --noinput || echo "[start][warning] Collectstatic failed"
+fi
+
+echo "[start] Starting Django development server with ASGI..."
+exec uvicorn config.asgi:application --host 0.0.0.0 --port ${PORT:-8000} --reload --reload-include '*.html'

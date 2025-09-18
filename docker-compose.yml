@@ -17,7 +17,9 @@ services:
       - "5432:5432"
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
     container_name: pf-app
     depends_on:
       db:
@@ -26,9 +28,13 @@ services:
       PORT: 8000
       DATABASE_URL: postgresql+psycopg2://finance:finance@db:5432/finance
       RUN_MIGRATIONS_ON_START: "1"
+      USE_DOCKER: "yes"
+      DJANGO_SETTINGS_MODULE: "config.settings.local"
     ports:
       - "8000:8000"
     restart: unless-stopped
+    volumes:
+      - .:/app
 
 volumes:
   pg_data:
