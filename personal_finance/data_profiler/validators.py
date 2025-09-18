@@ -300,7 +300,9 @@ def _validate_dict_data(data: Dict[str, Any]) -> bool:
             # Scalar values are ok for single records
             continue
         else:
-            logger.warning("Complex nested structure detected in key '%s'", key)
+            logger.warning(
+                "Complex nested structure detected in key '%s'", key
+            )
 
     # If we have lists/arrays, they should all be the same length
     if list_lengths and len(set(list_lengths)) > 1:
