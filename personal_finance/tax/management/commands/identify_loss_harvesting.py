@@ -76,7 +76,7 @@ class Command(BaseCommand):
 
         except Exception as e:
             logger.error(
-                f"Error identifying loss harvesting opportunities: {str(e)}"
+                "Error identifying loss harvesting opportunities: %s", str(e)
             )
             raise CommandError(f"Loss harvesting analysis failed: {str(e)}")
 
@@ -179,7 +179,7 @@ class Command(BaseCommand):
                     )
 
             except Exception as e:
-                logger.error(f"Error analyzing user {user.username}: {str(e)}")
+                logger.error("Error analyzing user %s: %s", user.username, str(e))
                 self.stdout.write(
                     self.style.ERROR(
                         f"Error analyzing {user.username}: {str(e)}"
