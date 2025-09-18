@@ -132,7 +132,7 @@ def portfolio_performance_chart_api(
         return JsonResponse(chart_data)
 
     except Exception as e:
-        logger.error(f"Error generating performance chart: {e}")
+        logger.error("Error generating performance chart: %s", e)
         return JsonResponse(
             {"error": "Failed to generate performance chart"},
             status=500,
@@ -164,7 +164,7 @@ def portfolio_allocation_chart_api(
         return JsonResponse(chart_data)
 
     except Exception as e:
-        logger.error(f"Error generating allocation chart: {e}")
+        logger.error("Error generating allocation chart: %s", e)
         return JsonResponse(
             {"error": "Failed to generate allocation chart"},
             status=500,
@@ -196,7 +196,7 @@ def portfolio_risk_metrics_chart_api(
         return JsonResponse(chart_data)
 
     except Exception as e:
-        logger.error(f"Error generating risk metrics chart: {e}")
+        logger.error("Error generating risk metrics chart: %s", e)
         return JsonResponse(
             {"error": "Failed to generate risk metrics chart"},
             status=500,
@@ -230,7 +230,7 @@ def asset_price_chart_api(request: HttpRequest, asset_id: int) -> JsonResponse:
         return JsonResponse(chart_data)
 
     except Exception as e:
-        logger.error(f"Error generating asset price chart: {e}")
+        logger.error("Error generating asset price chart: %s", e)
         return JsonResponse(
             {"error": "Failed to generate asset price chart"},
             status=500,
@@ -288,7 +288,7 @@ def dashboard_summary_api(request: HttpRequest) -> JsonResponse:
         return JsonResponse(summary_data)
 
     except Exception as e:
-        logger.error(f"Error generating dashboard summary: {e}")
+        logger.error("Error generating dashboard summary: %s", e)
         return JsonResponse(
             {"error": "Failed to generate dashboard summary"}, status=500
         )

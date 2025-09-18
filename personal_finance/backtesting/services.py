@@ -436,7 +436,7 @@ class BacktestEngine:
             ValueError: If backtest configuration is invalid
             RuntimeError: If backtest execution fails
         """
-        logger.info(f"Starting backtest: {backtest.name}")
+        logger.info("Starting backtest: %s", backtest.name)
 
         try:
             with transaction.atomic():
@@ -479,11 +479,11 @@ class BacktestEngine:
                 backtest.progress_percentage = 100
                 backtest.save()
 
-                logger.info(f"Backtest completed: {backtest.name}")
+                logger.info("Backtest completed: %s", backtest.name)
                 return result
 
         except Exception as e:
-            logger.error(f"Backtest failed: {backtest.name} - {str(e)}")
+            logger.error("Backtest failed: %s - %s", backtest.name, str(e))
             backtest.status = "failed"
             backtest.error_message = str(e)
             backtest.completed_at = timezone.now()
