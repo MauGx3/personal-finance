@@ -29,6 +29,7 @@ yfinance>=0.2.65
 yahoofinancials>=1.20
 stockdex>=1.2.0
 financepy>=1.0.1
+kreuzberg>=3.17.0  # PDF processing and document intelligence
 
 # Data analysis
 pandas>=2.0.0
