@@ -34,7 +34,7 @@ def initialize_database():
         return db_manager
 
     except Exception as e:
-        logger.error(f"Error initializing database: {e}")
+        logger.error("Error initializing database: %s", e)
         raise
 
 
@@ -50,7 +50,7 @@ def migrate_existing_data(db_manager: DatabaseManager):
         logger.info("Data migration completed successfully")
 
     except Exception as e:
-        logger.error(f"Error during data migration: {e}")
+        logger.error("Error during data migration: %s", e)
         raise
 
 
@@ -78,7 +78,7 @@ def main():
         )
 
     except Exception as e:
-        logger.error(f"Database setup failed: {e}")
+        logger.error("Database setup failed: %s", e)
         sys.exit(1)
 
 

@@ -387,7 +387,7 @@ class TaxReportViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         except Exception as e:
-            logger.error(f"Error generating tax reports: {str(e)}")
+            logger.error("Error generating tax reports: %s", str(e))
             return Response(
                 {"error": "Failed to generate reports"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -485,7 +485,7 @@ class TaxAnalyticsViewSet(viewsets.ViewSet):
             return Response(serializer.data)
 
         except Exception as e:
-            logger.error(f"Error generating tax summary: {str(e)}")
+            logger.error("Error generating tax summary: %s", str(e))
             return Response(
                 {"error": "Failed to generate tax summary"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

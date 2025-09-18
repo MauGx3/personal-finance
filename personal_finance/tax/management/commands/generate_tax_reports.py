@@ -110,7 +110,7 @@ class Command(BaseCommand):
                 )
 
         except Exception as e:
-            logger.error(f"Error generating tax reports: {str(e)}")
+            logger.error("Error generating tax reports: %s", str(e))
             raise CommandError(f"Tax report generation failed: {str(e)}")
 
     def _generate_reports_for_user(
@@ -412,7 +412,7 @@ class Command(BaseCommand):
                 if self.verbose:
                     self.stdout.write(f"Saved {json_file}")
             except OSError as e:
-                logger.error(f"Error saving file {json_file}: {str(e)}")
+                logger.error("Error saving file %s: %s", json_file, str(e))
                 self.stdout.write(
                     self.style.ERROR(f"Failed to save {json_file}: {str(e)}")
                 )

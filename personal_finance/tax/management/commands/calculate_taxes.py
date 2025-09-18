@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 )
 
         except Exception as e:
-            logger.error(f"Error calculating taxes: {str(e)}")
+            logger.error("Error calculating taxes: %s", str(e))
             raise CommandError(f"Tax calculation failed: {str(e)}")
 
     def _process_single_transaction(

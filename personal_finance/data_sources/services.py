@@ -214,7 +214,7 @@ class YahooFinanceSource(DataSourceBase):
         try:
             # This is where we would use yfinance
             # For now, return a placeholder implementation
-            logger.info(f"Fetching Yahoo Finance data for {symbol}")
+            logger.info("Fetching Yahoo Finance data for %s", symbol)
 
             # Placeholder implementation - would be replaced with actual yfinance calls
             price_data = PriceData(
@@ -234,7 +234,7 @@ class YahooFinanceSource(DataSourceBase):
             return price_data
 
         except Exception as e:
-            logger.error(f"Yahoo Finance error for {symbol}: {e}")
+            logger.error("Yahoo Finance error for %s: %s", symbol, e)
             self._record_failure()
             raise APIError(f"Yahoo Finance API error: {e}")
 
@@ -247,7 +247,9 @@ class YahooFinanceSource(DataSourceBase):
 
         try:
             # Placeholder implementation
-            logger.info(f"Fetching Yahoo Finance historical data for {symbol}")
+            logger.info(
+                "Fetching Yahoo Finance historical data for %s", symbol
+            )
 
             # Would implement actual yfinance historical data fetch here
             historical_data = []
@@ -256,7 +258,7 @@ class YahooFinanceSource(DataSourceBase):
             return historical_data
 
         except Exception as e:
-            logger.error(f"Yahoo Finance historical data error: {e}")
+            logger.error("Yahoo Finance historical data error: %s", e)
             self._record_failure()
             raise APIError(f"Yahoo Finance historical data error: {e}")
 
@@ -266,7 +268,7 @@ class YahooFinanceSource(DataSourceBase):
             # Placeholder implementation
             return []
         except Exception as e:
-            logger.error(f"Yahoo Finance search error: {e}")
+            logger.error("Yahoo Finance search error: %s", e)
             return []
 
     def get_company_info(self, symbol: str) -> Optional[Dict[str, Any]]:
@@ -275,7 +277,7 @@ class YahooFinanceSource(DataSourceBase):
             # Placeholder implementation
             return {}
         except Exception as e:
-            logger.error(f"Yahoo Finance company info error: {e}")
+            logger.error("Yahoo Finance company info error: %s", e)
             return None
 
 
@@ -296,7 +298,7 @@ class StockdexSource(DataSourceBase):
 
         try:
             # Placeholder implementation
-            logger.info(f"Fetching Stockdx data for {symbol}")
+            logger.info("Fetching Stockdx data for %s", symbol)
 
             # Would implement actual stockdx API calls here
             price_data = PriceData(
@@ -309,7 +311,7 @@ class StockdexSource(DataSourceBase):
             return price_data
 
         except Exception as e:
-            logger.error(f"Stockdx error for {symbol}: {e}")
+            logger.error("Stockdx error for %s: %s", symbol, e)
             self._record_failure()
             raise APIError(f"Stockdx API error: {e}")
 
@@ -324,7 +326,7 @@ class StockdexSource(DataSourceBase):
             # Placeholder implementation
             return []
         except Exception as e:
-            logger.error(f"Stockdx historical data error: {e}")
+            logger.error("Stockdx historical data error: %s", e)
             self._record_failure()
             raise APIError(f"Stockdx historical data error: {e}")
 
@@ -357,7 +359,7 @@ class AlphaVantageSource(DataSourceBase):
 
         try:
             # Placeholder implementation
-            logger.info(f"Fetching Alpha Vantage data for {symbol}")
+            logger.info("Fetching Alpha Vantage data for %s", symbol)
 
             price_data = PriceData(
                 symbol=symbol,
@@ -369,7 +371,7 @@ class AlphaVantageSource(DataSourceBase):
             return price_data
 
         except Exception as e:
-            logger.error(f"Alpha Vantage error for {symbol}: {e}")
+            logger.error("Alpha Vantage error for %s: %s", symbol, e)
             self._record_failure()
             raise APIError(f"Alpha Vantage API error: {e}")
 
@@ -384,7 +386,7 @@ class AlphaVantageSource(DataSourceBase):
             # Placeholder implementation
             return []
         except Exception as e:
-            logger.error(f"Alpha Vantage historical data error: {e}")
+            logger.error("Alpha Vantage historical data error: %s", e)
             self._record_failure()
             raise APIError(f"Alpha Vantage historical data error: {e}")
 
@@ -454,10 +456,10 @@ class DataSourceManager:
                 self._record_source_failure(source.name)
                 continue
             except Exception as e:
-                logger.error(f"Unexpected error from {source.name}: {e}")
+                logger.error("Unexpected error from %s: %s", source.name, e)
                 continue
 
-        logger.error(f"All data sources failed for symbol: {symbol}")
+        logger.error("All data sources failed for symbol: %s", symbol)
         return None
 
     def get_historical_data(
@@ -486,7 +488,7 @@ class DataSourceManager:
                 )
                 continue
 
-        logger.error(f"All sources failed for historical data: {symbol}")
+        logger.error("All sources failed for historical data: %s", symbol)
         return []
 
     def search_symbol(self, query: str) -> List[Dict[str, str]]:
@@ -504,7 +506,9 @@ class DataSourceManager:
                             all_results.append(result)
                             seen_symbols.add(symbol)
             except Exception as e:
-                logger.warning(f"Symbol search failed for {source.name}: {e}")
+                logger.warning(
+                    "Symbol search failed for %s: %s", source.name, e
+                )
                 continue
 
         return all_results

@@ -189,7 +189,7 @@ try:
 
 except ProfileDataError as e:
     # Handle validation errors gracefully
-    logger.error(f"Data validation failed: {e}")
+    logger.error("Data validation failed: %s", e)
     return None
 """
 
