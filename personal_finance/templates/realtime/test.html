@@ -1,6 +1,24 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}WebSocket Test{% endblock %}
+{% block title %}
+    WebSocket Test
+{% endblock title %}
+{% block css %}
+    {{ block.super }}
+    <style>
+.hidden { display: none; }
+.message-log {
+    height: 200px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+    </style>
+{% endblock css %}
 {% block content %}
     <div class="container">
         <div class="row justify-content-center">
@@ -29,7 +47,7 @@
                     <div class="card-body">
                         <button id="test-connect" class="btn btn-primary">Test WebSocket Connection</button>
                         <button id="test-disconnect" class="btn btn-secondary ms-2" disabled>Disconnect</button>
-                        <div id="test-results" class="mt-3" style="display: none;">
+                        <div id="test-results" class="mt-3 hidden">
                             <h6>Connection Status:</h6>
                             <div id="status-indicator" class="alert alert-info">
                                 <span id="status-text">Not connected</span>
@@ -42,15 +60,7 @@
                                         disabled>Test Subscribe</button>
                             </div>
                             <h6>Message Log:</h6>
-                            <div id="message-log"
-                                 style="height: 200px;
-                                        overflow-y: auto;
-                                        background-color: #f8f9fa;
-                                        padding: 10px;
-                                        border: 1px solid #dee2e6;
-                                        border-radius: 4px;
-                                        font-family: monospace;
-                                        font-size: 0.9rem">
+                            <div id="message-log" class="message-log">
                                 <!-- Messages will appear here -->
                             </div>
                         </div>
@@ -69,7 +79,7 @@
             </div>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}
 {% block extra_js %}
     <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -195,4 +205,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
     </script>
-{% endblock %}
+{% endblock extra_js %}

@@ -14,9 +14,7 @@ class TestDataProfilerService:
     @staticmethod
     def test_service_initialization_with_dataprofiler_available():
         """Test service initialization when DataProfiler is available."""
-        with patch(
-            "personal_finance.data_profiler.services.logger"
-        ) as mock_logger:
+        with patch("personal_finance.data_profiler.services.logger"):
             with patch(
                 "personal_finance.data_profiler.services.DataProfilerService.__init__"
             ) as mock_init:

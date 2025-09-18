@@ -7,6 +7,7 @@
     {{ block.super }}
     <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
     <style>
+.hidden { display: none; }
 .dashboard-card {
     background: white;
     border-radius: 8px;
@@ -205,12 +206,15 @@
                         <!-- Portfolio Selection -->
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <select class="form-select" id="portfolio-selector">
+                                <label for="portfolio-selector" class="form-label">Portfolio</label>
+                                <select class="form-select"
+                                        id="portfolio-selector"
+                                        aria-label="Select portfolio">
                                     <option value="">Select a portfolio to analyze</option>
                                     {% for portfolio in portfolios %}<option value="{{ portfolio.id }}">{{ portfolio.name }}</option>{% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-6" id="date-range-controls" style="display: none;">
+                            <div class="col-md-6 hidden" id="date-range-controls">
                                 <select class="form-select" id="time-period">
                                     <option value="30">Last 30 Days</option>
                                     <option value="90">Last 3 Months</option>

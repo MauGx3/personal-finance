@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Real-time Dashboard{% endblock %}
+{% block title %}
+    Real-time Dashboard
+{% endblock title %}
+{% block css %}
+    {{ block.super }}
+    <style>
+.hidden { display: none; }
+.message-log {
+    height: 300px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+}
+    </style>
+{% endblock css %}
 {% block content %}
     <div class="container-fluid">
         <div class="row">
@@ -17,9 +34,7 @@
                                 <div class="d-flex align-items-center">
                                     <div id="connection-status" class="badge badge-secondary me-2">Disconnected</div>
                                     <button id="connect-btn" class="btn btn-sm btn-primary">Connect</button>
-                                    <button id="disconnect-btn"
-                                            class="btn btn-sm btn-secondary ms-2"
-                                            style="display: none">Disconnect</button>
+                                    <button id="disconnect-btn" class="btn btn-sm btn-secondary ms-2 hidden">Disconnect</button>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -128,14 +143,7 @@
                         <button id="clear-log-btn" class="btn btn-sm btn-outline-secondary">Clear Log</button>
                     </div>
                     <div class="card-body">
-                        <div id="message-log"
-                             style="height: 300px;
-                                    overflow-y: auto;
-                                    font-family: monospace;
-                                    font-size: 0.9rem;
-                                    background-color: #f8f9fa;
-                                    padding: 10px;
-                                    border-radius: 4px">
+                        <div id="message-log" class="message-log">
                             <!-- Dynamic message log -->
                         </div>
                     </div>
@@ -143,7 +151,7 @@
             </div>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}
 {% block extra_js %}
     <script src="{% static 'js/realtime/websocket-client.js' %}"></script>
     <script>
@@ -155,4 +163,4 @@ document.addEventListener('DOMContentLoaded', function() {
     wsClient.bindToUI();
 });
     </script>
-{% endblock %}
+{% endblock extra_js %}

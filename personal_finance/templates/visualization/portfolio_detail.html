@@ -7,6 +7,13 @@
     {{ block.super }}
     <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
     <style>
+.positions-scroll {
+    max-height: 600px;
+    overflow-y: auto;
+}
+.asset-chart-min-height {
+    min-height: 500px;
+}
 .portfolio-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -241,7 +248,7 @@
             <div class="col-lg-3">
                 <div class="chart-section">
                     <h5 class="mb-3">Portfolio Positions</h5>
-                    <div class="positions-list" style="max-height: 600px; overflow-y: auto;">
+                    <div class="positions-list positions-scroll">
                         {% for position in positions %}
                             <div class="position-card" data-asset-id="{{ position.asset.id }}">
                                 <div class="position-header">
@@ -321,7 +328,7 @@
                             </select>
                         </div>
                     </div>
-                    <div id="asset-chart-container" style="min-height: 500px;"></div>
+                    <div id="asset-chart-container" class="asset-chart-min-height"></div>
                 </div>
             </div>
         </div>

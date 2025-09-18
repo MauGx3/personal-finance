@@ -311,7 +311,7 @@ class PriceFeedService:
         if not subscribers:
             return
 
-        message = encode_message(
+        _ = encode_message(
             "asset_update",
             {
                 "symbol": symbol,
@@ -382,7 +382,7 @@ class PriceFeedService:
             portfolio_value = await self._calculate_portfolio_value(portfolio)
             daily_change = await self._calculate_daily_change(portfolio)
 
-            message = encode_message(
+            _ = encode_message(
                 "portfolio_update",
                 {
                     "portfolio_id": portfolio_id,
@@ -434,8 +434,6 @@ class PriceFeedService:
         """Calculate daily change for portfolio."""
         # This is a simplified calculation
         # In a real implementation, you'd compare with yesterday's closing value
-        current_value = await self._calculate_portfolio_value(portfolio)
-
         # For now, return placeholder values
         # You would implement proper daily change calculation here
         return {"amount": Decimal("0"), "percent": Decimal("0")}
@@ -455,7 +453,7 @@ class PriceFeedService:
         try:
             asset = await Asset.objects.aget(symbol=symbol)
             if asset.current_price:
-                message = encode_message(
+                _ = encode_message(
                     "asset_update",
                     {
                         "symbol": symbol,
