@@ -45,7 +45,7 @@ class TestDependencyCompatibility:
                 padding: 0;
                 color: #333;
             }
-            
+
             .container {
                 width: 100%;
                 max-width: 1200px;
@@ -98,7 +98,7 @@ class TestDependencyCompatibility:
         )
 
         if os.path.exists(requirements_file):
-            with open(requirements_file, "r") as f:
+            with open(requirements_file) as f:
                 content = f.read()
 
             # Verify rcssmin version is pinned
