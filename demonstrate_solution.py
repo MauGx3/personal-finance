@@ -37,46 +37,41 @@ def demonstrate_issue_solution():
         ([{"a": 1}, {"b": 2}], "Inconsistent record schema"),
     ]
 
-    # Import our validation function
+    # Define validation function and error class directly
+    class ProfileDataError(Exception):
+        pass
+
+    def basic_validate_profile_data(profile_data):
+        if profile_data is None:
+            raise ProfileDataError("profile_data cannot be None")
+
+        if isinstance(profile_data, list):
+            if len(profile_data) == 0:
+                raise ProfileDataError("List cannot be empty")
+            # Check for inconsistent schema in list of dicts
+            if all(isinstance(item, dict) for item in profile_data):
+                if len(profile_data) > 1:
+                    first_keys = set(profile_data[0].keys())
+                    for i, record in enumerate(profile_data[1:], 1):
+                        if set(record.keys()) != first_keys:
+                            raise ProfileDataError(f"Inconsistent schema at record {i}")
+
+        if isinstance(profile_data, dict) and len(profile_data) == 0:
+            raise ProfileDataError("Dictionary cannot be empty")
+
+        if isinstance(profile_data, str) and len(profile_data.strip()) == 0:
+            raise ProfileDataError("File path cannot be empty")
+
+        if isinstance(profile_data, set):
+            raise ProfileDataError("Unsupported data type: set. DataProfiler supports DataFrame, Series, arrays, lists, or file paths.")
+
+        return True
+
     try:
-        exec("""
-import sys
-sys.path.insert(0, '/home/runner/work/personal-finance/personal-finance')
-
-class ProfileDataError(Exception):
-    pass
-
-def basic_validate_profile_data(profile_data):
-    if profile_data is None:
-        raise ProfileDataError("profile_data cannot be None")
-
-    if isinstance(profile_data, list):
-        if len(profile_data) == 0:
-            raise ProfileDataError("List cannot be empty")
-        # Check for inconsistent schema in list of dicts
-        if all(isinstance(item, dict) for item in profile_data):
-            if len(profile_data) > 1:
-                first_keys = set(profile_data[0].keys())
-                for i, record in enumerate(profile_data[1:], 1):
-                    if set(record.keys()) != first_keys:
-                        raise ProfileDataError(f"Inconsistent schema at record {i}")
-
-    if isinstance(profile_data, dict) and len(profile_data) == 0:
-        raise ProfileDataError("Dictionary cannot be empty")
-
-    if isinstance(profile_data, str) and len(profile_data.strip()) == 0:
-        raise ProfileDataError("File path cannot be empty")
-
-    if isinstance(profile_data, set):
-        raise ProfileDataError("Unsupported data type: set. DataProfiler supports DataFrame, Series, arrays, lists, or file paths.")
-
-    return True
-""")
-
         for test_data, description in test_cases:
             print(f"Testing: {description}")
             try:
-                exec(f"basic_validate_profile_data({repr(test_data)})")
+                basic_validate_profile_data(test_data)
                 print("  ✗ Should have failed validation")
             except Exception as e:
                 print(f"  ✓ Correctly prevented: {e}")
@@ -106,7 +101,7 @@ def basic_validate_profile_data(profile_data):
     for test_data, description in successful_cases:
         print(f"Testing: {description}")
         try:
-            exec(f"result = basic_validate_profile_data({repr(test_data)})")
+            basic_validate_profile_data(test_data)
             print("  ✓ Validation passed")
         except Exception as e:
             print(f"  ✗ Unexpected error: {e}")
