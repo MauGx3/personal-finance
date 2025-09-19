@@ -12,14 +12,15 @@ from .database import DatabaseManager
 
 # import yahoo_finance as yf
 
-# Configure basic logging - SECURITY AUDIT: 
+# Configure basic logging - SECURITY AUDIT:
 # Using environment variable to control log level instead of hardcoded DEBUG
 # to prevent sensitive information exposure in production
 import os
+
 log_level = os.environ.get("PORTFOLIO_LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
-    level=getattr(logging, log_level, logging.INFO), 
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=getattr(logging, log_level, logging.INFO),
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 
