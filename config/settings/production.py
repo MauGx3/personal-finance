@@ -180,7 +180,9 @@ COMPRESS_FILTERS = {
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": True,
+    # SECURITY AUDIT: Setting to False to prevent loss of existing loggers
+    # which could impact security monitoring and debugging capabilities
+    "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s",
@@ -188,6 +190,9 @@ LOGGING = {
     },
     "handlers": {
         "console": {
+            # SECURITY AUDIT: DEBUG level in production should be reviewed
+            # Consider using INFO or WARNING in production to prevent
+            # sensitive data exposure
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",

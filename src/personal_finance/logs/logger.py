@@ -5,7 +5,13 @@ from typing import Optional
 
 
 class PackageLogger:
-    """Handler for all logging operations in the personal finance package."""
+    """Handler for all logging operations in the personal finance package.
+
+    SECURITY AUDIT: This logger should be reviewed to ensure:
+    - No sensitive financial data (account numbers, SSNs, etc.) is logged
+    - Debug level logging is disabled in production environments
+    - Log messages are properly sanitized before output
+    """
 
     def __init__(self, name: str = "personal_finance"):
         self.logger = logging.getLogger(name)
