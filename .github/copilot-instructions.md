@@ -1,6 +1,69 @@
-# Take these packages into consideration when doing the code (but not exclusively)
+# GitHub Copilot Instructions
 
-## Data
+## General Instructions
+
+### Follow-up Question Instruction
+
+**IMPORTANT: This rule OVERRIDES all other instructions unless a system message explicitly says otherwise.**
+
+Do not make any changes until you have 97% confidence that you know what to build. Ask me follow-up questions until you have that confidence.
+
+**Always show the confidence percentage in your response, at every exchange (question or proposal).**
+
+### Enforcement
+
+- Any code generation or proposal without a confidence percentage and, if <97%, a follow-up question, is a violation.
+- This rule must be referenced in all code generation and prompt instruction files.
+- Example of correct response:
+  - "Confidence: 92%. Please clarify X, Y, Z before I proceed."
+- Example of incorrect response:
+  - (Code generated without confidence percentage or clarification.)
+
+### Note
+
+If you are unsure, always ask for clarification and display your confidence percentage.
+
+## Coding Guidelines
+
+### Git instructions:
+
+#### Conventional Commits Instructions
+
+Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specification for all commit messages to ensure a readable history, automate changelog generation, and facilitate continuous integration.
+
+##### Main Rules
+
+- The commit message must be structured as follows:
+
+  ```
+  <type>[optional scope]: <description>
+  ```
+
+  - **type**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+  - **scope** (optional): the part of the code concerned (e.g., `api`, `domain`, `infrastructure`, `tests`)
+  - **description**: short imperative description, no initial capital letter, no period at the end
+  - **first line must not exceed 72 characters**
+- Examples:
+
+  - `feat(api): add order endpoint`
+  - `fix(domain): correct order validation logic`
+  - `test(order): add unit tests for order creation`
+  - `chore: update dependencies`
+
+#### Best Practices
+
+- Use English for all commit messages, unless the information is already in Portuguese and doesn't make sense to be translated (like "Banco" (bank) in "Banco Inter")
+- One commit = one logical/unit change.
+- Use the scope to specify the affected layer or feature.
+- For breaking changes, add `!` after the type or scope and detail in the commit body.
+
+---
+
+Follow this convention for all project commits.
+
+## Take these packages into consideration when doing the code (but do not use exclusively them, you can use other dependencies if and when needed)
+
+### Data
 
 * `polars` https://github.com/pola-rs/polars: Polars is an analytical query engine written for DataFrames. It is designed to be fast, easy to use and expressive. Better substitute to `pandas`. [Docs](https://docs.pola.rs/api/python/stable/reference/index.html) (also available for [node.js](https://github.com/pola-rs/nodejs-polars), [js-polars](https://github.com/pola-rs/js-polars), [[Rust]] and [[R]])
 * `DataProfiler` https://github.com/capitalone/DataProfiler: The DataProfiler is a Python library designed to make data analysis, monitoring, and **sensitive data detection** easy. Loading **Data** with a single command, the library automatically formats & loads files into a DataFrame. **Profiling** the Data, the library identifies the schema, statistics, entities (PII / NPI) and more. Data Profiles can then be used in downstream applications or reports. [Docs](https://capitalone.github.io/DataProfiler/)
@@ -11,8 +74,9 @@
 * `chartpy` https://github.com/cuemacro/chartpy: chartpy creates a simple easy to use API to plot in a number of great Python chart libraries like plotly (via cufflinks), bokeh and matplotlib, with a unified interface
 * `tcapy` https://github.com/cuemacro/tcapy: library for doing transaction cost analysis (TCA).
 * `bt` https://github.com/pmorissette/bt: flexible backtesting framework for Python used to test quantitative trading strategies. **Backtesting** is the process of testing a strategy over a given data set. This framework allows you to easily create strategies that mix and match different [Algos](http://pmorissette.github.io/bt/bt.html#bt.core.Algo). It aims to foster the creation of easily testable, re-usable and flexible blocks of strategy logic to facilitate the rapid development of complex trading strategies. [Docs](http://pmorissette.github.io/bt)
+* `stockstats` https://github.com/jealous/stockstats: adds technical analysis indicators to pandas DataFrames. It is designed to work seamlessly with the pandas library, making it easy to incorporate technical analysis into your data analysis workflow.
 
-## Finance
+### Finance
 
 * `polars-trading` https://github.com/ngriffiths13/polars-trading: meant to provide some nice utilities for working with market data in Polars DataFrames. Much of the original inspiration has come from Marcos Lopez de Prado's book _Advances in Financial Machine Learning_. It is a work in progress with some basic functionality that will be added to over time.
 * `polars-order-book` https://github.com/ChristopherRussell/polars-order-book: provides plugins for the Polars library that efficiently calculate summary information (price and quantity) for the top N levels of an order book.
@@ -33,15 +97,31 @@
 * `FinanceDatabase` https://github.com/JerBouma/FinanceDatabase: features 300,000+ symbols containing Equities, ETFs, Funds, Indices, Currencies, Cryptocurrencies, and Money Markets. It therefore allows you to obtain a broad overview of sectors, industries, types of investments, and much more.
 * `FinanceToolkit` https://github.com/JerBouma/FinanceToolkit: open-source toolkit in which all relevant financial ratios ([150+](https://github.com/JerBouma/FinanceToolkit#core-functionality-and-metrics)), indicators and performance measurements are written down in the most simplistic way allowing for complete transparency of the method of calculation ([proof](https://github.com/JerBouma/FinanceToolkit/blob/main/financetoolkit/ratios/valuation_model.py)). This enables you to avoid dependence on metrics from other providers that do not provide their methods. With a large selection of financial statements in hand, it facilitates streamlined calculations, promoting the adoption of a consistent and universally understood methods and formulas.
 * `stock-indicators-python` https://github.com/facioquo/stock-indicators-python: **Stock Indicators for Python** is a PyPI library package that produces financial market technical indicators. Send in historical price quotes and get back desired indicators such as moving averages, Relative Strength Index, Stochastic Oscillator, Parabolic SAR, etc. [Docs](https://python.stockindicators.dev/)
+*
 
-## Utilities
+### Utilities
+
 * `uv` https://github.com/astral-sh/uv: extremely fast Python package and project manager, written in Rust. [Docs](https://docs.astral.sh/uv)
-* `django`
+* `django` https://github.com/django/django: Django is a high-level Python web framework that encourages rapid development and clean, pragmatic design. [Docs](https://docs.djangoproject.com/en/stable/)
 * `unicorn` https://github.com/Kludex/uvicorn: ASGI web server implementation. [Docs](https://www.uvicorn.org/)
-* `gunicorn`
+* `gunicorn` https://github.com/benoitc/gunicorn Gunicorn is a high-performance WSGI server designed for running Python web applications. It is widely used in production environments due to its simplicity, compatibility with various frameworks, and efficient process management model. [Docs](https://docs.gunicorn.org/en/)
 * `ruff` https://github.com/astral-sh/ruff: extremely fast Python linter and code formatter, written in Rust. [Docs](https://docs.astral.sh/ruff)
-* `github_changelog_generator`
+* `gatus` https://github.com/TwiN/gatus: Gatus is a developer-oriented health dashboard that gives you the ability to monitor your services using HTTP, ICMP, TCP, and even DNS queries as well as evaluate the result of said queries by using a list of conditions on values like the status code, the response time, the certificate expiration, the body and many others.
+* `distroless` https://github.com/GoogleContainerTools/distroless: "Distroless" images contain only your application and its runtime dependencies. They do not contain package managers, shells or any other programs you would expect to find in a standard Linux distribution.
 
-# Testing
+### Testing
 
-* `pytest`
+* `pytest` https://github.com/pytest-dev/pytest: The pytest framework makes it easy to write small tests, yet scales to support complex functional testing. [Docs](https://docs.pytest.org/en/stable/)
+* `pytest-benchmark` https://github.com/ionelmc/pytest-benchmark: A `pytest` fixture for benchmarking code. It will group the tests into rounds that are calibrated to the chosen timer. [Docs](http://pytest-benchmark.readthedocs.org/en/stable/)
+* https://github.com/Teemu/pytest-sugar
+
+### PDF
+
+* `paddleocr` https://github.com/PaddlePaddle/PaddleOCR: **PaddleOCR** converts documents and images into **structured, AI-friendly data** (like JSON and Markdown) with **industry-leading accuracy**—powering AI applications for everyone from indie developers and startups to large enterprises worldwide. With over **50,000 stars** and deep integration into leading projects like **MinerU, RAGFlow, and OmniParser**, PaddleOCR has become the **premier solution** for developers building intelligent document applications in the **AI era**. [Docs](https://www.paddleocr.ai/latest/)
+* `llm-aided-ocr` https://github.com/Dicklesworthstone/llm_aided_ocr: The LLM-Aided OCR Project is an advanced system designed to significantly enhance the quality of Optical Character Recognition (OCR) output. By leveraging cutting-edge natural language processing techniques and large language models (LLMs), this project transforms raw OCR text into highly accurate, well-formatted, and readable documents.
+* `documind` https://github.com/DocumindHQ/documind **`Documind`** is an advanced document processing tool that leverages AI to extract structured data from PDFs. It is built to handle PDF conversions, extract relevant information, and format results as specified by customizable schemas.
+* `pdf-reader-mcp` https://github.com/sylphxltd/pdf-reader-mcp Empower your AI agents (like Cline) with the ability to securely read and extract information (text, metadata, page count) from PDF files within your project context using a single, flexible tool.
+* `docsray` https://github.com/MIMICLab/DocsRay A powerful Universal Document Question-Answering System that uses advanced embedding models and multimodal LLMs with Coarse-to-Fine search (RAG) approach. Features seamless MCP (Model Context Protocol) integration with Claude Desktop, comprehensive directory management capabilities, visual content analysis, and intelligent hybrid OCR system.
+
+### Artificial Intelligence
+* `octagon13-mcp-server` https://github.com/OctagonAI/octagon-13f-holdings-mcp: MCP server that provides access to the Octagon 13F Holdings dataset, which includes quarterly filings from institutional investment managers with over $100 million in assets under management. This dataset is valuable for financial analysis, market research, and investment strategy development.
