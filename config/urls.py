@@ -29,7 +29,7 @@ def health_check(request):
                 "service": "personal-finance-django",
             }
         )
-    except Exception as e:
+    except Exception:
         logging.error("Health check failed", exc_info=True)
         return JsonResponse(
             {
