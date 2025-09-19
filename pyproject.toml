@@ -80,3 +80,8 @@ target-version = "py311"
 
 [tool.ruff.lint]
 extend-select = []
+
+[dependency-groups]
+dev = [
+    "pylint>=3.3.8",
+]
