@@ -42,16 +42,16 @@ jobs:
         run: |
           # Install all dependencies following the project's dependency structure
           # This ensures Copilot has access to all packages needed for the entire project
-          
+
           # Install base dependencies (Django, finance libraries, core packages)
           uv pip install -r requirements/base.txt -c constraints.txt
-          
+
           # Install local development dependencies (testing, linting, documentation)
           uv pip install -r requirements/local.txt -c constraints.txt
-          
+
           # Install project in development mode with optional dev dependencies
           uv pip install -e . --constraint constraints.txt
-          
+
           # Ensure all development tools are available
           uv pip install pytest-django coverage mypy ruff pre-commit --constraint constraints.txt
 
@@ -62,10 +62,10 @@ jobs:
           uv run python --version
           uv run pytest --version
           uv run ruff --version
-          
+
           echo "✓ Verifying key libraries..."
           uv run python -c "import django; print(f'Django {django.get_version()}')"
           uv run python -c "import pandas; print(f'pandas {pandas.__version__}')"
           uv run python -c "import yfinance; print('yfinance available')"
-          
+
           echo "✓ All dependencies installed successfully!"
