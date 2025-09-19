@@ -104,10 +104,11 @@ class DataProfilerService:
             logger.info("Profile created successfully")
             return profile_report
 
-        except ProfileDataError:
-            # Re-raise validation errors
-            raise
         except Exception as e:
+            # If it's already a ProfileDataError, re-raise as-is
+            if isinstance(e, ProfileDataError):
+                raise
+            # For other exceptions, wrap in ProfileDataError with context
             logger.error("Error creating DataProfiler profile: %s", e)
             raise ProfileDataError(f"Failed to create profile: {e}")
 
