@@ -3,6 +3,7 @@ try:
 except ImportError:
     yfinance = None
 import logging
+
 try:
     import requests
 except ImportError:
@@ -13,6 +14,7 @@ except ImportError:
     json = None
 from datetime import datetime
 from typing import Optional, Dict, List
+
 try:
     from ..database import DatabaseManager
 except ImportError:
@@ -43,7 +45,9 @@ def get_ticker_price(
 ) -> float:
     """Helper method to get current price for a single ticker"""
     if yfinance is None:
-        logging.warning("yfinance not available, returning mock price for %s", symbol)
+        logging.warning(
+            "yfinance not available, returning mock price for %s", symbol
+        )
         return 100.0  # Mock price
     try:
         ticker = yfinance.Ticker(symbol)
@@ -160,31 +164,41 @@ def get_comprehensive_stock_info(symbol: str) -> Optional[Dict]:
         # Try to use yfinance if available, otherwise return mock data for demo
         try:
             ticker = yfinance.Ticker(symbol)
-            
+
             # Get basic ticker info
             info = ticker.info
-            
+
             # Get current price data
-            hist = ticker.history(period="2d")  # Get 2 days to calculate change
-            
+            hist = ticker.history(
+                period="2d"
+            )  # Get 2 days to calculate change
+
             if hist.empty:
                 logging.warning("No price data available for %s", symbol)
                 return _get_mock_stock_data(symbol)
-                
+
             # Get latest price data
             latest_data = hist.iloc[-1] if len(hist) > 0 else None
             previous_data = hist.iloc[-2] if len(hist) > 1 else None
-            
+
             if latest_data is None:
                 return _get_mock_stock_data(symbol)
-                
+
             current_price = latest_data["Close"]
-            previous_close = previous_data["Close"] if previous_data is not None else current_price
-            
+            previous_close = (
+                previous_data["Close"]
+                if previous_data is not None
+                else current_price
+            )
+
             # Calculate price change
             price_change = current_price - previous_close
-            price_change_percent = (price_change / previous_close * 100) if previous_close != 0 else 0
-            
+            price_change_percent = (
+                (price_change / previous_close * 100)
+                if previous_close != 0
+                else 0
+            )
+
             # Prepare comprehensive data
             stock_data = {
                 "symbol": symbol.upper(),
@@ -195,7 +209,9 @@ def get_comprehensive_stock_info(symbol: str) -> Optional[Dict]:
                 "price_change_percent": round(float(price_change_percent), 2),
                 "day_high": round(float(latest_data["High"]), 2),
                 "day_low": round(float(latest_data["Low"]), 2),
-                "volume": int(latest_data["Volume"]) if latest_data["Volume"] else 0,
+                "volume": int(latest_data["Volume"])
+                if latest_data["Volume"]
+                else 0,
                 "market_cap": info.get("marketCap"),
                 "sector": info.get("sector"),
                 "industry": info.get("industry"),
@@ -207,46 +223,61 @@ def get_comprehensive_stock_info(symbol: str) -> Optional[Dict]:
                 "fifty_two_week_low": info.get("fiftyTwoWeekLow"),
                 "avg_volume": info.get("averageVolume"),
                 "website": info.get("website"),
-                "summary": info.get("longBusinessSummary", "").split(".")[0] + "." if info.get("longBusinessSummary") else None,
-                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
+                "summary": info.get("longBusinessSummary", "").split(".")[0]
+                + "."
+                if info.get("longBusinessSummary")
+                else None,
+                "last_updated": datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S UTC"
+                ),
             }
         except (ImportError, NameError):
             # yfinance not available, return mock data
-            logging.info("yfinance not available, using mock data for %s", symbol)
+            logging.info(
+                "yfinance not available, using mock data for %s", symbol
+            )
             return _get_mock_stock_data(symbol)
-        
+
         # Format market cap for display
         if stock_data["market_cap"]:
             market_cap = stock_data["market_cap"]
             if market_cap >= 1e12:
-                stock_data["market_cap_formatted"] = f"${market_cap/1e12:.2f}T"
+                stock_data["market_cap_formatted"] = (
+                    f"${market_cap / 1e12:.2f}T"
+                )
             elif market_cap >= 1e9:
-                stock_data["market_cap_formatted"] = f"${market_cap/1e9:.2f}B"
+                stock_data["market_cap_formatted"] = (
+                    f"${market_cap / 1e9:.2f}B"
+                )
             elif market_cap >= 1e6:
-                stock_data["market_cap_formatted"] = f"${market_cap/1e6:.2f}M"
+                stock_data["market_cap_formatted"] = (
+                    f"${market_cap / 1e6:.2f}M"
+                )
             else:
                 stock_data["market_cap_formatted"] = f"${market_cap:,.0f}"
         else:
             stock_data["market_cap_formatted"] = "N/A"
-            
+
         # Format volume for display
         if stock_data["volume"]:
             volume = stock_data["volume"]
             if volume >= 1e9:
-                stock_data["volume_formatted"] = f"{volume/1e9:.2f}B"
+                stock_data["volume_formatted"] = f"{volume / 1e9:.2f}B"
             elif volume >= 1e6:
-                stock_data["volume_formatted"] = f"{volume/1e6:.2f}M"
+                stock_data["volume_formatted"] = f"{volume / 1e6:.2f}M"
             elif volume >= 1e3:
-                stock_data["volume_formatted"] = f"{volume/1e3:.2f}K"
+                stock_data["volume_formatted"] = f"{volume / 1e3:.2f}K"
             else:
                 stock_data["volume_formatted"] = f"{volume:,}"
         else:
             stock_data["volume_formatted"] = "N/A"
-            
+
         return stock_data
-        
+
     except Exception as e:
-        logging.error("Error fetching comprehensive stock info for %s: %s", symbol, e)
+        logging.error(
+            "Error fetching comprehensive stock info for %s: %s", symbol, e
+        )
         return _get_mock_stock_data(symbol)
 
 
@@ -255,7 +286,7 @@ def _get_mock_stock_data(symbol: str) -> Optional[Dict]:
     # Return None for clearly invalid symbols
     if symbol in ["INVALID", "TEST", "FAKE"]:
         return None
-        
+
     # Mock data for common stocks
     mock_companies = {
         "AAPL": {
@@ -275,7 +306,7 @@ def _get_mock_stock_data(symbol: str) -> Optional[Dict]:
             "fifty_two_week_low": 164.08,
             "avg_volume": 58435680,
             "website": "https://www.apple.com",
-            "summary": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide."
+            "summary": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.",
         },
         "GOOGL": {
             "name": "Alphabet Inc.",
@@ -294,7 +325,7 @@ def _get_mock_stock_data(symbol: str) -> Optional[Dict]:
             "fifty_two_week_low": 129.40,
             "avg_volume": 32567890,
             "website": "https://abc.xyz",
-            "summary": "Alphabet Inc. provides various products and platforms in the United States and internationally."
+            "summary": "Alphabet Inc. provides various products and platforms in the United States and internationally.",
         },
         "MSFT": {
             "name": "Microsoft Corporation",
@@ -313,35 +344,40 @@ def _get_mock_stock_data(symbol: str) -> Optional[Dict]:
             "fifty_two_week_low": 362.90,
             "avg_volume": 21234567,
             "website": "https://www.microsoft.com",
-            "summary": "Microsoft Corporation develops, licenses, and supports software, services, devices, and solutions worldwide."
-        }
+            "summary": "Microsoft Corporation develops, licenses, and supports software, services, devices, and solutions worldwide.",
+        },
     }
-    
+
     # Get mock data or create generic data
-    company_data = mock_companies.get(symbol.upper(), {
-        "name": f"{symbol.upper()} Company",
-        "current_price": 125.67,
-        "previous_close": 124.89,
-        "day_high": 127.45,
-        "day_low": 123.12,
-        "volume": 1234567,
-        "market_cap": 50000000000,  # $50B
-        "sector": "Technology",
-        "industry": "Software",
-        "exchange": "NASDAQ",
-        "pe_ratio": 22.5,
-        "dividend_yield": 0.02,
-        "fifty_two_week_high": 150.00,
-        "fifty_two_week_low": 90.00,
-        "avg_volume": 2000000,
-        "website": f"https://www.{symbol.lower()}.com",
-        "summary": f"{symbol.upper()} is a demonstration company for the US stock view feature."
-    })
-    
+    company_data = mock_companies.get(
+        symbol.upper(),
+        {
+            "name": f"{symbol.upper()} Company",
+            "current_price": 125.67,
+            "previous_close": 124.89,
+            "day_high": 127.45,
+            "day_low": 123.12,
+            "volume": 1234567,
+            "market_cap": 50000000000,  # $50B
+            "sector": "Technology",
+            "industry": "Software",
+            "exchange": "NASDAQ",
+            "pe_ratio": 22.5,
+            "dividend_yield": 0.02,
+            "fifty_two_week_high": 150.00,
+            "fifty_two_week_low": 90.00,
+            "avg_volume": 2000000,
+            "website": f"https://www.{symbol.lower()}.com",
+            "summary": f"{symbol.upper()} is a demonstration company for the US stock view feature.",
+        },
+    )
+
     # Calculate price change
-    price_change = company_data["current_price"] - company_data["previous_close"]
-    price_change_percent = (price_change / company_data["previous_close"] * 100)
-    
+    price_change = (
+        company_data["current_price"] - company_data["previous_close"]
+    )
+    price_change_percent = price_change / company_data["previous_close"] * 100
+
     stock_data = {
         "symbol": symbol.upper(),
         "name": company_data["name"],
@@ -364,37 +400,37 @@ def _get_mock_stock_data(symbol: str) -> Optional[Dict]:
         "avg_volume": company_data["avg_volume"],
         "website": company_data["website"],
         "summary": company_data["summary"],
-        "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
+        "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"),
     }
-    
+
     # Format market cap for display
     if stock_data["market_cap"]:
         market_cap = stock_data["market_cap"]
         if market_cap >= 1e12:
-            stock_data["market_cap_formatted"] = f"${market_cap/1e12:.2f}T"
+            stock_data["market_cap_formatted"] = f"${market_cap / 1e12:.2f}T"
         elif market_cap >= 1e9:
-            stock_data["market_cap_formatted"] = f"${market_cap/1e9:.2f}B"
+            stock_data["market_cap_formatted"] = f"${market_cap / 1e9:.2f}B"
         elif market_cap >= 1e6:
-            stock_data["market_cap_formatted"] = f"${market_cap/1e6:.2f}M"
+            stock_data["market_cap_formatted"] = f"${market_cap / 1e6:.2f}M"
         else:
             stock_data["market_cap_formatted"] = f"${market_cap:,.0f}"
     else:
         stock_data["market_cap_formatted"] = "N/A"
-        
+
     # Format volume for display
     if stock_data["volume"]:
         volume = stock_data["volume"]
         if volume >= 1e9:
-            stock_data["volume_formatted"] = f"{volume/1e9:.2f}B"
+            stock_data["volume_formatted"] = f"{volume / 1e9:.2f}B"
         elif volume >= 1e6:
-            stock_data["volume_formatted"] = f"{volume/1e6:.2f}M"
+            stock_data["volume_formatted"] = f"{volume / 1e6:.2f}M"
         elif volume >= 1e3:
-            stock_data["volume_formatted"] = f"{volume/1e3:.2f}K"
+            stock_data["volume_formatted"] = f"{volume / 1e3:.2f}K"
         else:
             stock_data["volume_formatted"] = f"{volume:,}"
     else:
         stock_data["volume_formatted"] = "N/A"
-        
+
     return stock_data
 
 

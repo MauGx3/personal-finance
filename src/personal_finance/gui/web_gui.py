@@ -95,7 +95,7 @@ def portfolio_page():
 def us_stock_page(symbol: str):
     """Dedicated US stock view page with comprehensive information"""
     symbol = symbol.upper()
-    
+
     stock_template = """
     <!DOCTYPE html>
     <html lang="en">
@@ -342,8 +342,10 @@ def us_stock_page(symbol: str):
     </body>
     </html>
     """
-    
-    return HTMLResponse(content=stock_template.format(symbol=html.escape(symbol)))
+
+    return HTMLResponse(
+        content=stock_template.format(symbol=html.escape(symbol))
+    )
 
 
 @app.get("/asset/{symbol}", response_class=HTMLResponse)
@@ -360,10 +362,15 @@ def get_stock_info(symbol: str):
     try:
         stock_data = get_comprehensive_stock_info(symbol)
         if not stock_data:
-            raise HTTPException(status_code=404, detail=f"Stock information not found for symbol {symbol}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Stock information not found for symbol {symbol}",
+            )
         return stock_data
     except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Unable to fetch stock data: {str(exc)}")
+        raise HTTPException(
+            status_code=503, detail=f"Unable to fetch stock data: {str(exc)}"
+        )
 
 
 @app.get("/asset_summary/{symbol}")
