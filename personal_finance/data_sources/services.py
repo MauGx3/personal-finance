@@ -338,41 +338,43 @@ class StockdexSource(DataSourceBase):
         """Get company information from Stockdx."""
         if not self.is_available():
             return None
-            
+
         try:
             # This would integrate with stockdx API to get company info
             # For now, return a placeholder structure
             company_info = {
-                'symbol': symbol,
-                'company_name': f"{symbol} Company",
-                'sector': 'Technology',
-                'industry': 'Software',
-                'market_cap': None,
-                'employees': None,
-                'description': f"Company information for {symbol}",
-                'headquarters': None,
-                'website': None,
-                'ceo': None
+                "symbol": symbol,
+                "company_name": f"{symbol} Company",
+                "sector": "Technology",
+                "industry": "Software",
+                "market_cap": None,
+                "employees": None,
+                "description": f"Company information for {symbol}",
+                "headquarters": None,
+                "website": None,
+                "ceo": None,
             }
-            
+
             return company_info
-            
+
         except Exception as e:
             logger.error("Error getting company info for %s: %s", symbol, e)
             return None
 
-    def get_financial_statements(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_financial_statements(
+        self, symbol: str
+    ) -> Optional[Dict[str, Any]]:
         """Get financial statements from Stockdx.
-        
+
         Args:
             symbol: Stock symbol
-            
+
         Returns:
             Financial statements data
         """
         if not self.is_available():
             return None
-            
+
         try:
             # This would use stockdx to get financial statements
             # Example implementation:
@@ -380,33 +382,35 @@ class StockdexSource(DataSourceBase):
             # income_stmt = ticker.yahoo_web_income_stmt
             # balance_sheet = ticker.yahoo_web_balance_sheet
             # cash_flow = ticker.yahoo_web_cashflow
-            
+
             financial_data = {
-                'income_statement': {
-                    'revenue': None,
-                    'gross_profit': None,
-                    'operating_income': None,
-                    'net_income': None,
-                    'eps': None
+                "income_statement": {
+                    "revenue": None,
+                    "gross_profit": None,
+                    "operating_income": None,
+                    "net_income": None,
+                    "eps": None,
                 },
-                'balance_sheet': {
-                    'total_assets': None,
-                    'total_liabilities': None,
-                    'shareholders_equity': None,
-                    'cash_and_equivalents': None,
-                    'total_debt': None
+                "balance_sheet": {
+                    "total_assets": None,
+                    "total_liabilities": None,
+                    "shareholders_equity": None,
+                    "cash_and_equivalents": None,
+                    "total_debt": None,
                 },
-                'cash_flow': {
-                    'operating_cash_flow': None,
-                    'free_cash_flow': None,
-                    'capex': None
-                }
+                "cash_flow": {
+                    "operating_cash_flow": None,
+                    "free_cash_flow": None,
+                    "capex": None,
+                },
             }
-            
+
             return financial_data
-            
+
         except Exception as e:
-            logger.error("Error getting financial statements for %s: %s", symbol, e)
+            logger.error(
+                "Error getting financial statements for %s: %s", symbol, e
+            )
             return None
 
 

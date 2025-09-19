@@ -447,7 +447,11 @@ class TechnicalIndicators:
 
     @staticmethod
     def stochastic_oscillator(
-        high: pd.Series, low: pd.Series, close: pd.Series, k_period: int = 14, d_period: int = 3
+        high: pd.Series,
+        low: pd.Series,
+        close: pd.Series,
+        k_period: int = 14,
+        d_period: int = 3,
     ) -> Dict[str, pd.Series]:
         """Calculate Stochastic Oscillator.
 
@@ -463,17 +467,19 @@ class TechnicalIndicators:
         """
         lowest_low = low.rolling(window=k_period).min()
         highest_high = high.rolling(window=k_period).max()
-        
+
         k_percent = 100 * ((close - lowest_low) / (highest_high - lowest_low))
         d_percent = k_percent.rolling(window=d_period).mean()
-        
+
         return {
             "%K": k_percent,
             "%D": d_percent,
         }
 
     @staticmethod
-    def williams_r(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> pd.Series:
+    def williams_r(
+        high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14
+    ) -> pd.Series:
         """Calculate Williams %R.
 
         Args:
@@ -487,9 +493,11 @@ class TechnicalIndicators:
         """
         highest_high = high.rolling(window=period).max()
         lowest_low = low.rolling(window=period).min()
-        
-        williams_r = -100 * ((highest_high - close) / (highest_high - lowest_low))
-        
+
+        williams_r = -100 * (
+            (highest_high - close) / (highest_high - lowest_low)
+        )
+
         return williams_r
 
     @staticmethod
@@ -512,13 +520,15 @@ class TechnicalIndicators:
         mean_deviation = typical_price.rolling(window=period).apply(
             lambda x: np.mean(np.abs(x - x.mean())), raw=False
         )
-        
+
         cci = (typical_price - sma_tp) / (0.015 * mean_deviation)
-        
+
         return cci
 
     @staticmethod
-    def average_true_range(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> pd.Series:
+    def average_true_range(
+        high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14
+    ) -> pd.Series:
         """Calculate Average True Range (ATR).
 
         Args:
@@ -531,19 +541,22 @@ class TechnicalIndicators:
             ATR series
         """
         prev_close = close.shift(1)
-        
+
         tr1 = high - low
         tr2 = np.abs(high - prev_close)
         tr3 = np.abs(low - prev_close)
-        
+
         true_range = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
         atr = true_range.rolling(window=period).mean()
-        
+
         return atr
 
     @staticmethod
     def parabolic_sar(
-        high: pd.Series, low: pd.Series, acceleration: float = 0.02, maximum: float = 0.2
+        high: pd.Series,
+        low: pd.Series,
+        acceleration: float = 0.02,
+        maximum: float = 0.2,
     ) -> pd.Series:
         """Calculate Parabolic SAR.
 
@@ -560,27 +573,31 @@ class TechnicalIndicators:
         length = len(high)
         sar = pd.Series(index=high.index, dtype=float)
         trend = pd.Series(index=high.index, dtype=int)
-        
+
         # Initialize
         sar.iloc[0] = low.iloc[0]
         trend.iloc[0] = 1
-        
+
         for i in range(1, length):
-            if trend.iloc[i-1] == 1:  # Uptrend
-                sar.iloc[i] = sar.iloc[i-1] + acceleration * (high.iloc[i-1] - sar.iloc[i-1])
+            if trend.iloc[i - 1] == 1:  # Uptrend
+                sar.iloc[i] = sar.iloc[i - 1] + acceleration * (
+                    high.iloc[i - 1] - sar.iloc[i - 1]
+                )
                 if low.iloc[i] <= sar.iloc[i]:
-                    sar.iloc[i] = high.iloc[i-1]
+                    sar.iloc[i] = high.iloc[i - 1]
                     trend.iloc[i] = -1
                 else:
                     trend.iloc[i] = 1
             else:  # Downtrend
-                sar.iloc[i] = sar.iloc[i-1] + acceleration * (low.iloc[i-1] - sar.iloc[i-1])
+                sar.iloc[i] = sar.iloc[i - 1] + acceleration * (
+                    low.iloc[i - 1] - sar.iloc[i - 1]
+                )
                 if high.iloc[i] >= sar.iloc[i]:
-                    sar.iloc[i] = low.iloc[i-1]
+                    sar.iloc[i] = low.iloc[i - 1]
                     trend.iloc[i] = 1
                 else:
                     trend.iloc[i] = -1
-        
+
         return sar
 
     @staticmethod
@@ -601,9 +618,9 @@ class TechnicalIndicators:
         typical_price = (high + low + close) / 3
         cumulative_volume = volume.cumsum()
         cumulative_pv = (typical_price * volume).cumsum()
-        
+
         vwap = cumulative_pv / cumulative_volume
-        
+
         return vwap
 
     @staticmethod
@@ -620,20 +637,24 @@ class TechnicalIndicators:
         price_change = close.diff()
         obv = pd.Series(index=close.index, dtype=float)
         obv.iloc[0] = volume.iloc[0]
-        
+
         for i in range(1, len(close)):
             if price_change.iloc[i] > 0:
-                obv.iloc[i] = obv.iloc[i-1] + volume.iloc[i]
+                obv.iloc[i] = obv.iloc[i - 1] + volume.iloc[i]
             elif price_change.iloc[i] < 0:
-                obv.iloc[i] = obv.iloc[i-1] - volume.iloc[i]
+                obv.iloc[i] = obv.iloc[i - 1] - volume.iloc[i]
             else:
-                obv.iloc[i] = obv.iloc[i-1]
-        
+                obv.iloc[i] = obv.iloc[i - 1]
+
         return obv
 
     @staticmethod
     def money_flow_index(
-        high: pd.Series, low: pd.Series, close: pd.Series, volume: pd.Series, period: int = 14
+        high: pd.Series,
+        low: pd.Series,
+        close: pd.Series,
+        volume: pd.Series,
+        period: int = 14,
     ) -> pd.Series:
         """Calculate Money Flow Index (MFI).
 
@@ -649,24 +670,32 @@ class TechnicalIndicators:
         """
         typical_price = (high + low + close) / 3
         money_flow = typical_price * volume
-        
+
         price_change = typical_price.diff()
-        
+
         positive_flow = pd.Series(index=close.index, dtype=float)
         negative_flow = pd.Series(index=close.index, dtype=float)
-        
-        positive_flow = money_flow.where(price_change > 0, 0).rolling(window=period).sum()
-        negative_flow = money_flow.where(price_change < 0, 0).rolling(window=period).sum()
-        
+
+        positive_flow = (
+            money_flow.where(price_change > 0, 0).rolling(window=period).sum()
+        )
+        negative_flow = (
+            money_flow.where(price_change < 0, 0).rolling(window=period).sum()
+        )
+
         money_flow_ratio = positive_flow / negative_flow
         mfi = 100 - (100 / (1 + money_flow_ratio))
-        
+
         return mfi
 
     @staticmethod
     def ichimoku_cloud(
-        high: pd.Series, low: pd.Series, close: pd.Series,
-        tenkan_period: int = 9, kijun_period: int = 26, senkou_span_b_period: int = 52
+        high: pd.Series,
+        low: pd.Series,
+        close: pd.Series,
+        tenkan_period: int = 9,
+        kijun_period: int = 26,
+        senkou_span_b_period: int = 52,
     ) -> Dict[str, pd.Series]:
         """Calculate Ichimoku Cloud components.
 
@@ -682,21 +711,32 @@ class TechnicalIndicators:
             Dictionary with Ichimoku components
         """
         # Tenkan-sen (Conversion Line)
-        tenkan_sen = (high.rolling(window=tenkan_period).max() + low.rolling(window=tenkan_period).min()) / 2
-        
+        tenkan_sen = (
+            high.rolling(window=tenkan_period).max()
+            + low.rolling(window=tenkan_period).min()
+        ) / 2
+
         # Kijun-sen (Base Line)
-        kijun_sen = (high.rolling(window=kijun_period).max() + low.rolling(window=kijun_period).min()) / 2
-        
+        kijun_sen = (
+            high.rolling(window=kijun_period).max()
+            + low.rolling(window=kijun_period).min()
+        ) / 2
+
         # Senkou Span A (Leading Span A)
         senkou_span_a = ((tenkan_sen + kijun_sen) / 2).shift(kijun_period)
-        
+
         # Senkou Span B (Leading Span B)
-        senkou_span_b = ((high.rolling(window=senkou_span_b_period).max() + 
-                         low.rolling(window=senkou_span_b_period).min()) / 2).shift(kijun_period)
-        
+        senkou_span_b = (
+            (
+                high.rolling(window=senkou_span_b_period).max()
+                + low.rolling(window=senkou_span_b_period).min()
+            )
+            / 2
+        ).shift(kijun_period)
+
         # Chikou Span (Lagging Span)
         chikou_span = close.shift(-kijun_period)
-        
+
         return {
             "tenkan_sen": tenkan_sen,
             "kijun_sen": kijun_sen,
