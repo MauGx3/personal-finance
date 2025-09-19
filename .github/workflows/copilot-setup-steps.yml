@@ -33,6 +33,18 @@ jobs:
         with:
           version: "latest"
 
+      - name: Ensure virtualenv exists for Copilot
+        run: |
+          # Use a predictable venv path for Copilot tools
+          VENV_PATH=".venv"
+          if [ -d "$VENV_PATH" ]; then
+            echo "✓ Virtual environment $VENV_PATH already exists"
+          else
+            echo "→ Creating virtual environment at $VENV_PATH using 'uv venv'"
+            uv venv "$VENV_PATH"
+            echo "✓ Virtual environment created"
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
