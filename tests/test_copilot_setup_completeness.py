@@ -13,6 +13,15 @@ from pathlib import Path
 import pytest
 
 
+# Key packages to check for constraints compatibility
+# Skip django as it may get security updates
+KEY_PACKAGES_TO_CHECK = [
+    "pandas",
+    "numpy",
+    "requests",
+]
+
+
 class TestCopilotSetupCompleteness:
     """Test copilot setup dependency completeness."""
 
@@ -195,12 +204,7 @@ class TestCopilotSetupCompleteness:
                         installed[package] = version
 
             # Check that key constrained packages are installed with compatible versions
-            key_packages = [
-                "pandas",
-                "numpy",
-                "requests",
-            ]  # Skip django as it may get security updates
-            for package in key_packages:
+            for package in KEY_PACKAGES_TO_CHECK:
                 if package in constraints and package in installed:
                     expected_version = constraints[package]
                     actual_version = installed[package]

@@ -59,6 +59,7 @@ dependencies = [
     "python-slugify>=8.0.0",
     "argon2-cffi>=25.0.0",
     "rcssmin==1.1.2",
+    "pytest>=8.4.2",
 ]
 
 [project.optional-dependencies]
