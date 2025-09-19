@@ -31,20 +31,23 @@ class PriceHistory:
 
     class MockManager:
         """Mock manager for stub PriceHistory model."""
-        
+
         def all(self):
             """Return empty queryset."""
             return []
-        
+
         def filter(self, **kwargs):
             """Return empty queryset for any filter."""
             return []
-        
+
         def get(self, **kwargs):
             """Raise DoesNotExist for any get query."""
             from django.core.exceptions import ObjectDoesNotExist
-            raise ObjectDoesNotExist("PriceHistory is a stub model with no data")
-        
+
+            raise ObjectDoesNotExist(
+                "PriceHistory is a stub model with no data"
+            )
+
         def create(self, **kwargs):
             """Raise NotImplementedError for create operations."""
             raise NotImplementedError(

@@ -337,11 +337,15 @@ class BacktestPerformanceChartSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         """Chart data is read-only, creation not supported."""
-        raise NotImplementedError("BacktestPerformanceChartSerializer is read-only")
+        raise NotImplementedError(
+            "BacktestPerformanceChartSerializer is read-only"
+        )
 
     def update(self, instance, validated_data):
         """Chart data is read-only, updates not supported."""
-        raise NotImplementedError("BacktestPerformanceChartSerializer is read-only")
+        raise NotImplementedError(
+            "BacktestPerformanceChartSerializer is read-only"
+        )
 
 
 class BacktestSummarySerializer(serializers.Serializer):

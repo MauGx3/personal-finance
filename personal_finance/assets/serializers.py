@@ -170,40 +170,52 @@ else:
         id = serializers.IntegerField(read_only=True)
         symbol = serializers.CharField(max_length=20, read_only=True)
         date = serializers.DateField(read_only=True)
-        open_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-        high_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-        low_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-        close_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+        open_price = serializers.DecimalField(
+            max_digits=10, decimal_places=2, read_only=True
+        )
+        high_price = serializers.DecimalField(
+            max_digits=10, decimal_places=2, read_only=True
+        )
+        low_price = serializers.DecimalField(
+            max_digits=10, decimal_places=2, read_only=True
+        )
+        close_price = serializers.DecimalField(
+            max_digits=10, decimal_places=2, read_only=True
+        )
         volume = serializers.IntegerField(read_only=True)
-        
+
         def to_internal_value(self, data):
             """Convert input data to internal representation."""
             # Basic validation and conversion for mock serializer
             return super().to_internal_value(data)
-        
+
         def to_representation(self, instance):
             """Convert instance to primitive representation."""
             if instance is None:
                 return None
             # For mock serializer, return empty dict or basic structure
             return {
-                'id': getattr(instance, 'id', None),
-                'symbol': getattr(instance, 'symbol', ''),
-                'date': getattr(instance, 'date', None),
-                'open_price': getattr(instance, 'open_price', None),
-                'high_price': getattr(instance, 'high_price', None),
-                'low_price': getattr(instance, 'low_price', None),
-                'close_price': getattr(instance, 'close_price', None),
-                'volume': getattr(instance, 'volume', 0),
+                "id": getattr(instance, "id", None),
+                "symbol": getattr(instance, "symbol", ""),
+                "date": getattr(instance, "date", None),
+                "open_price": getattr(instance, "open_price", None),
+                "high_price": getattr(instance, "high_price", None),
+                "low_price": getattr(instance, "low_price", None),
+                "close_price": getattr(instance, "close_price", None),
+                "volume": getattr(instance, "volume", 0),
             }
-        
+
         def create(self, validated_data):
             """Mock create method - not implemented for mock serializer."""
-            raise NotImplementedError("Mock serializer does not support create operations")
-        
+            raise NotImplementedError(
+                "Mock serializer does not support create operations"
+            )
+
         def update(self, instance, validated_data):
-            """Mock update method - not implemented for mock serializer.""" 
-            raise NotImplementedError("Mock serializer does not support update operations")
+            """Mock update method - not implemented for mock serializer."""
+            raise NotImplementedError(
+                "Mock serializer does not support update operations"
+            )
 
 
 class AssetPerformanceSerializer(serializers.Serializer):
