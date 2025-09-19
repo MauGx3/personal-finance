@@ -1,6 +1,7 @@
 """
 Test logging security improvements for PY-A6006 audit issue.
 """
+
 import logging
 import os
 import sys
@@ -25,6 +26,7 @@ class LoggingSecurityTestCase(TestCase):
         # Test default behavior
         with patch.dict(os.environ, {}, clear=True):
             import logging
+
             log_level = os.environ.get("PORTFOLIO_LOG_LEVEL", "INFO").upper()
             level = getattr(logging, log_level, logging.INFO)
             self.assertEqual(level, logging.INFO)
@@ -46,7 +48,7 @@ class LoggingSecurityTestCase(TestCase):
         # Import using full path since module structure is different
         sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
         from personal_finance.logs.logger import PackageLogger
-        
+
         # Check that the class docstring mentions security audit
         docstring = PackageLogger.__doc__
         self.assertIn("SECURITY AUDIT", docstring)
@@ -56,35 +58,47 @@ class LoggingSecurityTestCase(TestCase):
     def test_logging_configuration_has_security_comments(self):
         """Test that logging configurations have security audit comments."""
         # Test base settings
-        base_settings_path = Path(__file__).parent.parent / "config" / "settings" / "base.py"
+        base_settings_path = (
+            Path(__file__).parent.parent / "config" / "settings" / "base.py"
+        )
         with open(base_settings_path, "r") as f:
             base_content = f.read()
-        
+
         self.assertIn("SECURITY AUDIT", base_content)
         self.assertIn("sensitive information", base_content)
-        
+
         # Test production settings
-        prod_settings_path = Path(__file__).parent.parent / "config" / "settings" / "production.py"
+        prod_settings_path = (
+            Path(__file__).parent.parent
+            / "config"
+            / "settings"
+            / "production.py"
+        )
         with open(prod_settings_path, "r") as f:
             prod_content = f.read()
-        
+
         self.assertIn("SECURITY AUDIT", prod_content)
         self.assertIn("disable_existing_loggers", prod_content)
-        
+
         # Test celery config
         celery_path = Path(__file__).parent.parent / "config" / "celery_app.py"
         with open(celery_path, "r") as f:
             celery_content = f.read()
-        
+
         self.assertIn("SECURITY AUDIT", celery_content)
         self.assertIn("dictConfig", celery_content)
 
     def test_production_settings_disable_existing_loggers_is_false(self):
         """Test that production settings has disable_existing_loggers set to False for security."""
-        prod_settings_path = Path(__file__).parent.parent / "config" / "settings" / "production.py"
+        prod_settings_path = (
+            Path(__file__).parent.parent
+            / "config"
+            / "settings"
+            / "production.py"
+        )
         with open(prod_settings_path, "r") as f:
             prod_content = f.read()
-        
+
         # Check that disable_existing_loggers is set to False
         self.assertIn('"disable_existing_loggers": False', prod_content)
         # Ensure it's not set to True
@@ -95,16 +109,21 @@ class LoggingSecurityTestCase(TestCase):
         # Import using full path since module structure is different
         sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
         from personal_finance.logs.logger import PackageLogger
-        
+
         # Create a logger instance
         logger = PackageLogger("test_logger")
-        
+
         # Get the formatter from the first handler
         if logger.logger.handlers:
             formatter = logger.logger.handlers[0].formatter
             format_string = formatter._fmt
-            
+
             # Check that the format doesn't include potentially sensitive fields
-            sensitive_fields = ["%(password)s", "%(secret)s", "%(key)s", "%(token)s"]
+            sensitive_fields = [
+                "%(password)s",
+                "%(secret)s",
+                "%(key)s",
+                "%(token)s",
+            ]
             for field in sensitive_fields:
                 self.assertNotIn(field, format_string)
