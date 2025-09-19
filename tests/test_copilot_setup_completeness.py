@@ -90,8 +90,8 @@ class TestCopilotSetupCompleteness:
                 if result.returncode != 0:
                     # Some tools might be available as CLI commands but not modules
                     result = subprocess.run(
-                        [tool, "--version"], 
-                        capture_output=True, 
+                        [tool, "--version"],
+                        capture_output=True,
                         text=True,
                         check=False,
                     )
