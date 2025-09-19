@@ -54,7 +54,9 @@ def demonstrate_issue_solution():
                     first_keys = set(profile_data[0].keys())
                     for i, record in enumerate(profile_data[1:], 1):
                         if set(record.keys()) != first_keys:
-                            raise ProfileDataError(f"Inconsistent schema at record {i}")
+                            raise ProfileDataError(
+                                f"Inconsistent schema at record {i}"
+                            )
 
         if isinstance(profile_data, dict) and len(profile_data) == 0:
             raise ProfileDataError("Dictionary cannot be empty")
@@ -63,7 +65,9 @@ def demonstrate_issue_solution():
             raise ProfileDataError("File path cannot be empty")
 
         if isinstance(profile_data, set):
-            raise ProfileDataError("Unsupported data type: set. DataProfiler supports DataFrame, Series, arrays, lists, or file paths.")
+            raise ProfileDataError(
+                "Unsupported data type: set. DataProfiler supports DataFrame, Series, arrays, lists, or file paths."
+            )
 
         return True
 

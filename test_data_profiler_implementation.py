@@ -106,16 +106,18 @@ def test_file_validation():
 
     # Define the file validation function directly
     def test_file_extension_check(file_path):
-        supported_extensions = {'.csv', '.json', '.parquet', '.xlsx', '.txt'}
+        supported_extensions = {".csv", ".json", ".parquet", ".xlsx", ".txt"}
         file_path_lower = file_path.lower()
-        has_supported_extension = any(file_path_lower.endswith(ext) for ext in supported_extensions)
+        has_supported_extension = any(
+            file_path_lower.endswith(ext) for ext in supported_extensions
+        )
         return has_supported_extension
 
     # Test various file extensions
-    assert test_file_extension_check('data.csv')
-    assert test_file_extension_check('data.json')
-    assert test_file_extension_check('data.xlsx')
-    assert not test_file_extension_check('data.unknown')
+    assert test_file_extension_check("data.csv")
+    assert test_file_extension_check("data.json")
+    assert test_file_extension_check("data.xlsx")
+    assert not test_file_extension_check("data.unknown")
 
     print("✓ File validation logic works correctly")
 
@@ -127,24 +129,24 @@ def test_sensitive_data_patterns():
     # Define the sensitive data detection functions directly
     def looks_like_ssn(value):
         # Simple pattern: XXX-XX-XXXX or XXXXXXXXX
-        value = str(value).replace('-', '').replace(' ', '')
+        value = str(value).replace("-", "").replace(" ", "")
         return len(value) == 9 and value.isdigit()
 
     def looks_like_account_number(value):
         # Simple account number pattern
-        clean_value = str(value).replace('-', '').replace(' ', '')
+        clean_value = str(value).replace("-", "").replace(" ", "")
         return len(clean_value) >= 8 and clean_value.isdigit()
 
     # Test SSN detection
-    assert looks_like_ssn('123-45-6789')
-    assert looks_like_ssn('123456789')
-    assert not looks_like_ssn('12345678')  # Too short
-    assert not looks_like_ssn('123-45-678a')  # Contains letter
+    assert looks_like_ssn("123-45-6789")
+    assert looks_like_ssn("123456789")
+    assert not looks_like_ssn("12345678")  # Too short
+    assert not looks_like_ssn("123-45-678a")  # Contains letter
 
     # Test account number detection
-    assert looks_like_account_number('1234567890')
-    assert looks_like_account_number('1234-5678-90')
-    assert not looks_like_account_number('1234567')  # Too short
+    assert looks_like_account_number("1234567890")
+    assert looks_like_account_number("1234-5678-90")
+    assert not looks_like_account_number("1234567")  # Too short
 
     print("✓ Sensitive data pattern detection works correctly")
 
@@ -183,10 +185,10 @@ def test_data_type_checks():
     is_valid, msg = check_supported_types([1, 2, 3])
     assert is_valid
 
-    is_valid, msg = check_supported_types({'key': 'value'})
+    is_valid, msg = check_supported_types({"key": "value"})
     assert is_valid
 
-    is_valid, msg = check_supported_types('data.csv')
+    is_valid, msg = check_supported_types("data.csv")
     assert is_valid
 
     is_valid, msg = check_supported_types(None)
