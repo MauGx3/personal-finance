@@ -27,3 +27,19 @@ class MarketDataSerializer(serializers.Serializer):
 
     # Data timestamp
     last_updated = serializers.DateTimeField()
+
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Market data is read-only, creation not supported."""
+        raise NotImplementedError("MarketDataSerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Market data is read-only, updates not supported."""
+        raise NotImplementedError("MarketDataSerializer is read-only")

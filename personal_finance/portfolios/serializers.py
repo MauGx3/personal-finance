@@ -364,6 +364,22 @@ class PerformanceMetricsSerializer(serializers.Serializer):
     end_date = serializers.DateField(read_only=True)
     days_analyzed = serializers.IntegerField(read_only=True)
 
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Performance metrics are read-only, creation not supported."""
+        raise NotImplementedError("PerformanceMetricsSerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Performance metrics are read-only, updates not supported."""
+        raise NotImplementedError("PerformanceMetricsSerializer is read-only")
+
 
 class AllocationDataSerializer(serializers.Serializer):
     """Serializer for portfolio allocation data."""
@@ -383,3 +399,19 @@ class AllocationDataSerializer(serializers.Serializer):
     unrealized_return_percentage = serializers.DecimalField(
         max_digits=10, decimal_places=4
     )
+
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Allocation data is read-only, creation not supported."""
+        raise NotImplementedError("AllocationDataSerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Allocation data is read-only, updates not supported."""
+        raise NotImplementedError("AllocationDataSerializer is read-only")

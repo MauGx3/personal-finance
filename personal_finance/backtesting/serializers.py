@@ -327,6 +327,22 @@ class BacktestPerformanceChartSerializer(serializers.Serializer):
     cumulative_returns = serializers.ListField(child=serializers.FloatField())
     drawdowns = serializers.ListField(child=serializers.FloatField())
 
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Chart data is read-only, creation not supported."""
+        raise NotImplementedError("BacktestPerformanceChartSerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Chart data is read-only, updates not supported."""
+        raise NotImplementedError("BacktestPerformanceChartSerializer is read-only")
+
 
 class BacktestSummarySerializer(serializers.Serializer):
     """Serializer for backtest summary statistics."""
@@ -339,3 +355,19 @@ class BacktestSummarySerializer(serializers.Serializer):
     worst_performing_backtest = serializers.DictField(required=False)
     average_return = serializers.FloatField(required=False)
     average_sharpe_ratio = serializers.FloatField(required=False)
+
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Summary data is read-only, creation not supported."""
+        raise NotImplementedError("BacktestSummarySerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Summary data is read-only, updates not supported."""
+        raise NotImplementedError("BacktestSummarySerializer is read-only")

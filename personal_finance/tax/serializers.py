@@ -340,6 +340,22 @@ class TaxSummarySerializer(serializers.Serializer):
     optimization = serializers.DictField()
     summary_metrics = serializers.DictField()
 
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Tax summary is read-only, creation not supported."""
+        raise NotImplementedError("TaxSummarySerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Tax summary is read-only, updates not supported."""
+        raise NotImplementedError("TaxSummarySerializer is read-only")
+
     class Meta:
         fields = [
             "capital_gains",
@@ -364,6 +380,23 @@ class TaxCalculationRequestSerializer(serializers.Serializer):
         default=False, help_text="Reprocess existing calculations"
     )
 
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Create tax calculation request - implement as needed."""
+        # This could actually create a calculation request
+        return validated_data
+
+    def update(self, instance, validated_data):
+        """Update tax calculation request - implement as needed."""
+        return validated_data
+
     class Meta:
         fields = ["year", "portfolio_id", "reprocess"]
 
@@ -380,6 +413,22 @@ class LossHarvestingAnalysisSerializer(serializers.Serializer):
     generate_recommendations = serializers.BooleanField(
         default=True, help_text="Generate specific recommendations"
     )
+
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Create loss harvesting analysis request - implement as needed."""
+        return validated_data
+
+    def update(self, instance, validated_data):
+        """Update loss harvesting analysis request - implement as needed."""
+        return validated_data
 
     class Meta:
         fields = ["minimum_loss_threshold", "generate_recommendations"]

@@ -167,7 +167,43 @@ else:
     class PriceHistorySerializer(serializers.Serializer):
         """Mock serializer for price history when model is unavailable."""
 
-        pass
+        id = serializers.IntegerField(read_only=True)
+        symbol = serializers.CharField(max_length=20, read_only=True)
+        date = serializers.DateField(read_only=True)
+        open_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+        high_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+        low_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+        close_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+        volume = serializers.IntegerField(read_only=True)
+        
+        def to_internal_value(self, data):
+            """Convert input data to internal representation."""
+            # Basic validation and conversion for mock serializer
+            return super().to_internal_value(data)
+        
+        def to_representation(self, instance):
+            """Convert instance to primitive representation."""
+            if instance is None:
+                return None
+            # For mock serializer, return empty dict or basic structure
+            return {
+                'id': getattr(instance, 'id', None),
+                'symbol': getattr(instance, 'symbol', ''),
+                'date': getattr(instance, 'date', None),
+                'open_price': getattr(instance, 'open_price', None),
+                'high_price': getattr(instance, 'high_price', None),
+                'low_price': getattr(instance, 'low_price', None),
+                'close_price': getattr(instance, 'close_price', None),
+                'volume': getattr(instance, 'volume', 0),
+            }
+        
+        def create(self, validated_data):
+            """Mock create method - not implemented for mock serializer."""
+            raise NotImplementedError("Mock serializer does not support create operations")
+        
+        def update(self, instance, validated_data):
+            """Mock update method - not implemented for mock serializer.""" 
+            raise NotImplementedError("Mock serializer does not support update operations")
 
 
 class AssetPerformanceSerializer(serializers.Serializer):
@@ -226,6 +262,24 @@ class AssetPerformanceSerializer(serializers.Serializer):
     start_date = serializers.DateField(read_only=True)
     end_date = serializers.DateField(read_only=True)
     days_analyzed = serializers.IntegerField(read_only=True)
+
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        # For read-only performance data, use parent implementation
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        # Use field-based representation for performance data
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Performance metrics are read-only, creation not supported."""
+        raise NotImplementedError("AssetPerformanceSerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Performance metrics are read-only, updates not supported."""
+        raise NotImplementedError("AssetPerformanceSerializer is read-only")
 
 
 class TechnicalIndicatorsSerializer(serializers.Serializer):
@@ -290,6 +344,22 @@ class TechnicalIndicatorsSerializer(serializers.Serializer):
     # Calculation date
     calculation_date = serializers.DateField(read_only=True)
 
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Technical indicators are read-only, creation not supported."""
+        raise NotImplementedError("TechnicalIndicatorsSerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Technical indicators are read-only, updates not supported."""
+        raise NotImplementedError("TechnicalIndicatorsSerializer is read-only")
+
 
 class AssetSearchSerializer(serializers.Serializer):
     """Serializer for asset search results."""
@@ -302,6 +372,22 @@ class AssetSearchSerializer(serializers.Serializer):
     current_price = serializers.DecimalField(max_digits=20, decimal_places=8)
     market_cap = serializers.DecimalField(max_digits=20, decimal_places=2)
     sector = serializers.CharField()
+
+    def to_internal_value(self, data):
+        """Convert input data to internal representation."""
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        """Convert instance to serialized representation."""
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        """Asset search is read-only, creation not supported."""
+        raise NotImplementedError("AssetSearchSerializer is read-only")
+
+    def update(self, instance, validated_data):
+        """Asset search is read-only, updates not supported."""
+        raise NotImplementedError("AssetSearchSerializer is read-only")
 
 
 # Legacy serializers for backward compatibility
