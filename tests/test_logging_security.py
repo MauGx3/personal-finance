@@ -46,7 +46,6 @@ class LoggingSecurityTestCase(TestCase):
     def test_package_logger_has_security_documentation(self):
         """Test that PackageLogger class has security audit documentation."""
         # Import using full path since module structure is different
-        sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
         from personal_finance.logs.logger import PackageLogger
 
         # Check that the class docstring mentions security audit
