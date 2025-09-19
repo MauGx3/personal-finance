@@ -21,13 +21,19 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY constraints.txt requirements.txt requirements.lock pyproject.toml README.md ./
+COPY requirements ./requirements
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN pip install --upgrade pip setuptools wheel --no-cache-dir \
-    && pip install --no-cache-dir -r requirements.txt -c constraints.txt \
-    && if [ -f requirements.lock ]; then pip install --no-cache-dir -r requirements.lock; fi
+
+# Fix SSL/certificate issues and install packages
+RUN pip install --upgrade pip setuptools wheel --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org \
+    && pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.txt -c constraints.txt \
+    && if [ -f requirements.lock ]; then pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.lock; fi
 
 COPY src ./src
+COPY personal_finance ./personal_finance
+COPY config ./config
+COPY manage.py ./
 COPY alembic.ini ./
 COPY alembic ./alembic
 RUN pip wheel . -w /wheels
@@ -36,7 +42,7 @@ RUN pip wheel . -w /wheels
 # Runtime
 #############################
 FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PORT=8000 APP_MODULE=personal_finance.web_gui:app PATH="/opt/venv/bin:$PATH"
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PORT=8000 DJANGO_SETTINGS_MODULE=config.settings.production PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 
 RUN apt-get update \
@@ -45,12 +51,15 @@ RUN apt-get update \
 
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/personal_finance-*.whl || true
+RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org /wheels/personal_finance-*.whl || true
 
 COPY alembic.ini ./
 COPY alembic ./alembic
-COPY src ./src
-COPY requirements.txt constraints.txt requirements.lock* ./
+COPY personal_finance ./personal_finance
+COPY config ./config
+COPY manage.py ./
+COPY locale ./locale
+COPY staticfiles ./staticfiles
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
@@ -66,4 +75,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import os,sys,urllib.request;u=f'http://127.0.0.1:{os.environ.get('PORT','8000')}/health';\nimport urllib.error;\ntry: sys.exit(0 if urllib.request.urlopen(u, timeout=4).status==200 else 1)\nexcept Exception: sys.exit(1)"
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8000", "personal_finance.web_gui:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "config.asgi:application"]

@@ -6,9 +6,41 @@ from django.urls import include
 from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from django.http import JsonResponse
+import logging
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
+
+
+def health_check(request):
+    """Simple health check endpoint for Docker healthcheck and monitoring."""
+    try:
+        # Basic Django health check
+        from django.db import connection
+
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+
+        return JsonResponse(
+            {
+                "status": "healthy",
+                "timestamp": "2025-01-08T22:19:35Z",
+                "service": "personal-finance-django",
+            }
+        )
+    except Exception:
+        logging.error("Health check failed", exc_info=True)
+        return JsonResponse(
+            {
+                "status": "unhealthy",
+                "error": "An internal error has occurred.",
+                "timestamp": "2025-01-08T22:19:35Z",
+                "service": "personal-finance-django",
+            },
+            status=503,
+        )
+
 
 urlpatterns = [
     path(
@@ -19,6 +51,8 @@ urlpatterns = [
         TemplateView.as_view(template_name="pages/about.html"),
         name="about",
     ),
+    # Health check endpoint for Docker and monitoring
+    path("health/", health_check, name="health"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
