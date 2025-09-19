@@ -7,6 +7,7 @@ from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.http import JsonResponse
+import logging
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
@@ -29,10 +30,11 @@ def health_check(request):
             }
         )
     except Exception as e:
+        logging.error("Health check failed", exc_info=True)
         return JsonResponse(
             {
                 "status": "unhealthy",
-                "error": str(e),
+                "error": "An internal error has occurred.",
                 "timestamp": "2025-01-08T22:19:35Z",
                 "service": "personal-finance-django",
             },
