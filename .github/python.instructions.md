@@ -16,7 +16,7 @@ You MUST follow all of those conventions when writing Python code. Any code that
 * The documentation structure must be Sphinx compatible: https://www.sphinx-doc.org/en/master/
 * For functions which implement mathematical/scientific concepts, add the actual mathematical formula as comment or to the docstrings.
 * Code performance must be followed by using the Python Speed guidelines: https://wiki.python.org/moin/PythonSpeed
-* Leverage existing libraries: Before writing your own solution, check if there's an existing library you can use. 
+* Leverage existing libraries: Before writing your own solution, check if there's an existing library you can use.
 
 # Specific Instructions
 * Don’t introduce new dependencies (library imports) when the desired functionality is already covered by existing dependencies.
