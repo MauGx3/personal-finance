@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from personal_finance.gui.gui_service import GUIService
+from personal_finance.assets.yahoo_finance import get_comprehensive_stock_info
 import html
 
 app = FastAPI()
@@ -90,27 +91,286 @@ def portfolio_page():
     return HTMLResponse(content=html)
 
 
-@app.get("/asset/{symbol}", response_class=HTMLResponse)
-def asset_page(symbol: str):
-    tpl = """
-    <html>
-        <head><meta charset="utf-8"><title>Asset __SYMBOL__</title></head>
-        <body>
-        <h1 id="title">Asset</h1>
-        <pre id="summary">loading...</pre>
+@app.get("/stock/{symbol}", response_class=HTMLResponse)
+def us_stock_page(symbol: str):
+    """Dedicated US stock view page with comprehensive information"""
+    symbol = symbol.upper()
+
+    stock_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{symbol} - US Stock Information</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .stock-header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
+            .price-positive {{ color: #28a745; }}
+            .price-negative {{ color: #dc3545; }}
+            .metric-card {{ border-left: 4px solid #007bff; }}
+            .loading {{ text-align: center; padding: 50px; }}
+            .error {{ text-align: center; padding: 50px; color: #dc3545; }}
+        </style>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="stock-header p-4 mb-4">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="mb-0" id="stock-name">Loading {symbol}...</h1>
+                        <p class="mb-0 opacity-75" id="stock-symbol">{symbol}</p>
+                    </div>
+                    <div class="col-auto">
+                        <h2 class="mb-0" id="current-price">$--</h2>
+                        <p class="mb-0" id="price-change">--</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="loading" class="loading">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Fetching stock information...</p>
+            </div>
+            
+            <div id="error" class="error d-none">
+                <h3>Stock Not Found</h3>
+                <p>Could not retrieve information for symbol <strong>{symbol}</strong></p>
+                <p>Please check the symbol and try again.</p>
+                <a href="/" class="btn btn-primary">Back to Home</a>
+            </div>
+            
+            <div id="stock-content" class="d-none">
+                <div class="row">
+                    <!-- Key Metrics -->
+                    <div class="col-lg-8">
+                        <div class="card metric-card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Price Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row mb-2">
+                                            <div class="col-6"><strong>Previous Close:</strong></div>
+                                            <div class="col-6" id="previous-close">$--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-6"><strong>Day Range:</strong></div>
+                                            <div class="col-6" id="day-range">$-- - $--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-6"><strong>52 Week Range:</strong></div>
+                                            <div class="col-6" id="week-range">$-- - $--</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row mb-2">
+                                            <div class="col-6"><strong>Volume:</strong></div>
+                                            <div class="col-6" id="volume">--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-6"><strong>Avg Volume:</strong></div>
+                                            <div class="col-6" id="avg-volume">--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-6"><strong>Market Cap:</strong></div>
+                                            <div class="col-6" id="market-cap">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card metric-card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Company Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row mb-2">
+                                            <div class="col-4"><strong>Sector:</strong></div>
+                                            <div class="col-8" id="sector">--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4"><strong>Industry:</strong></div>
+                                            <div class="col-8" id="industry">--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4"><strong>Exchange:</strong></div>
+                                            <div class="col-8" id="exchange">--</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row mb-2">
+                                            <div class="col-4"><strong>P/E Ratio:</strong></div>
+                                            <div class="col-8" id="pe-ratio">--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4"><strong>Dividend Yield:</strong></div>
+                                            <div class="col-8" id="dividend-yield">--</div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4"><strong>Currency:</strong></div>
+                                            <div class="col-8" id="currency">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3" id="summary-section" style="display: none;">
+                                    <h6>Business Summary:</h6>
+                                    <p class="text-muted" id="business-summary">--</p>
+                                </div>
+                                <div class="mt-3" id="website-section" style="display: none;">
+                                    <a href="#" target="_blank" id="company-website" class="btn btn-outline-primary btn-sm">Visit Company Website</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary" onclick="refreshData()">Refresh Data</button>
+                                    <button class="btn btn-outline-secondary" onclick="viewHistoricalData()">View Historical Data</button>
+                                    <button class="btn btn-outline-info" onclick="addToPortfolio()">Add to Portfolio</button>
+                                </div>
+                                <hr>
+                                <small class="text-muted">
+                                    <strong>Last Updated:</strong><br>
+                                    <span id="last-updated">--</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            async function load(sym){
-            const r = await fetch('/asset_summary/' + encodeURIComponent(sym));
-            const j = await r.json();
-            document.getElementById('title').textContent = j.symbol;
-            document.getElementById('summary').innerText = JSON.stringify(j, null, 2);
-            }
-            (function(){ const parts = location.pathname.split('/'); load(parts.pop()); })();
+            async function loadStockData() {{
+                try {{
+                    const response = await fetch('/api/stock/{symbol}');
+                    if (!response.ok) {{
+                        throw new Error('Stock not found');
+                    }}
+                    
+                    const data = await response.json();
+                    
+                    // Update header
+                    document.getElementById('stock-name').textContent = data.name || '{symbol}';
+                    document.getElementById('stock-symbol').textContent = data.symbol;
+                    document.getElementById('current-price').textContent = '$' + data.current_price;
+                    
+                    // Update price change
+                    const changeElement = document.getElementById('price-change');
+                    const change = data.price_change;
+                    const changePercent = data.price_change_percent;
+                    const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + ' (' + (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2) + '%)';
+                    changeElement.textContent = changeText;
+                    changeElement.className = change >= 0 ? 'price-positive mb-0' : 'price-negative mb-0';
+                    
+                    // Update price information
+                    document.getElementById('previous-close').textContent = '$' + data.previous_close;
+                    document.getElementById('day-range').textContent = '$' + data.day_low + ' - $' + data.day_high;
+                    document.getElementById('week-range').textContent = data.fifty_two_week_low && data.fifty_two_week_high ? 
+                        '$' + data.fifty_two_week_low + ' - $' + data.fifty_two_week_high : 'N/A';
+                    document.getElementById('volume').textContent = data.volume_formatted;
+                    document.getElementById('avg-volume').textContent = data.avg_volume ? (data.avg_volume / 1000000).toFixed(2) + 'M' : 'N/A';
+                    document.getElementById('market-cap').textContent = data.market_cap_formatted;
+                    
+                    // Update company information
+                    document.getElementById('sector').textContent = data.sector || 'N/A';
+                    document.getElementById('industry').textContent = data.industry || 'N/A';
+                    document.getElementById('exchange').textContent = data.exchange || 'N/A';
+                    document.getElementById('pe-ratio').textContent = data.pe_ratio ? data.pe_ratio.toFixed(2) : 'N/A';
+                    document.getElementById('dividend-yield').textContent = data.dividend_yield ? (data.dividend_yield * 100).toFixed(2) + '%' : 'N/A';
+                    document.getElementById('currency').textContent = data.currency || 'USD';
+                    
+                    // Update business summary
+                    if (data.summary) {{
+                        document.getElementById('business-summary').textContent = data.summary;
+                        document.getElementById('summary-section').style.display = 'block';
+                    }}
+                    
+                    // Update website link
+                    if (data.website) {{
+                        document.getElementById('company-website').href = data.website;
+                        document.getElementById('website-section').style.display = 'block';
+                    }}
+                    
+                    // Update timestamp
+                    document.getElementById('last-updated').textContent = data.last_updated;
+                    
+                    // Show content, hide loading
+                    document.getElementById('loading').classList.add('d-none');
+                    document.getElementById('stock-content').classList.remove('d-none');
+                    
+                }} catch (error) {{
+                    console.error('Error loading stock data:', error);
+                    document.getElementById('loading').classList.add('d-none');
+                    document.getElementById('error').classList.remove('d-none');
+                }}
+            }}
+            
+            function refreshData() {{
+                document.getElementById('stock-content').classList.add('d-none');
+                document.getElementById('error').classList.add('d-none');
+                document.getElementById('loading').classList.remove('d-none');
+                loadStockData();
+            }}
+            
+            function viewHistoricalData() {{
+                window.open('/prices/{symbol}', '_blank');
+            }}
+            
+            function addToPortfolio() {{
+                alert('Add to Portfolio functionality coming soon!');
+            }}
+            
+            // Load data when page loads
+            loadStockData();
         </script>
-        </body>
+    </body>
     </html>
     """
-    return HTMLResponse(content=tpl.replace("__SYMBOL__", html.escape(symbol)))
+
+    return HTMLResponse(
+        content=stock_template.format(symbol=html.escape(symbol))
+    )
+
+
+@app.get("/asset/{symbol}", response_class=HTMLResponse)
+def asset_page(symbol: str):
+    """Legacy asset page - redirect to new stock page for better experience"""
+    # For US stocks, redirect to the new comprehensive view
+    return us_stock_page(symbol)
+
+
+@app.get("/api/stock/{symbol}")
+def get_stock_info(symbol: str):
+    """API endpoint to get comprehensive stock information"""
+    symbol = symbol.upper()
+    try:
+        stock_data = get_comprehensive_stock_info(symbol)
+        if not stock_data:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Stock information not found for symbol {symbol}",
+            )
+        return stock_data
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503, detail=f"Unable to fetch stock data: {str(exc)}"
+        )
 
 
 @app.get("/asset_summary/{symbol}")

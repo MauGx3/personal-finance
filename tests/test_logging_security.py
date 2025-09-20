@@ -2,7 +2,6 @@
 Test logging security improvements for PY-A6006 audit issue.
 """
 
-import logging
 import os
 import sys
 from pathlib import Path
@@ -60,7 +59,7 @@ class LoggingSecurityTestCase(TestCase):
         base_settings_path = (
             Path(__file__).parent.parent / "config" / "settings" / "base.py"
         )
-        with open(base_settings_path, "r") as f:
+        with open(base_settings_path) as f:
             base_content = f.read()
 
         self.assertIn("SECURITY AUDIT", base_content)
@@ -73,7 +72,7 @@ class LoggingSecurityTestCase(TestCase):
             / "settings"
             / "production.py"
         )
-        with open(prod_settings_path, "r") as f:
+        with open(prod_settings_path) as f:
             prod_content = f.read()
 
         self.assertIn("SECURITY AUDIT", prod_content)
@@ -81,7 +80,7 @@ class LoggingSecurityTestCase(TestCase):
 
         # Test celery config
         celery_path = Path(__file__).parent.parent / "config" / "celery_app.py"
-        with open(celery_path, "r") as f:
+        with open(celery_path) as f:
             celery_content = f.read()
 
         self.assertIn("SECURITY AUDIT", celery_content)
@@ -95,7 +94,7 @@ class LoggingSecurityTestCase(TestCase):
             / "settings"
             / "production.py"
         )
-        with open(prod_settings_path, "r") as f:
+        with open(prod_settings_path) as f:
             prod_content = f.read()
 
         # Check that disable_existing_loggers is set to False
