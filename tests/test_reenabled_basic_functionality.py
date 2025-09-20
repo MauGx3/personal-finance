@@ -27,7 +27,7 @@ class TestAssetBasicFunctionality:
             name="Apple Inc.",
             asset_type=Asset.ASSET_STOCK,
             currency="USD",
-            exchange="NASDAQ"
+            exchange="NASDAQ",
         )
 
         assert asset.symbol == "AAPL"
@@ -46,11 +46,9 @@ class TestAssetBasicFunctionality:
         from personal_finance.assets.models import Asset
 
         asset = Asset.objects.create(
-            symbol="AAPL",
-            name="Apple Inc.",
-            asset_type=Asset.ASSET_STOCK
+            symbol="AAPL", name="Apple Inc.", asset_type=Asset.ASSET_STOCK
         )
-        
+
         str_repr = str(asset)
         # The exact format depends on the model's __str__ method
         assert "AAPL" in str_repr
@@ -70,9 +68,7 @@ class TestAssetBasicFunctionality:
         created_assets = []
         for symbol, name, asset_type in asset_data:
             asset = Asset.objects.create(
-                symbol=symbol,
-                name=name,
-                asset_type=asset_type
+                symbol=symbol, name=name, asset_type=asset_type
             )
             created_assets.append(asset)
             assert asset.asset_type == asset_type
@@ -81,7 +77,7 @@ class TestAssetBasicFunctionality:
         assert Asset.objects.count() == 4
 
 
-@pytest.mark.django_db  
+@pytest.mark.django_db
 class TestPortfolioBasicFunctionality:
     """Test basic portfolio functionality with proper migrations."""
 
@@ -90,19 +86,21 @@ class TestPortfolioBasicFunctionality:
         from personal_finance.assets.models import Portfolio
 
         user = User.objects.create_user(
-            username="testuser", 
+            username="testuser",
             email="test@example.com",
-            password="testpass123"
+            password="testpass123",
         )
 
         portfolio = Portfolio.objects.create(
             user=user,
             name="My Test Portfolio",
-            description="Test portfolio for functionality testing"
+            description="Test portfolio for functionality testing",
         )
 
         assert portfolio.name == "My Test Portfolio"
-        assert portfolio.description == "Test portfolio for functionality testing"
+        assert (
+            portfolio.description == "Test portfolio for functionality testing"
+        )
         assert portfolio.user == user
         assert portfolio.is_default is False
 
@@ -111,19 +109,16 @@ class TestPortfolioBasicFunctionality:
         from personal_finance.assets.models import Portfolio
 
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         # Create multiple portfolios for the same user
         portfolio1 = Portfolio.objects.create(
-            user=user,
-            name="Growth Portfolio"
+            user=user, name="Growth Portfolio"
         )
-        
+
         portfolio2 = Portfolio.objects.create(
-            user=user,
-            name="Income Portfolio"
+            user=user, name="Income Portfolio"
         )
 
         # Test forward relationship
@@ -142,23 +137,16 @@ class TestPortfolioBasicFunctionality:
         from django.db import IntegrityError
 
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         # Create first portfolio
-        Portfolio.objects.create(
-            user=user,
-            name="My Portfolio"
-        )
+        Portfolio.objects.create(user=user, name="My Portfolio")
 
         # Try to create second portfolio with same name for same user
         # This should fail due to unique_together constraint
         with pytest.raises(IntegrityError):
-            Portfolio.objects.create(
-                user=user,
-                name="My Portfolio"
-            )
+            Portfolio.objects.create(user=user, name="My Portfolio")
 
 
 @pytest.mark.django_db
@@ -171,27 +159,21 @@ class TestHoldingBasicFunctionality:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         asset = Asset.objects.create(
-            symbol="AAPL",
-            name="Apple Inc.",
-            asset_type=Asset.ASSET_STOCK
+            symbol="AAPL", name="Apple Inc.", asset_type=Asset.ASSET_STOCK
         )
 
-        portfolio = Portfolio.objects.create(
-            user=user,
-            name="My Portfolio"
-        )
+        portfolio = Portfolio.objects.create(user=user, name="My Portfolio")
 
         # Create holding
         holding = Holding.objects.create(
             portfolio=portfolio,
             asset=asset,
             quantity=Decimal("10.5"),
-            cost_basis_per_unit=Decimal("150.25")
+            cost_basis_per_unit=Decimal("150.25"),
         )
 
         assert holding.portfolio == portfolio
@@ -205,27 +187,21 @@ class TestHoldingBasicFunctionality:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         asset = Asset.objects.create(
-            symbol="AAPL",
-            name="Apple Inc.",
-            asset_type=Asset.ASSET_STOCK
+            symbol="AAPL", name="Apple Inc.", asset_type=Asset.ASSET_STOCK
         )
 
-        portfolio = Portfolio.objects.create(
-            user=user,
-            name="My Portfolio"
-        )
+        portfolio = Portfolio.objects.create(user=user, name="My Portfolio")
 
         # Create holding with known values
         holding = Holding.objects.create(
             portfolio=portfolio,
             asset=asset,
             quantity=Decimal("100.00"),
-            cost_basis_per_unit=Decimal("150.00")
+            cost_basis_per_unit=Decimal("150.00"),
         )
 
         # Test total cost basis calculation
@@ -238,40 +214,32 @@ class TestHoldingBasicFunctionality:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         asset1 = Asset.objects.create(
-            symbol="AAPL",
-            name="Apple Inc.",
-            asset_type=Asset.ASSET_STOCK
+            symbol="AAPL", name="Apple Inc.", asset_type=Asset.ASSET_STOCK
         )
 
         asset2 = Asset.objects.create(
-            symbol="GOOGL",
-            name="Alphabet Inc.",
-            asset_type=Asset.ASSET_STOCK
+            symbol="GOOGL", name="Alphabet Inc.", asset_type=Asset.ASSET_STOCK
         )
 
-        portfolio = Portfolio.objects.create(
-            user=user,
-            name="My Portfolio"
-        )
+        portfolio = Portfolio.objects.create(user=user, name="My Portfolio")
 
         # Create multiple holdings in same portfolio
         holding1 = Holding.objects.create(
             portfolio=portfolio,
             asset=asset1,
             quantity=Decimal("100.00"),
-            cost_basis_per_unit=Decimal("150.00")
+            cost_basis_per_unit=Decimal("150.00"),
         )
 
         holding2 = Holding.objects.create(
             portfolio=portfolio,
             asset=asset2,
             quantity=Decimal("50.00"),
-            cost_basis_per_unit=Decimal("2500.00")
+            cost_basis_per_unit=Decimal("2500.00"),
         )
 
         # Test reverse relationship
@@ -298,9 +266,7 @@ class TestDatabaseConnectivity:
 
         # Create
         asset = Asset.objects.create(
-            symbol="TEST",
-            name="Test Asset",
-            asset_type=Asset.ASSET_STOCK
+            symbol="TEST", name="Test Asset", asset_type=Asset.ASSET_STOCK
         )
         asset_id = asset.id
 
@@ -317,7 +283,7 @@ class TestDatabaseConnectivity:
 
         # Delete
         updated_asset.delete()
-        
+
         with pytest.raises(Asset.DoesNotExist):
             Asset.objects.get(id=asset_id)
 
@@ -333,18 +299,18 @@ class TestDatabaseConnectivity:
                 Asset.objects.create(
                     symbol="TEST1",
                     name="Test Asset 1",
-                    asset_type=Asset.ASSET_STOCK
+                    asset_type=Asset.ASSET_STOCK,
                 )
-                
+
                 Asset.objects.create(
                     symbol="TEST2",
                     name="Test Asset 2",
-                    asset_type=Asset.ASSET_STOCK
+                    asset_type=Asset.ASSET_STOCK,
                 )
-                
+
                 # Force an error to test rollback
                 raise Exception("Intentional error for rollback test")
-                
+
         except Exception:
             pass  # Expected exception
 
@@ -363,32 +329,26 @@ class TestModelValidationAndConstraints:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         asset = Asset.objects.create(
-            symbol="TEST",
-            name="Test Asset",
-            asset_type=Asset.ASSET_STOCK
+            symbol="TEST", name="Test Asset", asset_type=Asset.ASSET_STOCK
         )
 
-        portfolio = Portfolio.objects.create(
-            user=user,
-            name="Test Portfolio"
-        )
+        portfolio = Portfolio.objects.create(user=user, name="Test Portfolio")
 
         # Test high precision decimal values
         holding = Holding.objects.create(
             portfolio=portfolio,
             asset=asset,
             quantity=Decimal("123.12345678"),  # 8 decimal places
-            cost_basis_per_unit=Decimal("1500.99")
+            cost_basis_per_unit=Decimal("1500.99"),
         )
 
         # Refresh from database to ensure precision is maintained
         holding.refresh_from_db()
-        
+
         assert holding.quantity == Decimal("123.12345678")
         assert holding.cost_basis_per_unit == Decimal("1500.99")
 
@@ -398,32 +358,26 @@ class TestModelValidationAndConstraints:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         asset = Asset.objects.create(
-            symbol="TEST",
-            name="Test Asset",
-            asset_type=Asset.ASSET_STOCK
+            symbol="TEST", name="Test Asset", asset_type=Asset.ASSET_STOCK
         )
 
-        portfolio = Portfolio.objects.create(
-            user=user,
-            name="Test Portfolio"
-        )
+        portfolio = Portfolio.objects.create(user=user, name="Test Portfolio")
 
         holding = Holding.objects.create(
             portfolio=portfolio,
             asset=asset,
             quantity=Decimal("100.00"),
-            cost_basis_per_unit=Decimal("50.00")
+            cost_basis_per_unit=Decimal("50.00"),
         )
 
         # Test cascade delete
         portfolio_id = portfolio.id
         holding_id = holding.id
-        
+
         portfolio.delete()
 
         # Holding should be cascade deleted
@@ -444,37 +398,31 @@ class TestQueryOptimization:
 
         # Create test data
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         asset = Asset.objects.create(
-            symbol="AAPL",
-            name="Apple Inc.",
-            asset_type=Asset.ASSET_STOCK
+            symbol="AAPL", name="Apple Inc.", asset_type=Asset.ASSET_STOCK
         )
 
-        portfolio = Portfolio.objects.create(
-            user=user,
-            name="Test Portfolio"
-        )
+        portfolio = Portfolio.objects.create(user=user, name="Test Portfolio")
 
         holding = Holding.objects.create(
             portfolio=portfolio,
             asset=asset,
             quantity=Decimal("100.00"),
-            cost_basis_per_unit=Decimal("150.00")
+            cost_basis_per_unit=Decimal("150.00"),
         )
 
         # Test optimized query with select_related
         optimized_holdings = Holding.objects.select_related(
-            'portfolio', 'asset'
+            "portfolio", "asset"
         ).all()
 
         # Should be able to access related objects without additional queries
         for holding in optimized_holdings:
             portfolio_name = holding.portfolio.name  # No additional query
-            asset_symbol = holding.asset.symbol      # No additional query
+            asset_symbol = holding.asset.symbol  # No additional query
             assert portfolio_name is not None
             assert asset_symbol is not None
 
@@ -485,11 +433,13 @@ class TestQueryOptimization:
         # Test bulk create
         assets_data = []
         for i in range(10):
-            assets_data.append(Asset(
-                symbol=f"TEST{i:03d}",
-                name=f"Test Asset {i}",
-                asset_type=Asset.ASSET_STOCK
-            ))
+            assets_data.append(
+                Asset(
+                    symbol=f"TEST{i:03d}",
+                    name=f"Test Asset {i}",
+                    asset_type=Asset.ASSET_STOCK,
+                )
+            )
 
         # Bulk create should be more efficient than individual creates
         created_assets = Asset.objects.bulk_create(assets_data)
