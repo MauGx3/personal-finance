@@ -68,7 +68,7 @@ class TestAssetModel:
             name="Microsoft Corporation",
             asset_type=Asset.ASSET_STOCK,
         )
-        
+
         # Check the actual __str__ method implementation
         str_repr = str(asset)
         assert "MSFT" in str_repr
@@ -118,7 +118,7 @@ class TestAssetModel:
 
         # Refresh from database to ensure JSON serialization works
         asset.refresh_from_db()
-        
+
         assert asset.metadata["sector"] == "Technology"
         assert asset.metadata["market_cap"] == 2800000000000
         assert asset.metadata["pe_ratio"] == 28.5
@@ -129,13 +129,19 @@ class TestAssetModel:
         from personal_finance.assets.models import Asset
 
         # Create assets in non-alphabetical order
-        Asset.objects.create(symbol="ZZZZ", name="Z Company", asset_type=Asset.ASSET_STOCK)
-        Asset.objects.create(symbol="AAAA", name="A Company", asset_type=Asset.ASSET_STOCK)
-        Asset.objects.create(symbol="MMMM", name="M Company", asset_type=Asset.ASSET_STOCK)
+        Asset.objects.create(
+            symbol="ZZZZ", name="Z Company", asset_type=Asset.ASSET_STOCK
+        )
+        Asset.objects.create(
+            symbol="AAAA", name="A Company", asset_type=Asset.ASSET_STOCK
+        )
+        Asset.objects.create(
+            symbol="MMMM", name="M Company", asset_type=Asset.ASSET_STOCK
+        )
 
         assets = Asset.objects.all()
         symbols = [asset.symbol for asset in assets]
-        
+
         # Should be ordered by symbol, then name according to Meta.ordering
         assert symbols == sorted(symbols)
 
@@ -171,9 +177,9 @@ class TestPortfolioModel:
         from personal_finance.assets.models import Portfolio
 
         user = User.objects.create_user(
-            username="testuser", 
+            username="testuser",
             email="test@example.com",
-            password="testpass123"
+            password="testpass123",
         )
 
         portfolio = Portfolio.objects.create(
@@ -193,8 +199,7 @@ class TestPortfolioModel:
         from personal_finance.assets.models import Portfolio
 
         user = User.objects.create_user(
-            username="testuser", 
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         portfolio = Portfolio.objects.create(
@@ -211,8 +216,7 @@ class TestPortfolioModel:
         from personal_finance.assets.models import Portfolio
 
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
 
         # Create multiple portfolios for same user
@@ -242,16 +246,15 @@ class TestHoldingModel:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
-        
+
         asset = Asset.objects.create(
             symbol="AAPL",
             name="Apple Inc.",
             asset_type=Asset.ASSET_STOCK,
         )
-        
+
         portfolio = Portfolio.objects.create(
             user=user,
             name="Test Portfolio",
@@ -276,16 +279,15 @@ class TestHoldingModel:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
-        
+
         asset = Asset.objects.create(
             symbol="AAPL",
             name="Apple Inc.",
             asset_type=Asset.ASSET_STOCK,
         )
-        
+
         portfolio = Portfolio.objects.create(
             user=user,
             name="Test Portfolio",
@@ -309,16 +311,15 @@ class TestHoldingModel:
 
         # Create dependencies
         user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com"
+            username="testuser", email="test@example.com"
         )
-        
+
         asset = Asset.objects.create(
             symbol="AAPL",
             name="Apple Inc.",
             asset_type=Asset.ASSET_STOCK,
         )
-        
+
         portfolio = Portfolio.objects.create(
             user=user,
             name="Test Portfolio",
@@ -336,7 +337,7 @@ class TestHoldingModel:
         assert "100.00" in str_repr
 
 
-@pytest.mark.django_db 
+@pytest.mark.django_db
 class TestAssetModelEdgeCases:
     """Test edge cases and error conditions for Asset model."""
 
@@ -348,7 +349,7 @@ class TestAssetModelEdgeCases:
             symbol="TEST",
             asset_type=Asset.ASSET_STOCK,
             # name is blank=True
-            # currency is blank=True  
+            # currency is blank=True
             # exchange is blank=True
         )
 
@@ -407,11 +408,13 @@ class TestModelPerformance:
         # Create many assets at once
         assets = []
         for i in range(100):
-            assets.append(Asset(
-                symbol=f"TEST{i:03d}",
-                name=f"Test Asset {i}",
-                asset_type=Asset.ASSET_STOCK,
-            ))
+            assets.append(
+                Asset(
+                    symbol=f"TEST{i:03d}",
+                    name=f"Test Asset {i}",
+                    asset_type=Asset.ASSET_STOCK,
+                )
+            )
 
         # Bulk create
         created_assets = Asset.objects.bulk_create(assets)
@@ -425,7 +428,11 @@ class TestModelPerformance:
         from personal_finance.assets.models import Asset
 
         # Create test data
-        for asset_type in [Asset.ASSET_STOCK, Asset.ASSET_BOND, Asset.ASSET_ETF]:
+        for asset_type in [
+            Asset.ASSET_STOCK,
+            Asset.ASSET_BOND,
+            Asset.ASSET_ETF,
+        ]:
             for i in range(10):
                 Asset.objects.create(
                     symbol=f"{asset_type}_{i}",
@@ -443,6 +450,6 @@ class TestModelPerformance:
         # Test ordering works with filtering
         ordered_stocks = Asset.objects.filter(
             asset_type=Asset.ASSET_STOCK
-        ).order_by('symbol')
+        ).order_by("symbol")
         symbols = [asset.symbol for asset in ordered_stocks]
         assert symbols == sorted(symbols)
