@@ -12,10 +12,10 @@ User = get_user_model()
 
 class TimestampedModel(models.Model):
     """Abstract base class with created and modified timestamp fields."""
-    
+
     created = models.DateTimeField(auto_now_add=True, verbose_name="created")
     modified = models.DateTimeField(auto_now=True, verbose_name="modified")
-    
+
     class Meta:
         abstract = True
 

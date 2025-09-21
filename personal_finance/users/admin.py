@@ -10,6 +10,7 @@ try:
     from allauth.account.decorators import secure_admin_login
     from .forms import UserAdminChangeForm
     from .forms import UserAdminCreationForm
+
     ALLAUTH_AVAILABLE = True
 except ImportError:
     ALLAUTH_AVAILABLE = False
@@ -17,7 +18,9 @@ except ImportError:
     UserAdminChangeForm = None
     UserAdminCreationForm = None
 
-if ALLAUTH_AVAILABLE and getattr(settings, 'DJANGO_ADMIN_FORCE_ALLAUTH', False):
+if ALLAUTH_AVAILABLE and getattr(
+    settings, "DJANGO_ADMIN_FORCE_ALLAUTH", False
+):
     # Force the `admin` sign in process to go through the `django-allauth` workflow:
     # https://docs.allauth.org/en/latest/common/admin.html#admin
     admin.autodiscover()
@@ -30,7 +33,7 @@ class UserAdmin(auth_admin.UserAdmin):
     if ALLAUTH_AVAILABLE and UserAdminChangeForm:
         form = UserAdminChangeForm
         add_form = UserAdminCreationForm
-    
+
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (_("Personal info"), {"fields": ("name", "email")}),

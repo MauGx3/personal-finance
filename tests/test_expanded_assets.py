@@ -304,12 +304,14 @@ class TestHoldingModel:
 
         # Test total cost basis calculation (if the property exists)
         # Note: The assets app Holding model might not have this property
-        if hasattr(holding, 'total_cost_basis'):
+        if hasattr(holding, "total_cost_basis"):
             expected_cost_basis = Decimal("100.00") * Decimal("150.00")
             assert holding.total_cost_basis == expected_cost_basis
         else:
             # Calculate manually for testing
-            total_cost = holding.quantity * (holding.average_price or Decimal("0"))
+            total_cost = holding.quantity * (
+                holding.average_price or Decimal("0")
+            )
             expected_cost_basis = Decimal("100.00") * Decimal("150.00")
             assert total_cost == expected_cost_basis
 

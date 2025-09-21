@@ -78,12 +78,12 @@ THIRD_PARTY_APPS_TEST = [
 # Only include local apps that have proper migrations and can be tested
 LOCAL_APPS_TEST = [
     "personal_finance.users",
-    "personal_finance.assets", 
+    "personal_finance.assets",
     # "personal_finance.portfolios",  # Conflicts with assets.Portfolio - skip for now
     # "personal_finance.tax",         # Depends on portfolios models - skip for now
     # Do not include apps without migrations:
     # "personal_finance.analytics",
-    # "personal_finance.data_sources", 
+    # "personal_finance.data_sources",
     # "personal_finance.visualization",
     # "personal_finance.backtesting",
     # "personal_finance.realtime",
