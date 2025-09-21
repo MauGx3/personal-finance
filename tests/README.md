@@ -17,11 +17,11 @@ The test suite has been **dramatically expanded** from minimal coverage to compr
 **Before**: Only `test_minimal_core.py` (basic Django connectivity)
 **After**: 7+ comprehensive test files covering models, calculations, infrastructure, and more
 
-### ✅ **Active Test Files** 
+### ✅ **Active Test Files**
 
 #### Core Functionality (High Coverage)
 - **`test_minimal_core.py`** - Basic Django connectivity (CI-safe)
-- **`test_expanded_assets.py`** - Comprehensive Asset/Portfolio/Holding model tests  
+- **`test_expanded_assets.py`** - Comprehensive Asset/Portfolio/Holding model tests
 - **`test_reenabled_basic_functionality.py`** - Re-enabled CRUD and relationship tests
 - **`test_expanded_calculations.py`** - Complete financial mathematics test suite
 - **`test_expanded_django_config.py`** - Django infrastructure and security tests

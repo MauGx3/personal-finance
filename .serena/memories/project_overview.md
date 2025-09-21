@@ -22,7 +22,7 @@ A comprehensive personal finance management platform built with Django that prov
 ## Architecture
 The project follows Django app structure:
 - `assets/` - Core asset and portfolio models (MIGRATED)
-- `users/` - User management (MIGRATED) 
+- `users/` - User management (MIGRATED)
 - `tax/` - Tax calculations and compliance (MIGRATED)
 - `portfolios/` - Portfolio management (NO MIGRATIONS - needs work)
 - `backtesting/` - Strategy backtesting (NO MIGRATIONS - needs work)

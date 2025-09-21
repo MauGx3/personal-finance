@@ -114,7 +114,7 @@ def main():
         },
     ]
 
-    print(f"\n📊 Test Categories Available:")
+    print("\n📊 Test Categories Available:")
     for i, test in enumerate(test_categories, 1):
         priority_emoji = {
             "critical": "🔴",
@@ -126,7 +126,7 @@ def main():
             f"   {i}. {priority_emoji} {test['name']} - {test['description']}"
         )
 
-    print(f"\n🛠️ Infrastructure Tests:")
+    print("\n🛠️ Infrastructure Tests:")
     for i, test in enumerate(infrastructure_tests, 1):
         print(f"   {i}. ⚙️ {test['name']} - {test['description']}")
 
@@ -134,7 +134,7 @@ def main():
     passed = 0
     total = 0
 
-    print(f"\n🚀 Running Demonstration Test Suite:")
+    print("\n🚀 Running Demonstration Test Suite:")
 
     # Run critical tests first
     critical_tests = [
@@ -158,7 +158,7 @@ def main():
             print(f"❌ {test['name']} - FAILED")
 
     # Show test file summary
-    print(f"\n📁 Test Files Created/Enhanced:")
+    print("\n📁 Test Files Created/Enhanced:")
     test_files = [
         "test_minimal_core.py - Basic Django and database connectivity",
         "test_expanded_assets.py - Comprehensive model testing with edge cases",
@@ -172,7 +172,7 @@ def main():
     for file in test_files:
         print(f"   ✅ {file}")
 
-    print(f"\n📈 Test Coverage Expansion:")
+    print("\n📈 Test Coverage Expansion:")
     coverage_areas = [
         "Asset Models: Comprehensive validation, edge cases, relationships",
         "Portfolio Management: User relationships, constraints, calculations",
@@ -186,7 +186,7 @@ def main():
     for area in coverage_areas:
         print(f"   📊 {area}")
 
-    print(f"\n🔧 Key Improvements:")
+    print("\n🔧 Key Improvements:")
     improvements = [
         "Created portfolios app migrations enabling position/transaction testing",
         "Added comprehensive model testing with proper Django test patterns",
@@ -200,20 +200,20 @@ def main():
     for improvement in improvements:
         print(f"   ⚡ {improvement}")
 
-    print(f"\n📊 Test Results Summary:")
+    print("\n📊 Test Results Summary:")
     print(f"   ✅ Passed: {passed}/{total}")
     print(f"   🎯 Success Rate: {(passed / total) * 100:.1f}%")
 
     if passed == total:
-        print(f"\n🎉 All demonstration tests passed!")
-        print(f"   The test suite expansion is working correctly.")
+        print("\n🎉 All demonstration tests passed!")
+        print("   The test suite expansion is working correctly.")
     else:
         print(
-            f"\n⚠️ Some tests failed - this may be due to missing dependencies."
+            "\n⚠️ Some tests failed - this may be due to missing dependencies."
         )
-        print(f"   Run individual test files to debug specific issues.")
+        print("   Run individual test files to debug specific issues.")
 
-    print(f"\n📋 Next Steps for Full Test Suite Expansion:")
+    print("\n📋 Next Steps for Full Test Suite Expansion:")
     next_steps = [
         "Create migrations for backtesting app (Strategy, Backtest models)",
         "Create migrations for analytics app (performance tracking)",
@@ -227,7 +227,7 @@ def main():
     for i, step in enumerate(next_steps, 1):
         print(f"   {i}. {step}")
 
-    print(f"\n🎯 Coverage Goals Achieved:")
+    print("\n🎯 Coverage Goals Achieved:")
     goals = [
         "✅ Models: 95%+ coverage for migrated apps (assets, portfolios)",
         "✅ Financial Calculations: 100% formula accuracy testing",
@@ -241,7 +241,7 @@ def main():
     for goal in goals:
         print(f"   {goal}")
 
-    print(f"\n🛡️ CI/CD Compatibility Features:")
+    print("\n🛡️ CI/CD Compatibility Features:")
     ci_features = [
         "✅ No external API dependencies in core tests",
         "✅ Database agnostic (SQLite/PostgreSQL)",

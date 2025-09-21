@@ -7,8 +7,7 @@ and data processing that don't require complex model migrations.
 
 import pytest
 from decimal import Decimal, ROUND_HALF_UP
-from datetime import date, datetime, timedelta
-import math
+from datetime import date, timedelta
 
 
 class TestFinancialCalculations:

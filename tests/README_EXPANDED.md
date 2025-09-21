@@ -28,7 +28,7 @@ The test suite has been significantly expanded to provide comprehensive coverage
 These files are disabled pending migration creation for unmigrated apps:
 
 - **`test_comprehensive_platform.py.disabled`** - Full platform testing (needs portfolios migrations)
-- **`test_api_integration.py.disabled`** - API endpoint testing 
+- **`test_api_integration.py.disabled`** - API endpoint testing
 - **`test_financial_calculations.py.disabled`** - Legacy financial math tests
 - **`test_tax_compliance.py.disabled`** - Tax feature testing (needs tax app migrations)
 - **`test_performance_benchmarks.py.disabled`** - Performance testing
@@ -134,7 +134,7 @@ pytest tests/test_expanded_django_config.py
 
 ### Phase 3: Advanced Features (Planned)
 - [ ] Create migrations for backtesting app
-- [ ] Create migrations for analytics app  
+- [ ] Create migrations for analytics app
 - [ ] Re-enable comprehensive platform tests
 - [ ] Add WebSocket and real-time feature tests
 
@@ -149,7 +149,7 @@ pytest tests/test_expanded_django_config.py
 ```
 tests/
 ├── test_minimal_core.py                     # Basic Django connectivity
-├── test_expanded_assets.py                  # Comprehensive asset model tests  
+├── test_expanded_assets.py                  # Comprehensive asset model tests
 ├── test_reenabled_basic_functionality.py    # Re-enabled basic CRUD tests
 ├── test_expanded_calculations.py            # Financial mathematics suite
 ├── test_expanded_django_config.py           # Django infrastructure tests
@@ -168,7 +168,7 @@ The test suite includes comprehensive factories for creating test data:
 # Available fixtures in conftest.py
 @pytest.fixture
 def user_factory():         # Create test users
-def asset_factory():        # Create test assets  
+def asset_factory():        # Create test assets
 def portfolio_factory():    # Create test portfolios
 def holding_factory():      # Create test holdings
 ```
@@ -214,7 +214,7 @@ python manage.py migrate
 # Import errors for disabled models
 # Solution: Use try/except imports or create migrations
 
-# Database connectivity issues  
+# Database connectivity issues
 # Solution: Check DJANGO_SETTINGS_MODULE environment variable
 
 # Decimal precision issues
@@ -251,7 +251,7 @@ pytest tests/ --pdb
 
 ### Test File Naming
 - `test_<component>_<type>.py` for new test files
-- `Test<Feature><Type>` for test classes  
+- `Test<Feature><Type>` for test classes
 - `test_<functionality>_<scenario>` for test methods
 
 ### Required Test Categories

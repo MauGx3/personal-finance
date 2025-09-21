@@ -6,13 +6,11 @@ and utility functions that support the application infrastructure.
 """
 
 import pytest
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from decimal import Decimal
-import os
-import tempfile
 
 
 User = get_user_model()
@@ -137,7 +135,6 @@ class TestFormValidation:
     def test_decimal_field_validation(self):
         """Test decimal field validation patterns."""
         from django.core.validators import MinValueValidator
-        from django.core.exceptions import ValidationError
 
         # Test minimum value validator
         min_validator = MinValueValidator(Decimal("0.01"))
@@ -337,7 +334,7 @@ class TestApplicationUtilities:
 
     def test_model_property_methods(self):
         """Test that model property methods work correctly."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset
 
         # Test asset properties (if any exist)
         asset = Asset(
