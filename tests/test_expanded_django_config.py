@@ -381,7 +381,7 @@ class TestApplicationUtilities:
 
 
 @override_settings(DEBUG=True)
-class TestDevelopmentSettings:
+class TestDevelopmentSettings(TestCase):
     """Test development-specific settings and configurations."""
 
     def test_debug_mode_settings(self):

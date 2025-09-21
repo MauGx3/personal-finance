@@ -24,7 +24,7 @@ class TestFinancialCalculations:
             """
             if beginning_value <= 0 or years <= 0:
                 return None
-            return (ending_value / beginning_value) ** (1 / years) - 1
+            return (float(ending_value) / float(beginning_value)) ** (1 / years) - 1
 
         # Test standard CAGR calculation
         cagr = calculate_cagr(
