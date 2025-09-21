@@ -7,164 +7,944 @@ import django.core.validators
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('assets', '0001_initial'),
+        ("assets", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Strategy',
+            name="Strategy",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(help_text='Strategy name', max_length=200)),
-                ('description', models.TextField(help_text='Strategy description')),
-                ('strategy_type', models.CharField(choices=[('BUY_AND_HOLD', 'Buy and Hold'), ('MOMENTUM', 'Momentum'), ('MEAN_REVERSION', 'Mean Reversion'), ('PAIRS_TRADING', 'Pairs Trading'), ('MOVING_AVERAGE', 'Moving Average'), ('RSI', 'RSI-based'), ('BOLLINGER_BANDS', 'Bollinger Bands'), ('CUSTOM', 'Custom Strategy')], help_text='Type of trading strategy', max_length=30)),
-                ('parameters', models.JSONField(default=dict, help_text='Strategy parameters and configuration')),
-                ('entry_rules', models.JSONField(default=list, help_text='Rules for entering positions')),
-                ('exit_rules', models.JSONField(default=list, help_text='Rules for exiting positions')),
-                ('risk_management', models.JSONField(default=dict, help_text='Risk management rules')),
-                ('position_sizing', models.CharField(choices=[('EQUAL_WEIGHT', 'Equal weight'), ('FIXED_AMOUNT', 'Fixed dollar amount'), ('PERCENT_PORTFOLIO', 'Percentage of portfolio'), ('VOLATILITY_TARGET', 'Volatility targeting'), ('KELLY_CRITERION', 'Kelly criterion'), ('CUSTOM', 'Custom sizing')], default='EQUAL_WEIGHT', help_text='Position sizing method', max_length=20)),
-                ('max_position_size', models.DecimalField(blank=True, decimal_places=4, help_text='Maximum position size as percentage of portfolio', max_digits=8, null=True, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(100)])),
-                ('rebalance_frequency', models.CharField(choices=[('DAILY', 'Daily'), ('WEEKLY', 'Weekly'), ('MONTHLY', 'Monthly'), ('QUARTERLY', 'Quarterly'), ('ANNUALLY', 'Annually'), ('TRIGGER_BASED', 'Trigger-based'), ('NEVER', 'Never')], default='MONTHLY', help_text='Portfolio rebalancing frequency', max_length=20)),
-                ('benchmark_symbol', models.CharField(blank=True, help_text='Benchmark symbol for comparison (e.g., SPY)', max_length=20)),
-                ('commission_rate', models.DecimalField(decimal_places=4, default='0.0000', help_text='Commission rate per trade', max_digits=8, validators=[django.core.validators.MinValueValidator(0)])),
-                ('slippage_rate', models.DecimalField(decimal_places=4, default='0.0010', help_text='Slippage rate (market impact)', max_digits=8, validators=[django.core.validators.MinValueValidator(0)])),
-                ('is_active', models.BooleanField(default=True, help_text='Is strategy active for backtesting')),
-                ('notes', models.TextField(blank=True, help_text='Additional notes about the strategy')),
-                ('creator', models.ForeignKey(help_text='User who created this strategy', on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Strategy name", max_length=200
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(help_text="Strategy description"),
+                ),
+                (
+                    "strategy_type",
+                    models.CharField(
+                        choices=[
+                            ("BUY_AND_HOLD", "Buy and Hold"),
+                            ("MOMENTUM", "Momentum"),
+                            ("MEAN_REVERSION", "Mean Reversion"),
+                            ("PAIRS_TRADING", "Pairs Trading"),
+                            ("MOVING_AVERAGE", "Moving Average"),
+                            ("RSI", "RSI-based"),
+                            ("BOLLINGER_BANDS", "Bollinger Bands"),
+                            ("CUSTOM", "Custom Strategy"),
+                        ],
+                        help_text="Type of trading strategy",
+                        max_length=30,
+                    ),
+                ),
+                (
+                    "parameters",
+                    models.JSONField(
+                        default=dict,
+                        help_text="Strategy parameters and configuration",
+                    ),
+                ),
+                (
+                    "entry_rules",
+                    models.JSONField(
+                        default=list, help_text="Rules for entering positions"
+                    ),
+                ),
+                (
+                    "exit_rules",
+                    models.JSONField(
+                        default=list, help_text="Rules for exiting positions"
+                    ),
+                ),
+                (
+                    "risk_management",
+                    models.JSONField(
+                        default=dict, help_text="Risk management rules"
+                    ),
+                ),
+                (
+                    "position_sizing",
+                    models.CharField(
+                        choices=[
+                            ("EQUAL_WEIGHT", "Equal weight"),
+                            ("FIXED_AMOUNT", "Fixed dollar amount"),
+                            ("PERCENT_PORTFOLIO", "Percentage of portfolio"),
+                            ("VOLATILITY_TARGET", "Volatility targeting"),
+                            ("KELLY_CRITERION", "Kelly criterion"),
+                            ("CUSTOM", "Custom sizing"),
+                        ],
+                        default="EQUAL_WEIGHT",
+                        help_text="Position sizing method",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "max_position_size",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Maximum position size as percentage of portfolio",
+                        max_digits=8,
+                        null=True,
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(100),
+                        ],
+                    ),
+                ),
+                (
+                    "rebalance_frequency",
+                    models.CharField(
+                        choices=[
+                            ("DAILY", "Daily"),
+                            ("WEEKLY", "Weekly"),
+                            ("MONTHLY", "Monthly"),
+                            ("QUARTERLY", "Quarterly"),
+                            ("ANNUALLY", "Annually"),
+                            ("TRIGGER_BASED", "Trigger-based"),
+                            ("NEVER", "Never"),
+                        ],
+                        default="MONTHLY",
+                        help_text="Portfolio rebalancing frequency",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "benchmark_symbol",
+                    models.CharField(
+                        blank=True,
+                        help_text="Benchmark symbol for comparison (e.g., SPY)",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "commission_rate",
+                    models.DecimalField(
+                        decimal_places=4,
+                        default="0.0000",
+                        help_text="Commission rate per trade",
+                        max_digits=8,
+                        validators=[
+                            django.core.validators.MinValueValidator(0)
+                        ],
+                    ),
+                ),
+                (
+                    "slippage_rate",
+                    models.DecimalField(
+                        decimal_places=4,
+                        default="0.0010",
+                        help_text="Slippage rate (market impact)",
+                        max_digits=8,
+                        validators=[
+                            django.core.validators.MinValueValidator(0)
+                        ],
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Is strategy active for backtesting",
+                    ),
+                ),
+                (
+                    "notes",
+                    models.TextField(
+                        blank=True,
+                        help_text="Additional notes about the strategy",
+                    ),
+                ),
+                (
+                    "creator",
+                    models.ForeignKey(
+                        help_text="User who created this strategy",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
-                'verbose_name_plural': 'Strategies',
+                "ordering": ["-created_at"],
+                "verbose_name_plural": "Strategies",
             },
         ),
         migrations.CreateModel(
-            name='Backtest',
+            name="Backtest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(help_text='Backtest name', max_length=200)),
-                ('start_date', models.DateField(help_text='Backtest start date')),
-                ('end_date', models.DateField(help_text='Backtest end date')),
-                ('initial_capital', models.DecimalField(decimal_places=2, help_text='Starting capital for backtest', max_digits=15, validators=[django.core.validators.MinValueValidator(0)])),
-                ('status', models.CharField(choices=[('PENDING', 'Pending'), ('RUNNING', 'Running'), ('COMPLETED', 'Completed'), ('FAILED', 'Failed'), ('CANCELLED', 'Cancelled')], default='PENDING', help_text='Current backtest status', max_length=20)),
-                ('progress_percentage', models.DecimalField(decimal_places=2, default='0.00', help_text='Completion percentage', max_digits=5, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(100)])),
-                ('start_time', models.DateTimeField(blank=True, help_text='Backtest execution start time', null=True)),
-                ('end_time', models.DateTimeField(blank=True, help_text='Backtest execution end time', null=True)),
-                ('execution_time_seconds', models.IntegerField(blank=True, help_text='Total execution time in seconds', null=True)),
-                ('error_message', models.TextField(blank=True, help_text='Error message if backtest failed')),
-                ('configuration', models.JSONField(default=dict, help_text='Backtest configuration and parameters')),
-                ('data_source', models.CharField(choices=[('YAHOO_FINANCE', 'Yahoo Finance'), ('ALPHA_VANTAGE', 'Alpha Vantage'), ('QUANDL', 'Quandl'), ('IEX_CLOUD', 'IEX Cloud'), ('POLYGON', 'Polygon.io'), ('CUSTOM', 'Custom data source')], default='YAHOO_FINANCE', help_text='Data source for historical prices', max_length=20)),
-                ('data_frequency', models.CharField(choices=[('1MIN', '1 minute'), ('5MIN', '5 minutes'), ('15MIN', '15 minutes'), ('30MIN', '30 minutes'), ('1HOUR', '1 hour'), ('DAILY', 'Daily'), ('WEEKLY', 'Weekly'), ('MONTHLY', 'Monthly')], default='DAILY', help_text='Data frequency for backtest', max_length=10)),
-                ('notes', models.TextField(blank=True, help_text='Additional notes about the backtest')),
-                ('assets', models.ManyToManyField(help_text='Assets included in the backtest', to='assets.asset')),
-                ('strategy', models.ForeignKey(help_text='Strategy being backtested', on_delete=django.db.models.deletion.CASCADE, to='backtesting.strategy')),
-                ('user', models.ForeignKey(help_text='User who created this backtest', on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Backtest name", max_length=200
+                    ),
+                ),
+                (
+                    "start_date",
+                    models.DateField(help_text="Backtest start date"),
+                ),
+                ("end_date", models.DateField(help_text="Backtest end date")),
+                (
+                    "initial_capital",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="Starting capital for backtest",
+                        max_digits=15,
+                        validators=[
+                            django.core.validators.MinValueValidator(0)
+                        ],
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("PENDING", "Pending"),
+                            ("RUNNING", "Running"),
+                            ("COMPLETED", "Completed"),
+                            ("FAILED", "Failed"),
+                            ("CANCELLED", "Cancelled"),
+                        ],
+                        default="PENDING",
+                        help_text="Current backtest status",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "progress_percentage",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default="0.00",
+                        help_text="Completion percentage",
+                        max_digits=5,
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(100),
+                        ],
+                    ),
+                ),
+                (
+                    "start_time",
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="Backtest execution start time",
+                        null=True,
+                    ),
+                ),
+                (
+                    "end_time",
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="Backtest execution end time",
+                        null=True,
+                    ),
+                ),
+                (
+                    "execution_time_seconds",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="Total execution time in seconds",
+                        null=True,
+                    ),
+                ),
+                (
+                    "error_message",
+                    models.TextField(
+                        blank=True,
+                        help_text="Error message if backtest failed",
+                    ),
+                ),
+                (
+                    "configuration",
+                    models.JSONField(
+                        default=dict,
+                        help_text="Backtest configuration and parameters",
+                    ),
+                ),
+                (
+                    "data_source",
+                    models.CharField(
+                        choices=[
+                            ("YAHOO_FINANCE", "Yahoo Finance"),
+                            ("ALPHA_VANTAGE", "Alpha Vantage"),
+                            ("QUANDL", "Quandl"),
+                            ("IEX_CLOUD", "IEX Cloud"),
+                            ("POLYGON", "Polygon.io"),
+                            ("CUSTOM", "Custom data source"),
+                        ],
+                        default="YAHOO_FINANCE",
+                        help_text="Data source for historical prices",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "data_frequency",
+                    models.CharField(
+                        choices=[
+                            ("1MIN", "1 minute"),
+                            ("5MIN", "5 minutes"),
+                            ("15MIN", "15 minutes"),
+                            ("30MIN", "30 minutes"),
+                            ("1HOUR", "1 hour"),
+                            ("DAILY", "Daily"),
+                            ("WEEKLY", "Weekly"),
+                            ("MONTHLY", "Monthly"),
+                        ],
+                        default="DAILY",
+                        help_text="Data frequency for backtest",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "notes",
+                    models.TextField(
+                        blank=True,
+                        help_text="Additional notes about the backtest",
+                    ),
+                ),
+                (
+                    "assets",
+                    models.ManyToManyField(
+                        help_text="Assets included in the backtest",
+                        to="assets.asset",
+                    ),
+                ),
+                (
+                    "strategy",
+                    models.ForeignKey(
+                        help_text="Strategy being backtested",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="backtesting.strategy",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        help_text="User who created this backtest",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='BacktestResult',
+            name="BacktestResult",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('total_return', models.DecimalField(decimal_places=4, help_text='Total return percentage', max_digits=10)),
-                ('annualized_return', models.DecimalField(decimal_places=4, help_text='Annualized return percentage', max_digits=10)),
-                ('volatility', models.DecimalField(decimal_places=4, help_text='Annualized volatility percentage', max_digits=10)),
-                ('sharpe_ratio', models.DecimalField(blank=True, decimal_places=4, help_text='Sharpe ratio', max_digits=10, null=True)),
-                ('sortino_ratio', models.DecimalField(blank=True, decimal_places=4, help_text='Sortino ratio', max_digits=10, null=True)),
-                ('max_drawdown', models.DecimalField(decimal_places=4, help_text='Maximum drawdown percentage', max_digits=10)),
-                ('max_drawdown_duration_days', models.IntegerField(blank=True, help_text='Maximum drawdown duration in days', null=True)),
-                ('calmar_ratio', models.DecimalField(blank=True, decimal_places=4, help_text='Calmar ratio', max_digits=10, null=True)),
-                ('win_rate', models.DecimalField(decimal_places=4, help_text='Percentage of winning trades', max_digits=7)),
-                ('profit_factor', models.DecimalField(blank=True, decimal_places=4, help_text='Ratio of gross profits to gross losses', max_digits=10, null=True)),
-                ('total_trades', models.IntegerField(help_text='Total number of trades executed')),
-                ('winning_trades', models.IntegerField(help_text='Number of winning trades')),
-                ('losing_trades', models.IntegerField(help_text='Number of losing trades')),
-                ('average_trade_return', models.DecimalField(decimal_places=4, help_text='Average return per trade', max_digits=10)),
-                ('average_winning_trade', models.DecimalField(blank=True, decimal_places=4, help_text='Average return of winning trades', max_digits=10, null=True)),
-                ('average_losing_trade', models.DecimalField(blank=True, decimal_places=4, help_text='Average return of losing trades', max_digits=10, null=True)),
-                ('largest_winning_trade', models.DecimalField(blank=True, decimal_places=4, help_text='Largest winning trade return', max_digits=10, null=True)),
-                ('largest_losing_trade', models.DecimalField(blank=True, decimal_places=4, help_text='Largest losing trade return', max_digits=10, null=True)),
-                ('consecutive_wins', models.IntegerField(blank=True, help_text='Maximum consecutive winning trades', null=True)),
-                ('consecutive_losses', models.IntegerField(blank=True, help_text='Maximum consecutive losing trades', null=True)),
-                ('final_portfolio_value', models.DecimalField(decimal_places=2, help_text='Final portfolio value', max_digits=15)),
-                ('total_fees_paid', models.DecimalField(decimal_places=2, default='0.00', help_text='Total fees and commissions paid', max_digits=15)),
-                ('benchmark_total_return', models.DecimalField(blank=True, decimal_places=4, help_text='Benchmark total return', max_digits=10, null=True)),
-                ('benchmark_annualized_return', models.DecimalField(blank=True, decimal_places=4, help_text='Benchmark annualized return', max_digits=10, null=True)),
-                ('alpha', models.DecimalField(blank=True, decimal_places=4, help_text='Alpha relative to benchmark', max_digits=10, null=True)),
-                ('beta', models.DecimalField(blank=True, decimal_places=4, help_text='Beta relative to benchmark', max_digits=10, null=True)),
-                ('tracking_error', models.DecimalField(blank=True, decimal_places=4, help_text='Tracking error vs benchmark', max_digits=10, null=True)),
-                ('information_ratio', models.DecimalField(blank=True, decimal_places=4, help_text='Information ratio vs benchmark', max_digits=10, null=True)),
-                ('risk_free_rate', models.DecimalField(decimal_places=4, default='0.0200', help_text='Risk-free rate used in calculations', max_digits=6)),
-                ('var_95', models.DecimalField(blank=True, decimal_places=4, help_text='Value at Risk (95% confidence)', max_digits=10, null=True)),
-                ('cvar_95', models.DecimalField(blank=True, decimal_places=4, help_text='Conditional VaR (95% confidence)', max_digits=10, null=True)),
-                ('detailed_metrics', models.JSONField(default=dict, help_text='Additional detailed performance metrics')),
-                ('daily_returns', models.JSONField(default=list, help_text='Daily return series')),
-                ('portfolio_values', models.JSONField(default=list, help_text='Daily portfolio value series')),
-                ('drawdown_series', models.JSONField(default=list, help_text='Drawdown time series')),
-                ('backtest', models.OneToOneField(help_text='Associated backtest run', on_delete=django.db.models.deletion.CASCADE, to='backtesting.backtest')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "total_return",
+                    models.DecimalField(
+                        decimal_places=4,
+                        help_text="Total return percentage",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "annualized_return",
+                    models.DecimalField(
+                        decimal_places=4,
+                        help_text="Annualized return percentage",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "volatility",
+                    models.DecimalField(
+                        decimal_places=4,
+                        help_text="Annualized volatility percentage",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "sharpe_ratio",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Sharpe ratio",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "sortino_ratio",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Sortino ratio",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "max_drawdown",
+                    models.DecimalField(
+                        decimal_places=4,
+                        help_text="Maximum drawdown percentage",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "max_drawdown_duration_days",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="Maximum drawdown duration in days",
+                        null=True,
+                    ),
+                ),
+                (
+                    "calmar_ratio",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Calmar ratio",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "win_rate",
+                    models.DecimalField(
+                        decimal_places=4,
+                        help_text="Percentage of winning trades",
+                        max_digits=7,
+                    ),
+                ),
+                (
+                    "profit_factor",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Ratio of gross profits to gross losses",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "total_trades",
+                    models.IntegerField(
+                        help_text="Total number of trades executed"
+                    ),
+                ),
+                (
+                    "winning_trades",
+                    models.IntegerField(help_text="Number of winning trades"),
+                ),
+                (
+                    "losing_trades",
+                    models.IntegerField(help_text="Number of losing trades"),
+                ),
+                (
+                    "average_trade_return",
+                    models.DecimalField(
+                        decimal_places=4,
+                        help_text="Average return per trade",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "average_winning_trade",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Average return of winning trades",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "average_losing_trade",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Average return of losing trades",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "largest_winning_trade",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Largest winning trade return",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "largest_losing_trade",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Largest losing trade return",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "consecutive_wins",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="Maximum consecutive winning trades",
+                        null=True,
+                    ),
+                ),
+                (
+                    "consecutive_losses",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="Maximum consecutive losing trades",
+                        null=True,
+                    ),
+                ),
+                (
+                    "final_portfolio_value",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="Final portfolio value",
+                        max_digits=15,
+                    ),
+                ),
+                (
+                    "total_fees_paid",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default="0.00",
+                        help_text="Total fees and commissions paid",
+                        max_digits=15,
+                    ),
+                ),
+                (
+                    "benchmark_total_return",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Benchmark total return",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "benchmark_annualized_return",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Benchmark annualized return",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "alpha",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Alpha relative to benchmark",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "beta",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Beta relative to benchmark",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "tracking_error",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Tracking error vs benchmark",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "information_ratio",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Information ratio vs benchmark",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "risk_free_rate",
+                    models.DecimalField(
+                        decimal_places=4,
+                        default="0.0200",
+                        help_text="Risk-free rate used in calculations",
+                        max_digits=6,
+                    ),
+                ),
+                (
+                    "var_95",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Value at Risk (95% confidence)",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "cvar_95",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Conditional VaR (95% confidence)",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "detailed_metrics",
+                    models.JSONField(
+                        default=dict,
+                        help_text="Additional detailed performance metrics",
+                    ),
+                ),
+                (
+                    "daily_returns",
+                    models.JSONField(
+                        default=list, help_text="Daily return series"
+                    ),
+                ),
+                (
+                    "portfolio_values",
+                    models.JSONField(
+                        default=list, help_text="Daily portfolio value series"
+                    ),
+                ),
+                (
+                    "drawdown_series",
+                    models.JSONField(
+                        default=list, help_text="Drawdown time series"
+                    ),
+                ),
+                (
+                    "backtest",
+                    models.OneToOneField(
+                        help_text="Associated backtest run",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="backtesting.backtest",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='BacktestPortfolioSnapshot',
+            name="BacktestPortfolioSnapshot",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField(help_text='Snapshot date')),
-                ('total_value', models.DecimalField(decimal_places=2, help_text='Total portfolio value', max_digits=15)),
-                ('cash_balance', models.DecimalField(decimal_places=2, help_text='Cash balance', max_digits=15)),
-                ('invested_value', models.DecimalField(decimal_places=2, help_text='Total invested value', max_digits=15)),
-                ('daily_return', models.DecimalField(blank=True, decimal_places=6, help_text='Daily return percentage', max_digits=10, null=True)),
-                ('cumulative_return', models.DecimalField(decimal_places=6, help_text='Cumulative return since start', max_digits=10)),
-                ('drawdown', models.DecimalField(decimal_places=6, help_text='Current drawdown from peak', max_digits=10)),
-                ('positions', models.JSONField(default=dict, help_text='Position details by asset')),
-                ('weights', models.JSONField(default=dict, help_text='Asset weights in portfolio')),
-                ('performance_attribution', models.JSONField(default=dict, help_text='Performance attribution by asset')),
-                ('risk_metrics', models.JSONField(default=dict, help_text='Risk metrics for this date')),
-                ('backtest', models.ForeignKey(help_text='Associated backtest', on_delete=django.db.models.deletion.CASCADE, related_name='portfolio_snapshots', to='backtesting.backtest')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField(help_text="Snapshot date")),
+                (
+                    "total_value",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="Total portfolio value",
+                        max_digits=15,
+                    ),
+                ),
+                (
+                    "cash_balance",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="Cash balance",
+                        max_digits=15,
+                    ),
+                ),
+                (
+                    "invested_value",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="Total invested value",
+                        max_digits=15,
+                    ),
+                ),
+                (
+                    "daily_return",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=6,
+                        help_text="Daily return percentage",
+                        max_digits=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "cumulative_return",
+                    models.DecimalField(
+                        decimal_places=6,
+                        help_text="Cumulative return since start",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "drawdown",
+                    models.DecimalField(
+                        decimal_places=6,
+                        help_text="Current drawdown from peak",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "positions",
+                    models.JSONField(
+                        default=dict, help_text="Position details by asset"
+                    ),
+                ),
+                (
+                    "weights",
+                    models.JSONField(
+                        default=dict, help_text="Asset weights in portfolio"
+                    ),
+                ),
+                (
+                    "performance_attribution",
+                    models.JSONField(
+                        default=dict,
+                        help_text="Performance attribution by asset",
+                    ),
+                ),
+                (
+                    "risk_metrics",
+                    models.JSONField(
+                        default=dict, help_text="Risk metrics for this date"
+                    ),
+                ),
+                (
+                    "backtest",
+                    models.ForeignKey(
+                        help_text="Associated backtest",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="portfolio_snapshots",
+                        to="backtesting.backtest",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['backtest', 'date'],
-                'unique_together': {('backtest', 'date')},
+                "ordering": ["backtest", "date"],
+                "unique_together": {("backtest", "date")},
             },
         ),
         migrations.CreateModel(
-            name='BacktestTrade',
+            name="BacktestTrade",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('trade_date', models.DateField(help_text='Date of trade execution')),
-                ('trade_type', models.CharField(choices=[('BUY', 'Buy'), ('SELL', 'Sell'), ('SHORT', 'Short sell'), ('COVER', 'Cover short')], help_text='Type of trade', max_length=10)),
-                ('quantity', models.DecimalField(decimal_places=8, help_text='Quantity traded', max_digits=18)),
-                ('price', models.DecimalField(decimal_places=4, help_text='Execution price per share', max_digits=12)),
-                ('total_value', models.DecimalField(decimal_places=2, help_text='Total trade value', max_digits=15)),
-                ('commission', models.DecimalField(decimal_places=2, default='0.00', help_text='Commission paid', max_digits=10)),
-                ('slippage', models.DecimalField(decimal_places=4, default='0.0000', help_text='Slippage incurred', max_digits=8)),
-                ('signal_strength', models.DecimalField(blank=True, decimal_places=4, help_text='Signal strength that triggered trade', max_digits=8, null=True)),
-                ('trade_reason', models.CharField(blank=True, help_text='Reason for trade (entry/exit rule)', max_length=200)),
-                ('position_size_before', models.DecimalField(decimal_places=8, help_text='Position size before trade', max_digits=18)),
-                ('position_size_after', models.DecimalField(decimal_places=8, help_text='Position size after trade', max_digits=18)),
-                ('portfolio_weight_before', models.DecimalField(blank=True, decimal_places=4, help_text='Portfolio weight before trade', max_digits=8, null=True)),
-                ('portfolio_weight_after', models.DecimalField(blank=True, decimal_places=4, help_text='Portfolio weight after trade', max_digits=8, null=True)),
-                ('cash_impact', models.DecimalField(decimal_places=2, help_text='Impact on cash balance', max_digits=15)),
-                ('trade_metadata', models.JSONField(default=dict, help_text='Additional trade metadata')),
-                ('asset', models.ForeignKey(help_text='Asset traded', on_delete=django.db.models.deletion.CASCADE, to='assets.asset')),
-                ('backtest', models.ForeignKey(help_text='Associated backtest', on_delete=django.db.models.deletion.CASCADE, related_name='trades', to='backtesting.backtest')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "trade_date",
+                    models.DateField(help_text="Date of trade execution"),
+                ),
+                (
+                    "trade_type",
+                    models.CharField(
+                        choices=[
+                            ("BUY", "Buy"),
+                            ("SELL", "Sell"),
+                            ("SHORT", "Short sell"),
+                            ("COVER", "Cover short"),
+                        ],
+                        help_text="Type of trade",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "quantity",
+                    models.DecimalField(
+                        decimal_places=8,
+                        help_text="Quantity traded",
+                        max_digits=18,
+                    ),
+                ),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=4,
+                        help_text="Execution price per share",
+                        max_digits=12,
+                    ),
+                ),
+                (
+                    "total_value",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="Total trade value",
+                        max_digits=15,
+                    ),
+                ),
+                (
+                    "commission",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default="0.00",
+                        help_text="Commission paid",
+                        max_digits=10,
+                    ),
+                ),
+                (
+                    "slippage",
+                    models.DecimalField(
+                        decimal_places=4,
+                        default="0.0000",
+                        help_text="Slippage incurred",
+                        max_digits=8,
+                    ),
+                ),
+                (
+                    "signal_strength",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Signal strength that triggered trade",
+                        max_digits=8,
+                        null=True,
+                    ),
+                ),
+                (
+                    "trade_reason",
+                    models.CharField(
+                        blank=True,
+                        help_text="Reason for trade (entry/exit rule)",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "position_size_before",
+                    models.DecimalField(
+                        decimal_places=8,
+                        help_text="Position size before trade",
+                        max_digits=18,
+                    ),
+                ),
+                (
+                    "position_size_after",
+                    models.DecimalField(
+                        decimal_places=8,
+                        help_text="Position size after trade",
+                        max_digits=18,
+                    ),
+                ),
+                (
+                    "portfolio_weight_before",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Portfolio weight before trade",
+                        max_digits=8,
+                        null=True,
+                    ),
+                ),
+                (
+                    "portfolio_weight_after",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=4,
+                        help_text="Portfolio weight after trade",
+                        max_digits=8,
+                        null=True,
+                    ),
+                ),
+                (
+                    "cash_impact",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="Impact on cash balance",
+                        max_digits=15,
+                    ),
+                ),
+                (
+                    "trade_metadata",
+                    models.JSONField(
+                        default=dict, help_text="Additional trade metadata"
+                    ),
+                ),
+                (
+                    "asset",
+                    models.ForeignKey(
+                        help_text="Asset traded",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="assets.asset",
+                    ),
+                ),
+                (
+                    "backtest",
+                    models.ForeignKey(
+                        help_text="Associated backtest",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="trades",
+                        to="backtesting.backtest",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['backtest', 'trade_date', 'id'],
+                "ordering": ["backtest", "trade_date", "id"],
             },
         ),
     ]
