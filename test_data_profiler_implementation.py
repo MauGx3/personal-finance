@@ -39,20 +39,15 @@ def test_error_class():
     print("Testing ProfileDataError class...")
 
     try:
-        # Import the error class directly
-        exec("""
-import sys
-sys.path.insert(0, '/home/runner/work/personal-finance/personal-finance')
+        # Define the error class directly
+        class ProfileDataError(Exception):
+            pass
 
-class ProfileDataError(Exception):
-    pass
-
-# Test the error class
-error = ProfileDataError("Test error")
-assert isinstance(error, Exception)
-assert str(error) == "Test error"
-print("✓ ProfileDataError class works correctly")
-""")
+        # Test the error class
+        error = ProfileDataError("Test error")
+        assert isinstance(error, Exception)
+        assert str(error) == "Test error"
+        print("✓ ProfileDataError class works correctly")
     except Exception as e:
         print(f"✗ ProfileDataError test failed: {e}")
         raise
@@ -62,161 +57,150 @@ def test_validation_logic():
     """Test basic validation logic without pandas."""
     print("Testing basic validation logic...")
 
-    # Test the basic validation patterns we would use
-    test_code = """
-def basic_none_check(data):
-    if data is None:
-        raise ValueError("Data cannot be None")
-    return True
+    # Define the basic validation functions directly
+    def basic_none_check(data):
+        if data is None:
+            raise ValueError("Data cannot be None")
+        return True
 
-def basic_list_check(data):
-    if isinstance(data, list) and len(data) == 0:
-        raise ValueError("List cannot be empty")
-    return True
+    def basic_list_check(data):
+        if isinstance(data, list) and len(data) == 0:
+            raise ValueError("List cannot be empty")
+        return True
 
-def basic_string_check(data):
-    if isinstance(data, str) and len(data.strip()) == 0:
-        raise ValueError("String cannot be empty")
-    return True
+    def basic_string_check(data):
+        if isinstance(data, str) and len(data.strip()) == 0:
+            raise ValueError("String cannot be empty")
+        return True
 
-# Test the basic checks
-try:
-    basic_none_check(None)
-    assert False, "Should have raised error"
-except ValueError:
-    pass  # Expected
+    # Test the basic checks
+    try:
+        basic_none_check(None)
+        assert False, "Should have raised error"
+    except ValueError:
+        pass  # Expected
 
-try:
-    basic_list_check([])
-    assert False, "Should have raised error"
-except ValueError:
-    pass  # Expected
+    try:
+        basic_list_check([])
+        assert False, "Should have raised error"
+    except ValueError:
+        pass  # Expected
 
-try:
-    basic_string_check("")
-    assert False, "Should have raised error"
-except ValueError:
-    pass  # Expected
+    try:
+        basic_string_check("")
+        assert False, "Should have raised error"
+    except ValueError:
+        pass  # Expected
 
-# Test successful cases
-assert basic_none_check([1, 2, 3]) == True
-assert basic_list_check([1, 2, 3]) == True
-assert basic_string_check("valid_string") == True
+    # Test successful cases
+    assert basic_none_check([1, 2, 3]) == True
+    assert basic_list_check([1, 2, 3]) == True
+    assert basic_string_check("valid_string") == True
 
-print("✓ Basic validation logic works correctly")
-"""
-
-    exec(test_code)
+    print("✓ Basic validation logic works correctly")
 
 
 def test_file_validation():
     """Test file validation logic."""
     print("Testing file validation logic...")
 
-    test_code = """
-def test_file_extension_check(file_path):
-    supported_extensions = {'.csv', '.json', '.parquet', '.xlsx', '.txt'}
-    file_path_lower = file_path.lower()
-    has_supported_extension = any(file_path_lower.endswith(ext) for ext in supported_extensions)
-    return has_supported_extension
+    # Define the file validation function directly
+    def test_file_extension_check(file_path):
+        supported_extensions = {".csv", ".json", ".parquet", ".xlsx", ".txt"}
+        file_path_lower = file_path.lower()
+        has_supported_extension = any(
+            file_path_lower.endswith(ext) for ext in supported_extensions
+        )
+        return has_supported_extension
 
-# Test various file extensions
-assert test_file_extension_check('data.csv') == True
-assert test_file_extension_check('data.json') == True
-assert test_file_extension_check('data.xlsx') == True
-assert test_file_extension_check('data.unknown') == False
+    # Test various file extensions
+    assert test_file_extension_check("data.csv")
+    assert test_file_extension_check("data.json")
+    assert test_file_extension_check("data.xlsx")
+    assert not test_file_extension_check("data.unknown")
 
-print("✓ File validation logic works correctly")
-"""
-
-    exec(test_code)
+    print("✓ File validation logic works correctly")
 
 
 def test_sensitive_data_patterns():
     """Test sensitive data detection patterns."""
     print("Testing sensitive data detection patterns...")
 
-    test_code = """
-def looks_like_ssn(value):
-    # Simple pattern: XXX-XX-XXXX or XXXXXXXXX
-    value = str(value).replace('-', '').replace(' ', '')
-    return len(value) == 9 and value.isdigit()
+    # Define the sensitive data detection functions directly
+    def looks_like_ssn(value):
+        # Simple pattern: XXX-XX-XXXX or XXXXXXXXX
+        value = str(value).replace("-", "").replace(" ", "")
+        return len(value) == 9 and value.isdigit()
 
-def looks_like_account_number(value):
-    # Simple account number pattern
-    clean_value = str(value).replace('-', '').replace(' ', '')
-    return len(clean_value) >= 8 and clean_value.isdigit()
+    def looks_like_account_number(value):
+        # Simple account number pattern
+        clean_value = str(value).replace("-", "").replace(" ", "")
+        return len(clean_value) >= 8 and clean_value.isdigit()
 
-# Test SSN detection
-assert looks_like_ssn('123-45-6789') == True
-assert looks_like_ssn('123456789') == True
-assert looks_like_ssn('12345678') == False  # Too short
-assert looks_like_ssn('123-45-678a') == False  # Contains letter
+    # Test SSN detection
+    assert looks_like_ssn("123-45-6789")
+    assert looks_like_ssn("123456789")
+    assert not looks_like_ssn("12345678")  # Too short
+    assert not looks_like_ssn("123-45-678a")  # Contains letter
 
-# Test account number detection
-assert looks_like_account_number('1234567890') == True
-assert looks_like_account_number('1234-5678-90') == True
-assert looks_like_account_number('1234567') == False  # Too short
+    # Test account number detection
+    assert looks_like_account_number("1234567890")
+    assert looks_like_account_number("1234-5678-90")
+    assert not looks_like_account_number("1234567")  # Too short
 
-print("✓ Sensitive data pattern detection works correctly")
-"""
-
-    exec(test_code)
+    print("✓ Sensitive data pattern detection works correctly")
 
 
 def test_data_type_checks():
     """Test data type checking logic."""
     print("Testing data type checking logic...")
 
-    test_code = """
-def check_supported_types(data):
-    # Check for supported types (without pandas/numpy)
-    if data is None:
-        return False, "None not supported"
+    # Define the data type checking function directly
+    def check_supported_types(data):
+        # Check for supported types (without pandas/numpy)
+        if data is None:
+            return False, "None not supported"
 
-    if isinstance(data, list):
-        if len(data) == 0:
-            return False, "Empty list not supported"
-        return True, "List supported"
+        if isinstance(data, list):
+            if len(data) == 0:
+                return False, "Empty list not supported"
+            return True, "List supported"
 
-    if isinstance(data, dict):
-        if len(data) == 0:
-            return False, "Empty dict not supported"
-        return True, "Dict supported"
+        if isinstance(data, dict):
+            if len(data) == 0:
+                return False, "Empty dict not supported"
+            return True, "Dict supported"
 
-    if isinstance(data, str):
-        if len(data.strip()) == 0:
-            return False, "Empty string not supported"
-        return True, "String supported"
+        if isinstance(data, str):
+            if len(data.strip()) == 0:
+                return False, "Empty string not supported"
+            return True, "String supported"
 
-    if isinstance(data, (int, float)):
-        return False, "Raw numbers need to be in containers"
+        if isinstance(data, (int, float)):
+            return False, "Raw numbers need to be in containers"
 
-    return False, f"Type {type(data)} not supported"
+        return False, f"Type {type(data)} not supported"
 
-# Test various data types
-is_valid, msg = check_supported_types([1, 2, 3])
-assert is_valid == True
+    # Test various data types
+    is_valid, msg = check_supported_types([1, 2, 3])
+    assert is_valid
 
-is_valid, msg = check_supported_types({'key': 'value'})
-assert is_valid == True
+    is_valid, msg = check_supported_types({"key": "value"})
+    assert is_valid
 
-is_valid, msg = check_supported_types('data.csv')
-assert is_valid == True
+    is_valid, msg = check_supported_types("data.csv")
+    assert is_valid
 
-is_valid, msg = check_supported_types(None)
-assert is_valid == False
+    is_valid, msg = check_supported_types(None)
+    assert not is_valid
 
-is_valid, msg = check_supported_types([])
-assert is_valid == False
+    is_valid, msg = check_supported_types([])
+    assert not is_valid
 
-is_valid, msg = check_supported_types(42)
-assert is_valid == False
+    is_valid, msg = check_supported_types(42)
+    assert not is_valid
 
-print("✓ Data type checking works correctly")
-"""
-
-    exec(test_code)
+    print("✓ Data type checking works correctly")
 
 
 def main():
