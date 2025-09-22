@@ -91,8 +91,12 @@ RUN chown -R django:django ${APP_HOME}
 
 USER django
 
-RUN DATABASE_URL="" \
-  DJANGO_SETTINGS_MODULE="config.settings.test" \
-  python manage.py compilemessages
+# compilemessages can fail in some build environments if the msgfmt binary is not available
+# Make the step tolerant: only run compilemessages if msgfmt is present, otherwise skip.
+RUN if command -v msgfmt >/dev/null 2>&1; then \
+      DATABASE_URL="" DJANGO_SETTINGS_MODULE="config.settings.test" python manage.py compilemessages; \
+    else \
+      echo "msgfmt not found, skipping compilemessages"; \
+    fi
 
 ENTRYPOINT ["/entrypoint"]
