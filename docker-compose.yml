@@ -26,7 +26,6 @@ services:
         condition: service_healthy
     env_file:
       - stack.env
-      - .env
     environment:
       PORT: ${PORT:-8000}
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://finance:finance@db:5432/finance}
