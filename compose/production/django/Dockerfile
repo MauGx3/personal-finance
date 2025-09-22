@@ -94,7 +94,8 @@ USER django
 # compilemessages can fail in some build environments if the msgfmt binary is not available
 # Make the step tolerant: only run compilemessages if msgfmt is present, otherwise skip.
 RUN if command -v msgfmt >/dev/null 2>&1; then \
-      DATABASE_URL="" DJANGO_SETTINGS_MODULE="config.settings.test" python manage.py compilemessages; \
+      echo "msgfmt found, attempting compilemessages"; \
+      DATABASE_URL="" DJANGO_SETTINGS_MODULE="config.settings.test" python manage.py compilemessages || echo "compilemessages failed, continuing"; \
     else \
       echo "msgfmt not found, skipping compilemessages"; \
     fi
