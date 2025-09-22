@@ -1,0 +1,15 @@
+## Basic Prometheus configuration for repository-deployed stacks
+## Adjust `scrape_configs` to add your actual targets (node_exporter, app exporters, etc.)
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Example: scrape a Django app exporter running on port 8000
+  # - job_name: 'personal-finance'
+  #   static_configs:
+  #     - targets: ['personal-finance:8000']

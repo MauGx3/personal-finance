@@ -10,7 +10,7 @@ Do not make any changes until you have 97% confidence that you know what to buil
 
 **Always show the confidence percentage in your response, at every exchange (question or proposal).**
 
-### Enforcement
+### goEnforcement
 
 - Any code generation or proposal without a confidence percentage and, if <97%, a follow-up question, is a violation.
 - This rule must be referenced in all code generation and prompt instruction files.
@@ -29,7 +29,7 @@ If you are unsure, always ask for clarification and display your confidence perc
 
 #### Conventional Commits Instructions
 
-Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specification for all commit messages to ensure a readable history, automate changelog generation, and facilitate continuous integration.
+Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specification for all commit messages to ensure a readable history, automate changelog generation, and facilitate continuous integration. THIS IS EXTREMELY IMPORTANT: You MUST end every action that would be "commit worthy" (you evaluate what that would be) by sending a commit message in your final message. If you don't at least say what type or scope the change is, it is a violation.
 
 ##### Main Rules
 
@@ -56,8 +56,6 @@ Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specifica
 - One commit = one logical/unit change.
 - Use the scope to specify the affected layer or feature.
 - For breaking changes, add `!` after the type or scope and detail in the commit body.
-
----
 
 Follow this convention for all project commits.
 
@@ -124,4 +122,5 @@ Follow this convention for all project commits.
 * `docsray` https://github.com/MIMICLab/DocsRay A powerful Universal Document Question-Answering System that uses advanced embedding models and multimodal LLMs with Coarse-to-Fine search (RAG) approach. Features seamless MCP (Model Context Protocol) integration with Claude Desktop, comprehensive directory management capabilities, visual content analysis, and intelligent hybrid OCR system.
 
 ### Artificial Intelligence
+
 * `octagon13-mcp-server` https://github.com/OctagonAI/octagon-13f-holdings-mcp: MCP server that provides access to the Octagon 13F Holdings dataset, which includes quarterly filings from institutional investment managers with over $100 million in assets under management. This dataset is valuable for financial analysis, market research, and investment strategy development.
