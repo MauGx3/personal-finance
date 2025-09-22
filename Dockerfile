@@ -1,78 +1,76 @@
-## Clean hardened multi-stage Dockerfile for Personal Finance FastAPI service
-## Hardened multi-stage Dockerfile for Personal Finance service
-## Security goals:
-##  - Minimal base (python:3.11-slim-bookworm with explicit patch)
-##  - No build toolchain in final image
-##  - Non-root runtime user
-##  - Stdlib-only healthcheck (no curl)
-##  - Deterministic dependency install using constraints if present
+# Minimal, modern multi-stage Dockerfile for the personal-finance Django app
+# Goals:
+#  - small runtime image (no build toolchain)
+#  - deterministic install of pinned production deps
+#  - non-root runtime user
+#  - simple python stdlib healthcheck
 
 ARG PYTHON_VERSION=3.11.9
 
 #############################
-# Builder
+# Builder: install build deps and create a virtualenv with production deps
 #############################
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /build
 
+# Install build dependencies needed for wheels (psycopg, cryptography, etc.)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential gcc libpq-dev \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    libpq-dev \
+    libssl-dev \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY constraints.txt requirements.txt requirements.lock pyproject.toml README.md ./
-COPY requirements ./requirements
+# Copy only the requirements to leverage Docker cache
+COPY requirements/ ./requirements/
+COPY pyproject.toml setup.cfg* ./
+
+# Create isolated venv and install pinned production dependencies
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir -r requirements/production.txt
 
-# Fix SSL/certificate issues and install packages
-RUN pip install --upgrade pip setuptools wheel --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org \
-    && pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.txt -c constraints.txt \
-    && if [ -f requirements.lock ]; then pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.lock; fi
-
-COPY src ./src
-COPY personal_finance ./personal_finance
-COPY config ./config
-COPY manage.py ./
-COPY alembic.ini ./
-COPY alembic ./alembic
-RUN pip wheel . -w /wheels
+# Copy the project sources and install the project package into the venv
+COPY . .
+RUN pip install --no-cache-dir .
 
 #############################
-# Runtime
+# Runtime: small image with only the venv and app files
 #############################
 FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PORT=8000 DJANGO_SETTINGS_MODULE=config.settings.production PATH="/opt/venv/bin:$PATH"
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    PORT=8000 \
+    DJANGO_SETTINGS_MODULE=config.settings.production \
+    PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 
+# Only bring runtime OS deps (libpq for postgres drivers)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libpq5 \
+    && apt-get install -y --no-install-recommends libpq5 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy venv from builder and application files
 COPY --from=builder /opt/venv /opt/venv
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org /wheels/personal_finance-*.whl || true
+COPY --from=builder /build /app
 
-COPY alembic.ini ./
-COPY alembic ./alembic
-COPY personal_finance ./personal_finance
-COPY config ./config
-COPY manage.py ./
-COPY locale ./locale
-COPY staticfiles ./staticfiles
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-RUN addgroup --system appuser \
+# Make sure the repo entrypoint is executable and create a non-root user
+RUN if [ -f /app/docker/entrypoint.sh ]; then chmod +x /app/docker/entrypoint.sh; fi \
+    && addgroup --system appuser \
     && adduser --system --ingroup appuser --disabled-password --gecos "" appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
 
-# Simple healthcheck: return 0 if /health responds 200, else 1
+# Healthcheck: use stdlib to probe /health
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD python -c "import os,sys,urllib.request;u=f'http://127.0.0.1:{os.environ.get('PORT','8000')}/health';\nimport urllib.error;\ntry: sys.exit(0 if urllib.request.urlopen(u, timeout=4).status==200 else 1)\nexcept Exception: sys.exit(1)"
+    CMD python -c "import os,sys,urllib.request;u=f'http://127.0.0.1:{os.environ.get('PORT','8000')}/health';\n+try:\n+  sys.exit(0 if urllib.request.urlopen(u, timeout=4).status==200 else 1)\n+except Exception:\n  sys.exit(1)"
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Entrypoint should exist in repo at docker/entrypoint.sh; keep it executable
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
+# Default: run Gunicorn with Uvicorn worker for ASGI (scales for websockets)
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "config.asgi:application"]
