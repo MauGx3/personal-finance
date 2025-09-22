@@ -56,28 +56,28 @@ jobs:
           # This ensures Copilot has access to all packages needed for the entire project
 
           # Install base dependencies (Django, finance libraries, core packages)
-          uv pip install -r requirements/base.txt -c constraints.txt
+          uv pip install -r requirements/base.txt -c constraints.txt --python .venv
 
           # Install local development dependencies (testing, linting, documentation)
-          uv pip install -r requirements/local.txt -c constraints.txt
+          uv pip install -r requirements/local.txt -c constraints.txt --python .venv
 
           # Install project in development mode with optional dev dependencies
-          uv pip install -e . --constraint constraints.txt
+          uv pip install -e . --constraint constraints.txt --python .venv
 
           # Ensure all development tools are available
-          uv pip install pytest-django coverage mypy ruff pre-commit --constraint constraints.txt
+          uv pip install pytest-django coverage mypy ruff pre-commit --constraint constraints.txt --python .venv
 
       - name: Verify installation
         run: |
           # Verify that key tools and libraries are available for Copilot
           echo "✓ Verifying Python tools..."
-          uv run python --version
-          uv run pytest --version
-          uv run ruff --version
+          .venv/bin/python --version
+          .venv/bin/pytest --version
+          .venv/bin/ruff --version
 
           echo "✓ Verifying key libraries..."
-          uv run python -c "import django; print(f'Django {django.get_version()}')"
-          uv run python -c "import pandas; print(f'pandas {pandas.__version__}')"
-          uv run python -c "import yfinance; print('yfinance available')"
+          .venv/bin/python -c "import django; print(f'Django {django.get_version()}')"
+          .venv/bin/python -c "import pandas; print(f'pandas {pandas.__version__}')"
+          .venv/bin/python -c "import yfinance; print('yfinance available')"
 
           echo "✓ All dependencies installed successfully!"

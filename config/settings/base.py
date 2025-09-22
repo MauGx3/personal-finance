@@ -265,6 +265,10 @@ DJANGO_ADMIN_FORCE_ALLAUTH = env.bool(
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # See https://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+# SECURITY AUDIT: Logging configuration should be reviewed to ensure:
+# - No sensitive information is logged (especially in debug mode)
+# - Log levels are appropriate for the environment
+# - Log storage location is secure and access-controlled
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

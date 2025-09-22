@@ -134,7 +134,7 @@ class TestCopilotSetupCompleteness:
         """Test that we have a reasonable number of packages installed."""
         try:
             result = subprocess.run(
-                ["uv", "pip", "list"],
+                ["uv", "pip", "list", "--python", ".venv"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -188,7 +188,7 @@ class TestCopilotSetupCompleteness:
         # Check some key constrained packages
         try:
             result = subprocess.run(
-                ["uv", "pip", "list"],
+                ["uv", "pip", "list", "--python", ".venv"],
                 capture_output=True,
                 text=True,
                 check=True,
