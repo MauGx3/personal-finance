@@ -4,7 +4,6 @@ Test to verify that all exec() function calls have been removed from the source 
 This addresses the security vulnerability PYL-W0122.
 """
 
-import os
 import sys
 import subprocess
 
