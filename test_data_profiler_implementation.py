@@ -93,9 +93,9 @@ def test_validation_logic():
         pass  # Expected
 
     # Test successful cases
-    assert basic_none_check([1, 2, 3])
-    assert basic_list_check([1, 2, 3])
-    assert basic_string_check("valid_string")
+    assert basic_none_check([1, 2, 3]) == True
+    assert basic_list_check([1, 2, 3]) == True
+    assert basic_string_check("valid_string") == True
 
     print("✓ Basic validation logic works correctly")
 
