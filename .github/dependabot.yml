@@ -55,10 +55,6 @@ updates:
     # Every weekday
     schedule:
       interval: 'daily'
-    # Ignore rcssmin updates due to django-compressor hard dependency on 1.1.2
-    ignore:
-      - dependency-name: 'rcssmin'
-        # Ignore all updates - django-compressor 4.5.1 requires exactly 1.1.2
     groups:
       python:
         update-types:
