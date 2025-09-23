@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# Limit GITHUB_TOKEN permissions to the minimum required for this check (security hardening)
+permissions:
+  contents: read
+
 jobs:
   django-check:
     runs-on: ubuntu-latest

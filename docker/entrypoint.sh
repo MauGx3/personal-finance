@@ -11,10 +11,12 @@ if [ -n "${DATABASE_URL:-}" ]; then
   proto_and_rest=${DATABASE_URL#*://}
   host_and_rest=${proto_and_rest#*@}
   HOST_PORT=${host_and_rest%%/*}
-  POSTGRES_HOST=${HOST_PORT%%:*}
-  POSTGRES_PORT=${HOST_PORT#*:}
-  # If no explicit port was provided, default to 5432
-  if [ "$POSTGRES_PORT" = "$POSTGRES_HOST" ]; then
+  # If HOST_PORT contains a colon, split host and port; otherwise default port to 5432
+  if [[ "$HOST_PORT" == *:* ]]; then
+    POSTGRES_HOST=${HOST_PORT%%:*}
+    POSTGRES_PORT=${HOST_PORT##*:}
+  else
+    POSTGRES_HOST=$HOST_PORT
     POSTGRES_PORT=5432
   fi
   export POSTGRES_HOST POSTGRES_PORT
