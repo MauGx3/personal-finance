@@ -9,7 +9,12 @@ echo "[entrypoint] Python: $(python --version)"
 if [ -n "${DATABASE_URL:-}" ]; then
   # DATABASE_URL formats: postgres://user:pass@host:port/db or postgresql+psycopg2://...
   proto_and_rest=${DATABASE_URL#*://}
-  host_and_rest=${proto_and_rest#*@}
+  # Check if proto_and_rest contains '@' (i.e., credentials are present)
+  if [[ "$proto_and_rest" == *@* ]]; then
+    host_and_rest=${proto_and_rest#*@}
+  else
+    host_and_rest=$proto_and_rest
+  fi
   HOST_PORT=${host_and_rest%%/*}
   # If HOST_PORT contains a colon, split host and port; otherwise default port to 5432
   if [[ "$HOST_PORT" == *:* ]]; then
