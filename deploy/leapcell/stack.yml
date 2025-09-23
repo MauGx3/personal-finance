@@ -5,8 +5,8 @@ services:
     env_file:
       - stack.env
     command: sh -c "gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 4 --worker-class uvicorn.workers.UvicornWorker config.asgi:application"
-    ports:
-      - "${PORT:-8000}:${PORT:-8000}"
+    # Do not map Postgres/Redis public ports for production platform stacks.
+    # Leapcell injects the external port through the $PORT env variable.
     depends_on:
       - db
       - redis
