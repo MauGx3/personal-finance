@@ -197,3 +197,46 @@ python run_finance.py
 ---
 
 Generated: 2025-09-23
+
+## Dependency License Inventory & Automated Scanning
+
+Below is a preliminary dependency list extracted from `pyproject.toml`. License data is not authoritative here (run the automated scanner below to produce an up-to-date license table). The CI workflow `license-scan.yml` will generate a license report artifact using `pip-licenses`.
+
+| Package (specifier) | Detected license |
+|---------------------|------------------|
+| django >=5.1.0,<5.2 | unknown (scan with CI) |
+| django-environ >=0.12.0 | unknown (scan with CI) |
+| pandas >=2.0.0 | unknown (scan with CI) |
+| matplotlib >=3.6.0 | unknown (scan with CI) |
+| numpy >=1.24.0 | unknown (scan with CI) |
+| yfinance >=0.2.18 | unknown (scan with CI) |
+| psycopg2-binary >=2.9.0 | unknown (scan with CI) |
+| sqlalchemy >=2.0.0 | unknown (scan with CI) |
+| alembic >=1.11.0 | unknown (scan with CI) |
+| pymongo >=4.0.0 | unknown (scan with CI) |
+| djangorestframework >=3.16.0 | unknown (scan with CI) |
+| uvicorn[standard] >=0.35.0 | unknown (scan with CI) |
+| celery >=5.5.0,<6.0 | unknown (scan with CI) |
+| redis >=6.0.0 | unknown (scan with CI) |
+| many more (see pyproject.toml) | run license-scan in CI |
+
+Automated license scanning guidance
+
+We add a GitHub Actions workflow (`.github/workflows/license-scan.yml`) that:
+
+- Installs the project's dependencies in an isolated environment
+- Runs `pip-licenses` to produce a machine-readable CSV and a Markdown report
+- Uploads the report as a workflow artifact and fails the job if disallowed licenses are found (configurable via `DISALLOWED_LICENSES` env var)
+
+- How to run locally:
+
+```sh
+python -m pip install pip-licenses
+python -m pip install -r requirements.txt -c constraints.txt
+pip-licenses --format=csv --output-file=license-report.csv
+pip-licenses --format=markdown --output-file=license-report.md
+```
+
+- Policy suggestion: block or require manual review for packages with licenses in a configured deny-list (e.g., GPL-2.0-only, AGPL-3.0) and allow permissive licenses (MIT, BSD, Apache-2.0) after review.
+
+CI workflow will produce the definitive license artifact per-commit and allow automated enforcement.
