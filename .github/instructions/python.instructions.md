@@ -1,11 +1,12 @@
 ---
-applyTo: "**/*.py, **/*.ipynb"
+applyTo: '**/*.py, **/*.ipynb'
 ---
-
 ALWAYS check the documentation for any of the things mentioned here, don't assume your knowledge is complete and up-to-date all the time. Remember The Zen of Python.
 
 # Coding Style Guidelines/Conventions
+
 You MUST follow all of those conventions when writing Python code. Any code that violates these rules should be rewritten immediately:
+
 * Follow PEP 8 standards ALWAYS, above any of the following conventions
 * When in doubt, follow the Google Code Style for Python here: https://google.github.io/styleguide/pyguide.html
 * Documentation must follow the Google Code Style for Python guidelines.
@@ -20,12 +21,13 @@ You MUST follow all of those conventions when writing Python code. Any code that
 * Use the built-in type hinting.
 
 # Specific Instructions
+
 * Don’t introduce new dependencies (library imports) when the desired functionality is already covered by existing dependencies.
 * Avoid using magic numbers, prefer using named constants.
 * Always use lazy % string logging.
 * Don't use bare exceptions.
 * Use namedtuples when: You need immutable data with named fields for better readability (replacing tuples with unclear indices, function returns, or lightweight data containers).
-Avoid namedtuples when: You need mutable data, dynamic fields, complex behavior, or performance-critical dynamic creation (use classes, dataclasses, or dicts instead).
+  Avoid namedtuples when: You need mutable data, dynamic fields, complex behavior, or performance-critical dynamic creation (use classes, dataclasses, or dicts instead).
 * No context-dependent return types! Also: Avoid None as return type, rather raise an Exception instead.
 * Be generous with defining Exception classes.
 * Imports should be grouped in the following order:
@@ -35,16 +37,19 @@ Avoid namedtuples when: You need mutable data, dynamic fields, complex behavior,
 * You should put a blank line between each group of imports.
 * Avoid circular importing.
 * Use Factory Method when: You have complex if/elif/else logic to create different objects with a common interface, or need to support multiple implementations of the same feature without modifying existing code.
-Avoid Factory Method when: You only have one concrete implementation, the creation logic is simple and unlikely to change, or the overhead of the pattern outweighs its benefits for your use case.
+  Avoid Factory Method when: You only have one concrete implementation, the creation logic is simple and unlikely to change, or the overhead of the pattern outweighs its benefits for your use case.
 
 # Edge Cases and Testing
+
 * Always include test cases for critical paths of the application.
 * Account for common edge cases like empty inputs, invalid data types, and large datasets.
 * Include comments for edge cases and the expected behavior in those cases.
 * Write unit tests for functions and document them with docstrings explaining the test cases.
 
 # Tools and Utilities
+
 The preferences listed here are not definitive: if the alternative needs to be used for compatibility, do it
+
 * `uv` is preferred over `pip`
 * `ruff` must be used as the formatter and all code must follow ruff's default rules: https://docs.astral.sh/ruff/rules
 * `polars` is preferred over `pandas`
