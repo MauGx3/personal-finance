@@ -1,4 +1,6 @@
 name: PoC - pytest collect check
+permissions:
+  contents: read
 
 on:
   pull_request:
