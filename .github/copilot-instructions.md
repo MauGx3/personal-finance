@@ -56,7 +56,7 @@ Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specifica
 - One commit = one logical/unit change.
 - Use the scope to specify the affected layer or feature.
 - For breaking changes, add `!` after the type or scope and detail in the commit body.
-- More detailed information for the commit can be added as a git description for the commit.
+- More detailed information for the commit MUST, AND I REPEAT IT MUST be added as a git description for the commit ONLY if the commit message cannot explain all the changes by itself.
 
 ---
 
