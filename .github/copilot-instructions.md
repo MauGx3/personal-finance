@@ -75,6 +75,7 @@ Follow this convention for all project commits.
 * `tcapy` https://github.com/cuemacro/tcapy: library for doing transaction cost analysis (TCA).
 * `bt` https://github.com/pmorissette/bt: flexible backtesting framework for Python used to test quantitative trading strategies. **Backtesting** is the process of testing a strategy over a given data set. This framework allows you to easily create strategies that mix and match different [Algos](http://pmorissette.github.io/bt/bt.html#bt.core.Algo). It aims to foster the creation of easily testable, re-usable and flexible blocks of strategy logic to facilitate the rapid development of complex trading strategies. [Docs](http://pmorissette.github.io/bt)
 * `stockstats` https://github.com/jealous/stockstats: adds technical analysis indicators to pandas DataFrames. It is designed to work seamlessly with the pandas library, making it easy to incorporate technical analysis into your data analysis workflow.
+* `stringzilla `https://github.com/ashvardanian/StringZilla/: SIMD and SWAR to accelerate string operations on modern CPUs. It is up to 10x faster than the default and even other SIMD-accelerated string libraries in C, C++, Python, and other languages, while covering broad functionality. It accelerates exact and fuzzy string matching, edit distance computations, sorting, lazily-evaluated ranges to avoid memory allocations, and even random-string generators.
 
 ### Finance
 
@@ -124,4 +125,5 @@ Follow this convention for all project commits.
 * `docsray` https://github.com/MIMICLab/DocsRay A powerful Universal Document Question-Answering System that uses advanced embedding models and multimodal LLMs with Coarse-to-Fine search (RAG) approach. Features seamless MCP (Model Context Protocol) integration with Claude Desktop, comprehensive directory management capabilities, visual content analysis, and intelligent hybrid OCR system.
 
 ### Artificial Intelligence
+
 * `octagon13-mcp-server` https://github.com/OctagonAI/octagon-13f-holdings-mcp: MCP server that provides access to the Octagon 13F Holdings dataset, which includes quarterly filings from institutional investment managers with over $100 million in assets under management. This dataset is valuable for financial analysis, market research, and investment strategy development.
