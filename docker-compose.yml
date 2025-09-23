@@ -14,10 +14,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # Do not publish Postgres port to the Docker host in production stacks deployed by Portainer.
-    # Keeping the DB internal to the Docker network prevents external probes from hitting 5432
-    # and avoids "incomplete startup packet" log noise. If you need host access, expose the
-    # port via a secure method externally.
+    # Development convenience: publish Postgres port to the Docker host so local tools can connect
+    # (safe on this branch - docker-fix). In production remove this mapping.
+    ports:
+      - "5432:5432"
 
   app:
     build:
