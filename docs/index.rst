@@ -12,6 +12,8 @@ Welcome to personal-finance's documentation!
 
    howto
    users
+   changelog
+   changelog_guide
 
 
 
