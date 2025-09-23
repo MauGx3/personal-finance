@@ -32,6 +32,23 @@ project = "personal-finance"
 copyright = """2025, Mauricio Gioachini"""  # noqa: A001
 author = "Mauricio Gioachini"
 
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
+#
+# Import version from the package
+try:
+    import sys
+    import os
+    sys.path.insert(0, os.path.abspath('../src'))
+    from personal_finance import __version__
+    version = __version__
+    release = __version__
+except ImportError:
+    # Fallback version if import fails
+    version = "0.1.0"
+    release = "0.1.0"
+
 
 # -- General configuration ---------------------------------------------------
 
@@ -41,6 +58,8 @@ author = "Mauricio Gioachini"
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -62,3 +81,21 @@ html_theme = "alabaster"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ["_static"]
+
+# -- Options for extlinks extension ------------------------------------------
+
+# Configure external links for easy referencing
+extlinks = {
+    'issue': ('https://github.com/MauGx3/personal-finance/issues/%s', 'issue #%s'),
+    'pr': ('https://github.com/MauGx3/personal-finance/pull/%s', 'PR #%s'),
+    'commit': ('https://github.com/MauGx3/personal-finance/commit/%s', 'commit %s'),
+}
+
+# -- Options for intersphinx extension ---------------------------------------
+
+# Configure cross-references to other documentation
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'django': ('https://docs.djangoproject.com/en/stable/', 'https://docs.djangoproject.com/en/stable/_objects/'),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+}
