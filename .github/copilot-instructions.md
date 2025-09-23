@@ -56,6 +56,7 @@ Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specifica
 - One commit = one logical/unit change.
 - Use the scope to specify the affected layer or feature.
 - For breaking changes, add `!` after the type or scope and detail in the commit body.
+- More detailed information for the commit can be added as a git description for the commit.
 
 ---
 
@@ -75,7 +76,7 @@ Follow this convention for all project commits.
 * `tcapy` https://github.com/cuemacro/tcapy: library for doing transaction cost analysis (TCA).
 * `bt` https://github.com/pmorissette/bt: flexible backtesting framework for Python used to test quantitative trading strategies. **Backtesting** is the process of testing a strategy over a given data set. This framework allows you to easily create strategies that mix and match different [Algos](http://pmorissette.github.io/bt/bt.html#bt.core.Algo). It aims to foster the creation of easily testable, re-usable and flexible blocks of strategy logic to facilitate the rapid development of complex trading strategies. [Docs](http://pmorissette.github.io/bt)
 * `stockstats` https://github.com/jealous/stockstats: adds technical analysis indicators to pandas DataFrames. It is designed to work seamlessly with the pandas library, making it easy to incorporate technical analysis into your data analysis workflow.
-* `stringzilla `https://github.com/ashvardanian/StringZilla/: SIMD and SWAR to accelerate string operations on modern CPUs. It is up to 10x faster than the default and even other SIMD-accelerated string libraries in C, C++, Python, and other languages, while covering broad functionality. It accelerates exact and fuzzy string matching, edit distance computations, sorting, lazily-evaluated ranges to avoid memory allocations, and even random-string generators.
+* `stringzilla` https://github.com/ashvardanian/StringZilla/: SIMD and SWAR to accelerate string operations on modern CPUs. It is up to 10x faster than the default and even other SIMD-accelerated string libraries in C, C++, Python, and other languages, while covering broad functionality. It accelerates exact and fuzzy string matching, edit distance computations, sorting, lazily-evaluated ranges to avoid memory allocations, and even random-string generators.
 
 ### Finance
 
