@@ -79,11 +79,31 @@ tags: ["technical-spike", "ci", "pytest", "testing-policy"]
 
 ### Investigation Results
 
-[Add findings here after running the research tasks.]
+Findings so far (evidence collected automatically):
+
+- A `pytest.ini` exists at repo root and configures test discovery to `tests` (see `testpaths = tests`).
+- The `tests/` directory contains many test files (several *.py files), but some historical test files are suffixed `.disabled` and will not be discovered by pytest unless renamed. A short listing shows many active test files such as `test_data_profiler_service.py`, `test_minimal_core.py`, `test_copilot_setup_completeness.py`, etc.
+- `tests/conftest.py` bootstraps Django by setting `DJANGO_SETTINGS_MODULE` and calling `django.setup()`; this means pytest will import Django settings during collection. The settings import chain requires `environ` (django-environ) which is not available in the local dev environment used for this investigation, producing an INTERNALERROR rather than a simple 'no tests collected' result.
+- Because the CI workflow installs dependencies before running pytest, the collect-and-run behavior in CI will differ from a bare local environment that lacks requirements.
+
+Implication: a local developer without installed dependencies may see pytest crash during collection; in CI (with dependencies installed) a `no tests collected` exit code (5) is most commonly produced when there are legitimately no test files matching discovery patterns (e.g., after renames to `.disabled` or when PR touches non-test-only files and the repo genuinely has no tests). However, it can also happen if test discovery is misconfigured on a branch.
 
 ### Prototype/Testing Notes
 
-[Add PoC notes: commands used, branches, workflow runs and results.]
+PoC approach implemented in this spike branch (see accompanying workflow file):
+
+- Add a dedicated CI step that runs `pytest --collect-only -q` and counts the number of collected tests. If the count is zero, the job fails early with a clear message. This avoids silently treating 'no tests collected' as success while preserving normal pytest failures when tests run.
+
+Observed local limitation when attempting to reproduce: running pytest locally (without installing the project's test dependencies from `requirements.txt`) produced an INTERNALERROR due to missing `environ` during Django settings import. This prevented a local reproduce of a 'no tests collected' scenario in the current environment. The PoC relies on CI's installed dependencies and therefore should run correctly in GitHub Actions.
+
+Commands to reproduce in CI-like environment (for maintainers):
+
+```sh
+python -m pip install -r requirements.txt -c constraints.txt
+PYTHONPATH=src DJANGO_SETTINGS_MODULE=config.settings.test pytest --collect-only -q | wc -l
+```
+
+If `0` is returned, fail the workflow and notify the author to add/enable tests or explain why no tests are expected.
 
 ### External Resources
 
@@ -95,7 +115,13 @@ tags: ["technical-spike", "ci", "pytest", "testing-policy"]
 
 ### Recommendation
 
-[Record final recommendation here after research is complete.]
+Recommendation (interim):
+
+- Treat `no tests collected` as a failure in CI. Implement a collection check step (PoC included) which fails with a clear message if zero tests are collected. Rationale: silently allowing zero tests weakens test gating and increases risk of untested code being merged.
+
+- Rollout plan: add the collection check in a feature branch, run it on a few active PRs for observation, announce the incoming policy and allow a short transition window (1-2 days) for maintainers to update PRs with missing tests.
+
+- Exception policy: allow a repo label (e.g., `no-tests-allowed`) that a maintainer can apply to exempt specific PRs temporarily (this requires adding logic to the workflow to read PR labels or using a protected manual override).
 
 ### Rationale
 
@@ -110,6 +136,8 @@ tags: ["technical-spike", "ci", "pytest", "testing-policy"]
 - [ ] Implement workflow change on a feature branch and run validation
 - [ ] Update repository CONTRIBUTING.md and developer docs to describe the policy
 - [ ] Notify maintainers and open PR to enforce the policy
+
+- [ ] Merge PoC or refined workflow after maintainers approve and monitor for 48-72 hours
 
 ## Status History
 
