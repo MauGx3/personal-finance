@@ -29,7 +29,7 @@ If you are unsure, always ask for clarification and display your confidence perc
 
 #### Conventional Commits Instructions
 
-Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specification for all commit messages to ensure a readable history, automate changelog generation, and facilitate continuous integration.
+Adopt the [Conventional Commits](https://www.conventionalcommits.org/) specification for all commit messages to ensure a readable history, automate changelog generation, and facilitate continuous integration. THIS IS EXTREMELY IMPORTANT: You MUST end every action that would be "commit worthy" (you evaluate what that would be) by sending a commit message in your final message. If you don't at least say what type or scope the change is, it is a violation.
 
 ##### Main Rules
 
