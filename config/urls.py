@@ -53,6 +53,9 @@ urlpatterns = [
     ),
     # Health check endpoint for Docker and monitoring
     path("health/", health_check, name="health"),
+    # Leapcell probes 0.0.0.0:$PORT/kaithhealth by default; expose a
+    # short-lived alias so the platform health check succeeds.
+    path("kaithhealth", health_check, name="kaithhealth"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
@@ -77,7 +80,7 @@ urlpatterns = [
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
 if settings.DEBUG:
-    # Static file serving when using Gunicorn + Uvicorn for local web socket development
+    # Static file serving when using Gunicorn + Uvicorn for local websockets
     urlpatterns += staticfiles_urlpatterns()
 
 # API URLS
