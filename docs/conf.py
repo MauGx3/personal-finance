@@ -40,8 +40,10 @@ author = "Mauricio Gioachini"
 try:
     import sys
     import os
-    sys.path.insert(0, os.path.abspath('../src'))
+
+    sys.path.insert(0, os.path.abspath("../src"))
     from personal_finance import __version__
+
     version = __version__
     release = __version__
 except ImportError:
@@ -86,16 +88,25 @@ html_theme = "alabaster"
 
 # Configure external links for easy referencing
 extlinks = {
-    'issue': ('https://github.com/MauGx3/personal-finance/issues/%s', 'issue #%s'),
-    'pr': ('https://github.com/MauGx3/personal-finance/pull/%s', 'PR #%s'),
-    'commit': ('https://github.com/MauGx3/personal-finance/commit/%s', 'commit %s'),
+    "issue": (
+        "https://github.com/MauGx3/personal-finance/issues/%s",
+        "issue #%s",
+    ),
+    "pr": ("https://github.com/MauGx3/personal-finance/pull/%s", "PR #%s"),
+    "commit": (
+        "https://github.com/MauGx3/personal-finance/commit/%s",
+        "commit %s",
+    ),
 }
 
 # -- Options for intersphinx extension ---------------------------------------
 
 # Configure cross-references to other documentation
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'django': ('https://docs.djangoproject.com/en/stable/', 'https://docs.djangoproject.com/en/stable/_objects/'),
-    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    "python": ("https://docs.python.org/3", None),
+    "django": (
+        "https://docs.djangoproject.com/en/stable/",
+        "https://docs.djangoproject.com/en/stable/_objects/",
+    ),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
