@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.py"
+---
+
 # Testing Instructions for Python Projects
 
 These instructions provide guidelines for writing effective and maintainable tests for any Python project, regardless of the specific frameworks or libraries used. The aim is to ensure that the code is robust, reliable, and easy to maintain.
