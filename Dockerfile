@@ -43,7 +43,7 @@ RUN pip install --no-cache-dir .
 #############################
 FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
-    PORT=8000 \
+    PORT=52135 \
     DJANGO_SETTINGS_MODULE=config.settings.production \
     PATH="/opt/venv/bin:$PATH"
 WORKDIR /app

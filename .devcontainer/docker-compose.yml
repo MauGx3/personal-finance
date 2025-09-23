@@ -24,7 +24,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/personal_finance
     command: sleep infinity
     ports:
-      - "8000:8000"
+      - "52135:8000"
 
 volumes:
   db_data:

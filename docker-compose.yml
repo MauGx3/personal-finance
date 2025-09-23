@@ -35,7 +35,7 @@ services:
       USE_DOCKER: "${USE_DOCKER:-yes}"
       DJANGO_SETTINGS_MODULE: "${DJANGO_SETTINGS_MODULE:-config.settings.production}"
     ports:
-      - "8000:8000"
+      - "52135:8000"
     restart: unless-stopped
     volumes:
       - .:/app:rw
