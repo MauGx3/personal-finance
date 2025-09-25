@@ -1,4 +1,6 @@
 name: Render mermaid diagrams
+permissions:
+  contents: read
 
 on:
   push:
