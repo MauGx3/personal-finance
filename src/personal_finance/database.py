@@ -4,7 +4,6 @@ Supports SQL backends and MongoDB. Alembic is used for SQL migrations.
 """
 
 import os
-import logging
 from contextlib import contextmanager
 from typing import Optional, List, Generator, Any
 from sqlalchemy import (
@@ -27,9 +26,7 @@ from sqlalchemy.orm import (
 )
 from datetime import datetime, timezone
 from types import SimpleNamespace
-
-# Configure logging
-logger = logging.getLogger(__name__)
+from .logs import logger
 
 # Database models
 Base = declarative_base()

@@ -38,3 +38,7 @@ numpy>=1.24.0  # https://numpy.org/ - Numerical computing
 plotly>=5.17.0  # https://plotly.com/python/ - Interactive charts
 quantstats>=0.0.62  # https://github.com/ranaroussi/quantstats - Performance analytics
 stockdex>=1.2.1  # https://github.com/ahnazary/stockdex - Stock market data
+
+# Logging
+# ------------------------------------------------------------------------------
+loguru>=0.7.0  # https://github.com/Delgan/loguru - Modern logging library
