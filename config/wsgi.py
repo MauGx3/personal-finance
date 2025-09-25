@@ -63,9 +63,7 @@ logger.info(
     f"Startup diagnostics: DJANGO_SETTINGS_MODULE={os.environ.get('DJANGO_SETTINGS_MODULE')}"
 )
 logger.info(f"USE_DOCKER={os.environ.get('USE_DOCKER', '<UNSET>')}")
-logger.info(
-    f"DATABASE_URL={_mask_db_url(os.environ.get('DATABASE_URL'))}"
-)
+logger.info(f"DATABASE_URL={_mask_db_url(os.environ.get('DATABASE_URL'))}")
 logger.info("POSTGRES_HOST=%s", os.environ.get("POSTGRES_HOST", "<UNSET>"))
 logger.info("POSTGRES_PORT=%s", os.environ.get("POSTGRES_PORT", "<UNSET>"))
 logger.info(
