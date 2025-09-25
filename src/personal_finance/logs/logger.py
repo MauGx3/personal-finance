@@ -11,14 +11,14 @@ class PackageLogger:
 
     SECURITY AUDIT: This logger should be reviewed to ensure:
     - No sensitive financial data (account numbers, SSNs, etc.) is logged
-    - Debug level logging is disabled in production environments  
+    - Debug level logging is disabled in production environments
     - Log messages are properly sanitized before output
     """
 
     def __init__(self, name: str = "personal_finance"):
         self.name = name
         self.logger = loguru_logger
-        
+
         # Configure the logger with security-compliant defaults
         self._setup_logger()
 
@@ -26,18 +26,18 @@ class PackageLogger:
         """Setup logger with console and file handlers."""
         # Remove default handler and configure with our format
         self.logger.remove()
-        
+
         # Get log level from environment variable for security compliance
         log_level = os.environ.get("PORTFOLIO_LOG_LEVEL", "INFO").upper()
-        
+
         # Console handler with custom format matching original logging format
         self.logger.add(
             sys.stdout,
             level=log_level,
             format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {extra[name]} - {level} - {message}",
-            colorize=True
+            colorize=True,
         )
-        
+
         # Bind the logger name to maintain compatibility
         self.logger = self.logger.bind(name=self.name)
 
@@ -48,7 +48,7 @@ class PackageLogger:
                 level=log_level,
                 format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {extra[name]} - {level} - {message}",
                 rotation="10 MB",  # Add rotation for better log management
-                retention="30 days"  # Retention for security compliance
+                retention="30 days",  # Retention for security compliance
             )
 
     def info(self, message: str):
@@ -75,7 +75,7 @@ class PackageLogger:
             level=log_level,
             format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {extra[name]} - {level} - {message}",
             rotation="10 MB",
-            retention="30 days"
+            retention="30 days",
         )
 
 

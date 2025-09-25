@@ -19,38 +19,38 @@ log_level = os.environ.get("PORTFOLIO_LOG_LEVEL", "INFO").upper()
 
 # Add console handler with format similar to logging.basicConfig
 loguru_logger.add(
-    __import__('sys').stdout,
+    __import__("sys").stdout,
     level=log_level,
     format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {level} - {message}",
-    colorize=True
+    colorize=True,
 )
 
 
 class LoguruLogger:
     """Loguru-based logger that mimics the standard logging.Logger interface."""
-    
+
     def __init__(self, name: str):
         self.name = name
         self.logger = loguru_logger.bind(name=name)
-    
+
     def info(self, message: str, *args):
         """Log info level message."""
         if args:
             message = message % args
         self.logger.info(message)
-    
+
     def error(self, message: str, *args):
         """Log error level message."""
         if args:
             message = message % args
         self.logger.error(message)
-    
+
     def warning(self, message: str, *args):
-        """Log warning level message."""  
+        """Log warning level message."""
         if args:
             message = message % args
         self.logger.warning(message)
-    
+
     def debug(self, message: str, *args):
         """Log debug level message."""
         if args:
@@ -73,7 +73,7 @@ def basicConfig(level=None, format=None, **kwargs):
 
 # Constants for compatibility with logging module
 DEBUG = "DEBUG"
-INFO = "INFO" 
+INFO = "INFO"
 WARNING = "WARNING"
 ERROR = "ERROR"
 CRITICAL = "CRITICAL"

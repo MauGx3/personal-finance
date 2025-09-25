@@ -54,22 +54,22 @@ class LoggingSecurityTestCase(TestCase):
     def test_loguru_logger_respects_environment_variable(self):
         """Test that loguru logger respects PORTFOLIO_LOG_LEVEL environment variable."""
         from personal_finance.logs.logger import PackageLogger
-        
+
         # Test that logger can be created and uses environment variable
         with patch.dict(os.environ, {"PORTFOLIO_LOG_LEVEL": "WARNING"}):
             logger_instance = PackageLogger("test_security")
-            
+
             # Logger should be created successfully and have the correct name
             self.assertEqual(logger_instance.name, "test_security")
             self.assertIsNotNone(logger_instance.logger)
-            
+
     def test_loguru_security_format_no_sensitive_fields(self):
         """Test that loguru format doesn't include potentially sensitive information."""
         from personal_finance.logs.logger import PackageLogger
-        
+
         # Create a logger instance
         logger_instance = PackageLogger("test_security_format")
-        
+
         # Check that the logger methods work correctly
         try:
             logger_instance.info("Test message")
@@ -83,7 +83,11 @@ class LoggingSecurityTestCase(TestCase):
         """Test that logging configurations have security audit comments."""
         # Test that our loguru implementation maintains security comments
         logger_file_path = (
-            Path(__file__).parent.parent / "src" / "personal_finance" / "logs" / "logger.py"
+            Path(__file__).parent.parent
+            / "src"
+            / "personal_finance"
+            / "logs"
+            / "logger.py"
         )
         with open(logger_file_path) as f:
             logger_content = f.read()
@@ -111,18 +115,24 @@ class LoggingSecurityTestCase(TestCase):
 
     def test_loguru_compatibility_layer(self):
         """Test that the loguru compatibility layer works correctly."""
-        from personal_finance.logs.loguru_compat import getLogger, DEBUG, INFO, WARNING, ERROR
-        
+        from personal_finance.logs.loguru_compat import (
+            getLogger,
+            DEBUG,
+            INFO,
+            WARNING,
+            ERROR,
+        )
+
         # Test that we can get a logger
         test_logger = getLogger("test_compat")
         self.assertIsNotNone(test_logger)
-        
+
         # Test that constants are defined
         self.assertEqual(DEBUG, "DEBUG")
         self.assertEqual(INFO, "INFO")
-        self.assertEqual(WARNING, "WARNING") 
+        self.assertEqual(WARNING, "WARNING")
         self.assertEqual(ERROR, "ERROR")
-        
+
         # Test that logger methods work
         try:
             test_logger.info("Test compatibility message")
