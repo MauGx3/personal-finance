@@ -1,0 +1,16 @@
+# Development and expanded finance extras for CI and local testing
+ipython
+quantstats
+stockdex
+pandas
+matplotlib
+plotly
+beautifulsoup4
+requests
+mypy
+ruff
+coverage
+sphinx
+rcssmin
+django-compressor
+pytest-django

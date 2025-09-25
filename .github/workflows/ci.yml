@@ -35,6 +35,8 @@ jobs:
           pip install -r requirements.txt -c constraints.txt
           # Install Django requirements for proper test environment
           pip install -r requirements/base.txt -c constraints.txt
+          # Install development and expanded finance extras used by tests
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt -c constraints.txt; fi
           # Ensure testing dependencies are available in CI for test collection
           pip install pytest-django celery django-celery-beat coverage
 
@@ -50,6 +52,8 @@ jobs:
           DJANGO_SECRET_KEY: test-secret-key-for-ci
           DJANGO_DEBUG: False
         run: |
+          # Run Django system checks first (fast fail for obvious config issues)
+          python -m django check
           pytest -q || [ $? -eq 5 ]
 
   security-audit:
