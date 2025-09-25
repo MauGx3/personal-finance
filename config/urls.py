@@ -7,7 +7,7 @@ from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.http import JsonResponse
-import logging
+from loguru import logger
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
@@ -34,7 +34,7 @@ def readiness_check(request):
             }
         )
     except Exception:
-        logging.exception("Readiness check failed")
+        logger.exception("Readiness check failed")
         return JsonResponse(
             {"status": "not_ready", "service": "personal-finance-django"},
             status=503,

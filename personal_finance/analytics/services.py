@@ -5,7 +5,7 @@ performance analysis, including risk metrics, technical indicators, and
 statistical calculations following modern portfolio theory principles.
 """
 
-import logging
+from loguru import logger
 from typing import Dict, List, Optional, Tuple, Union
 from datetime import date
 
@@ -29,7 +29,7 @@ try:
 except ImportError:
     Portfolio = Position = PortfolioSnapshot = None
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class PerformanceAnalytics:

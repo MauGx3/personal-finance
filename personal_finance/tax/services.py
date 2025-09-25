@@ -1,6 +1,6 @@
 """Tax calculation and optimization services."""
 
-import logging
+from loguru import logger
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Dict, List, Optional, Any
@@ -29,7 +29,7 @@ from .models import (
 )
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class TaxCalculationService:

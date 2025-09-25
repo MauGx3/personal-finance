@@ -1,6 +1,6 @@
 """API views for backtesting functionality."""
 
-import logging
+from loguru import logger
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -23,7 +23,7 @@ from ..serializers import (
     BacktestSummarySerializer,
 )
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class StrategyViewSet(viewsets.ModelViewSet):

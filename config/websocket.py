@@ -6,13 +6,13 @@ for live price feeds and portfolio value updates.
 """
 
 import json
-import logging
 import uuid
 from typing import Dict, Any
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from channels.db import database_sync_to_async
+from loguru import logger
 
 from personal_finance.realtime.connections import (
     connection_manager,
@@ -21,7 +21,7 @@ from personal_finance.realtime.connections import (
 from personal_finance.realtime.services import price_feed_service
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class WebSocketHandler:

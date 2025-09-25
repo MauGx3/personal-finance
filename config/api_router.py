@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
 from rest_framework.routers import SimpleRouter
-import logging
+from loguru import logger
 
 # Import viewsets defensively: some optional features pull heavy deps (pandas,
 # polars, yfinance, etc.) that may not be available in minimal runtime images.
@@ -14,13 +14,13 @@ try:
         PortfolioViewSet as LegacyPortfolioViewSet,
     )
 except Exception:  # pragma: no cover - runtime resilience
-    logging.exception("Failed to import assets viewsets")
+    logger.exception("Failed to import assets viewsets")
     AssetViewSet = HoldingViewSet = LegacyPortfolioViewSet = None
 
 try:  # optional price history
     from personal_finance.assets.api.views import PriceHistoryViewSet
 except Exception:  # pragma: no cover - optional
-    logging.exception("PriceHistoryViewSet import failed")
+    logger.exception("PriceHistoryViewSet import failed")
     PriceHistoryViewSet = None
 
 try:
@@ -31,7 +31,7 @@ try:
         PortfolioSnapshotViewSet,
     )
 except Exception:  # pragma: no cover - optional
-    logging.exception("Portfolios viewsets import failed")
+    logger.exception("Portfolios viewsets import failed")
     PortfolioViewSet = PositionViewSet = TransactionViewSet = (
         PortfolioSnapshotViewSet
     ) = None
@@ -39,13 +39,13 @@ except Exception:  # pragma: no cover - optional
 try:
     from personal_finance.users.api.views import UserViewSet
 except Exception:  # pragma: no cover - optional
-    logging.exception("UserViewSet import failed")
+    logger.exception("UserViewSet import failed")
     UserViewSet = None
 
 try:
     from personal_finance.realtime.api import RealtimeViewSet
 except Exception:  # pragma: no cover - optional
-    logging.exception("RealtimeViewSet import failed")
+    logger.exception("RealtimeViewSet import failed")
     RealtimeViewSet = None
 
 try:
@@ -60,7 +60,7 @@ try:
         TaxAnalyticsViewSet,
     )
 except Exception:  # pragma: no cover - optional
-    logging.exception("Tax viewsets import failed")
+    logger.exception("Tax viewsets import failed")
     TaxYearViewSet = TaxLotViewSet = CapitalGainLossViewSet = None
     DividendIncomeViewSet = TaxLossHarvestingOpportunityViewSet = None
     TaxOptimizationRecommendationViewSet = TaxReportViewSet = None

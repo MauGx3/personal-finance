@@ -4,7 +4,7 @@ This module provides comprehensive charting capabilities for portfolio analysis,
 performance tracking, and asset visualization using Plotly for interactive charts.
 """
 
-import logging
+from loguru import logger
 from decimal import Decimal
 from typing import Dict, List, Optional, Any
 from datetime import date, timedelta
@@ -40,7 +40,7 @@ try:
 except ImportError:
     PerformanceAnalytics = TechnicalIndicators = None
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 def get_currency_symbol(currency_code: str = "USD") -> str:
