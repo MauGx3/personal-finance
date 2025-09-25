@@ -13,10 +13,15 @@ from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 
 
-def health_check(request):
-    """Simple health check endpoint for Docker healthcheck and monitoring."""
+def readiness_check(request):
+    """Readiness probe that performs a lightweight DB ping.
+
+    This endpoint is suitable for determining whether the app has
+    successfully connected to required services (e.g., Postgres). It may be
+    slower if DB is under load, so keep liveness separate.
+    """
     try:
-        # Basic Django health check
+        # Basic Django health check: ensure DB responds
         from django.db import connection
 
         with connection.cursor() as cursor:
@@ -24,22 +29,27 @@ def health_check(request):
 
         return JsonResponse(
             {
-                "status": "healthy",
-                "timestamp": "2025-01-08T22:19:35Z",
+                "status": "ready",
                 "service": "personal-finance-django",
             }
         )
     except Exception:
-        logging.error("Health check failed", exc_info=True)
+        logging.exception("Readiness check failed")
         return JsonResponse(
-            {
-                "status": "unhealthy",
-                "error": "An internal error has occurred.",
-                "timestamp": "2025-01-08T22:19:35Z",
-                "service": "personal-finance-django",
-            },
+            {"status": "not_ready", "service": "personal-finance-django"},
             status=503,
         )
+
+
+def liveness_check(request):
+    """Liveness probe that responds quickly without touching external services.
+
+    Use this for simple container liveness checks; it should be fast and
+    deterministic.
+    """
+    return JsonResponse(
+        {"status": "alive", "service": "personal-finance-django"}
+    )
 
 
 urlpatterns = [
@@ -51,11 +61,14 @@ urlpatterns = [
         TemplateView.as_view(template_name="pages/about.html"),
         name="about",
     ),
-    # Health check endpoint for Docker and monitoring
-    path("health/", health_check, name="health"),
+    # Liveness and readiness endpoints
+    # Liveness: quick check that the process is alive (no DB hit)
+    path("health/", liveness_check, name="health"),
+    # Readiness: ensures DB and other services are reachable
+    path("ready/", readiness_check, name="ready"),
     # Leapcell probes 0.0.0.0:$PORT/kaithhealth by default; expose a
-    # short-lived alias so the platform health check succeeds.
-    path("kaithhealth", health_check, name="kaithhealth"),
+    # fast alias so the platform health check succeeds.
+    path("kaithhealth", liveness_check, name="kaithhealth"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
