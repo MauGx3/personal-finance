@@ -1,17 +1,26 @@
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
 from rest_framework.routers import SimpleRouter
+import logging
 
-from personal_finance.assets.api.views import AssetViewSet
-from personal_finance.assets.api.views import (
-    HoldingViewSet,
-    PortfolioViewSet as LegacyPortfolioViewSet,
-)
-
-# Graceful import handling for missing views
+# Import viewsets defensively: some optional features pull heavy deps (pandas,
+# polars, yfinance, etc.) that may not be available in minimal runtime images.
+# If any import fails for any reason, log and fall back to None so URLConf can
+# be imported for light-weight operations such as the health endpoint.
 try:
+    from personal_finance.assets.api.views import AssetViewSet
+    from personal_finance.assets.api.views import (
+        HoldingViewSet,
+        PortfolioViewSet as LegacyPortfolioViewSet,
+    )
+except Exception:  # pragma: no cover - runtime resilience
+    logging.exception("Failed to import assets viewsets")
+    AssetViewSet = HoldingViewSet = LegacyPortfolioViewSet = None
+
+try:  # optional price history
     from personal_finance.assets.api.views import PriceHistoryViewSet
-except ImportError:
+except Exception:  # pragma: no cover - optional
+    logging.exception("PriceHistoryViewSet import failed")
     PriceHistoryViewSet = None
 
 try:
@@ -21,19 +30,22 @@ try:
         TransactionViewSet,
         PortfolioSnapshotViewSet,
     )
-except ImportError:
+except Exception:  # pragma: no cover - optional
+    logging.exception("Portfolios viewsets import failed")
     PortfolioViewSet = PositionViewSet = TransactionViewSet = (
         PortfolioSnapshotViewSet
     ) = None
 
 try:
     from personal_finance.users.api.views import UserViewSet
-except ImportError:
+except Exception:  # pragma: no cover - optional
+    logging.exception("UserViewSet import failed")
     UserViewSet = None
 
 try:
     from personal_finance.realtime.api import RealtimeViewSet
-except ImportError:
+except Exception:  # pragma: no cover - optional
+    logging.exception("RealtimeViewSet import failed")
     RealtimeViewSet = None
 
 try:
@@ -47,7 +59,8 @@ try:
         TaxReportViewSet,
         TaxAnalyticsViewSet,
     )
-except ImportError:
+except Exception:  # pragma: no cover - optional
+    logging.exception("Tax viewsets import failed")
     TaxYearViewSet = TaxLotViewSet = CapitalGainLossViewSet = None
     DividendIncomeViewSet = TaxLossHarvestingOpportunityViewSet = None
     TaxOptimizationRecommendationViewSet = TaxReportViewSet = None
