@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from loguru import logger as loguru_logger
+from .level import LOG_FORMAT, resolve_level
 
 
 class PackageLogger:
@@ -27,14 +28,14 @@ class PackageLogger:
         # Remove default handler and configure with our format
         self.logger.remove()
 
-        # Get log level from environment variable for security compliance
-        log_level = os.environ.get("PORTFOLIO_LOG_LEVEL", "INFO").upper()
+        # Get log level from environment variable and validate it for security
+        log_level = resolve_level(os.environ.get("PORTFOLIO_LOG_LEVEL"))
 
-        # Console handler with custom format matching original logging format
+        # Console handler with custom, shared format
         self.logger.add(
             sys.stdout,
             level=log_level,
-            format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {extra[name]} - {level} - {message}",
+            format=LOG_FORMAT,
             colorize=True,
         )
 
@@ -46,7 +47,7 @@ class PackageLogger:
             self.logger.add(
                 str(log_file),
                 level=log_level,
-                format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {extra[name]} - {level} - {message}",
+                format=LOG_FORMAT,
                 rotation="10 MB",  # Add rotation for better log management
                 retention="30 days",  # Retention for security compliance
             )
@@ -69,11 +70,11 @@ class PackageLogger:
 
     def add_file_handler(self, log_file: Path):
         """Add file handler to the logger."""
-        log_level = os.environ.get("PORTFOLIO_LOG_LEVEL", "INFO").upper()
+        log_level = resolve_level(os.environ.get("PORTFOLIO_LOG_LEVEL"))
         self.logger.add(
             str(log_file),
             level=log_level,
-            format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {extra[name]} - {level} - {message}",
+            format=LOG_FORMAT,
             rotation="10 MB",
             retention="30 days",
         )
