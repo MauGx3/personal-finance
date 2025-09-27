@@ -95,7 +95,7 @@ class Holding(models.Model):
         "assets.Portfolio",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="holdings",
     )
 
