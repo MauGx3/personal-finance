@@ -14,9 +14,7 @@ class TestDataProfilerService:
     @staticmethod
     def test_service_initialization_with_dataprofiler_available():
         """Test service initialization when DataProfiler is available."""
-        with patch(
-            "personal_finance.data_profiler.services.logger"
-        ) as mock_logger:
+        with patch("personal_finance.data_profiler.services.logger"):
             with patch(
                 "personal_finance.data_profiler.services.DataProfilerService.__init__"
             ) as mock_init:
@@ -240,10 +238,12 @@ class TestDataProfilerService:
                 result = service.analyze_financial_data(financial_df)
 
                 assert result["basic_profile"] is None
-                mock_logger.warning.assert_called_with(
-                    "Basic profiling failed: %s",
-                    Exception("Profile creation failed"),
-                )
+                # Compare only the formatted message portion since Exception
+                # instances are not equal by identity.
+                called_args = mock_logger.warning.call_args
+                assert called_args is not None
+                assert called_args[0][0] == "Basic profiling failed: %s"
+                assert "Profile creation failed" in str(called_args[0][1])
 
 
 class TestFinancialPatternAnalysis:

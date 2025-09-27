@@ -6,17 +6,21 @@ import django
 from django.conf import settings
 
 
-# Ensure the project's src/ directory is on sys.path so tests and
-# VS Code test discovery can import the `personal_finance` package
-# without installing the package.
+# Ensure the repository root is preferred on sys.path so files under
+# `personal_finance/` in the repo root are loaded first. If a `src/`
+# implementation exists we add it after the repo root so those modules
+# remain discoverable without hiding repo-root modules such as
+# `personal_finance/assets/models.py`.
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
 
-# Add the Django project root to the path
+# Put repo root first
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+# Make src/ discoverable but do not let it shadow repo-root modules
+if str(SRC) not in sys.path:
+    sys.path.append(str(SRC))
 
 
 def pytest_configure():
