@@ -11,7 +11,7 @@
       {
         "date": "2023-01-01",
         "open": "148.00",
-        "high": "152.00", 
+        "high": "152.00",
         "low": "147.00",
         "close": "150.50",
         "volume": 45000000
@@ -20,7 +20,7 @@
         "date": "2023-01-02",
         "open": "150.50",
         "high": "153.00",
-        "low": "149.00", 
+        "low": "149.00",
         "close": "152.00",
         "volume": 42000000
       }
@@ -29,7 +29,7 @@
       "symbol": "AAPL",
       "name": "Apple Inc.",
       "sector": "Technology",
-      "industry": "Consumer Electronics", 
+      "industry": "Consumer Electronics",
       "market_cap": "2500000000000",
       "currency": "USD",
       "exchange": "NASDAQ"
