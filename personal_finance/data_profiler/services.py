@@ -5,7 +5,7 @@ financial data, detecting PII/sensitive information, and generating comprehensiv
 data quality reports.
 """
 
-import logging
+from loguru import logger
 from typing import Any, Dict, Optional, List
 import pandas as pd
 import numpy as np
@@ -16,7 +16,7 @@ from .validators import (
     ProfileDataError,
 )
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class DataProfilerService:

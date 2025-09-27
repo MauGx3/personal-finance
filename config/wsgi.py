@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 from django.core.wsgi import get_wsgi_application
-import logging
+from loguru import logger
 from urllib.parse import urlparse
 
 # This allows easy placement of apps within the interior
@@ -58,17 +58,12 @@ def _mask_db_url(url: str | None) -> str:
     return f"{parsed.scheme}://{host}:{port}"
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Logging configured via loguru
 logger.info(
-    "Startup diagnostics: DJANGO_SETTINGS_MODULE=%s",
-    os.environ.get("DJANGO_SETTINGS_MODULE"),
+    f"Startup diagnostics: DJANGO_SETTINGS_MODULE={os.environ.get('DJANGO_SETTINGS_MODULE')}"
 )
-logger.info("USE_DOCKER=%s", os.environ.get("USE_DOCKER", "<UNSET>"))
-logger.info(
-    "DATABASE_URL=%s",
-    _mask_db_url(os.environ.get("DATABASE_URL")),
-)
+logger.info(f"USE_DOCKER={os.environ.get('USE_DOCKER', '<UNSET>')}")
+logger.info(f"DATABASE_URL={_mask_db_url(os.environ.get('DATABASE_URL'))}")
 logger.info("POSTGRES_HOST=%s", os.environ.get("POSTGRES_HOST", "<UNSET>"))
 logger.info("POSTGRES_PORT=%s", os.environ.get("POSTGRES_PORT", "<UNSET>"))
 logger.info(

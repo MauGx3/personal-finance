@@ -4,7 +4,7 @@ This module provides comprehensive backtesting functionality including
 strategy execution, portfolio simulation, and performance analysis.
 """
 
-import logging
+from loguru import logger
 from abc import ABC, abstractmethod
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Dict, List, Optional, Tuple, Any
@@ -41,7 +41,7 @@ from .models import (
     BacktestTrade,
 )
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 @dataclass

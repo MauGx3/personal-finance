@@ -4,7 +4,7 @@ This module provides Django views for rendering interactive financial dashboards
 using the chart generation utilities and portfolio analytics.
 """
 
-import logging
+from loguru import logger
 from typing import Dict, Any
 from datetime import timedelta
 
@@ -24,7 +24,7 @@ except ImportError:
 from personal_finance.assets.models import Asset
 from personal_finance.visualization.charts import PortfolioCharts, AssetCharts
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):

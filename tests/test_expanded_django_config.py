@@ -460,15 +460,15 @@ class TestLoggingConfiguration:
                 assert logging_config["version"] == 1
 
     def test_logger_usage(self):
-        """Test basic logger functionality."""
-        import logging
+        """Test basic logger functionality with loguru."""
+        from loguru import logger
 
-        # Should be able to get and use a logger
-        logger = logging.getLogger("personal_finance")
-
-        # Should not raise exception
-        logger.info("Test log message")
-        logger.debug("Test debug message")
+        # Should be able to use loguru logger
+        try:
+            logger.info("Test log message")
+            logger.debug("Test debug message")
+        except Exception as e:
+            assert False, f"Loguru logger should work: {e}"
 
 
 class TestMiddlewareConfiguration:

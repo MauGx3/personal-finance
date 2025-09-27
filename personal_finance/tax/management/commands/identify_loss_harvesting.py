@@ -1,6 +1,6 @@
 """Management command to identify tax loss harvesting opportunities."""
 
-import logging
+from loguru import logger
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand, CommandError
 from personal_finance.tax.services import TaxLossHarvestingService
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class Command(BaseCommand):
@@ -54,7 +54,7 @@ class Command(BaseCommand):
         self.verbose = options["verbose"]
 
         if self.verbose:
-            logging.basicConfig(level=logging.INFO)
+            # Logging configured via loguru
 
         loss_service = TaxLossHarvestingService()
         minimum_loss = Decimal(str(options["minimum_loss"]))
