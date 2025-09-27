@@ -10,18 +10,19 @@ requirements as the original logging implementation.
 
 import os
 from loguru import logger as loguru_logger
+from .level import LOG_FORMAT, resolve_level
 
 # Configure loguru to replace standard logging
 loguru_logger.remove()  # Remove default handler
 
-# Get log level from environment for security compliance
-log_level = os.environ.get("PORTFOLIO_LOG_LEVEL", "INFO").upper()
+# Get log level from environment and validate it for security compliance
+log_level = resolve_level(os.environ.get("PORTFOLIO_LOG_LEVEL"))
 
-# Add console handler with format similar to logging.basicConfig
+# Add console handler with a shared format
 loguru_logger.add(
     __import__("sys").stdout,
     level=log_level,
-    format="{time:YYYY-MM-DD HH:mm:ss,SSS} - {level} - {message}",
+    format=LOG_FORMAT.replace("{extra[name]} - ", ""),
     colorize=True,
 )
 
