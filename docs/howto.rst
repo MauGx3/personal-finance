@@ -31,6 +31,23 @@ To compile all docstrings automatically into documentation source files, use the
 
         make apidocs
 
+Changelog Management
+----------------------------------------------------------------------
+
+The project includes an integrated changelog system compatible with Sphinx. The changelog tracks all notable changes and is automatically included in the generated documentation.
+
+To validate the changelog format:
+    ::
+
+        make changelog-validate
+
+To create a new version section:
+    ::
+
+        make changelog-new-section VERSION=1.2.0
+
+For detailed information about changelog management, see :doc:`changelog_guide`.
+
 
 This can be done in the docker container:
     ::

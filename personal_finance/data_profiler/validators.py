@@ -4,12 +4,12 @@ This module provides comprehensive validation for data before it's passed to Dat
 to ensure compatibility and prevent constructor failures.
 """
 
-import logging
+from loguru import logger
 from typing import Any, Union, List, Dict
 import pandas as pd
 import numpy as np
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class ProfileDataError(Exception):

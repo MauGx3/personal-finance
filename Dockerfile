@@ -75,4 +75,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import os,sys,urllib.request;u=f'http://127.0.0.1:{os.environ.get('PORT','8000')}/health';\nimport urllib.error;\ntry: sys.exit(0 if urllib.request.urlopen(u, timeout=4).status==200 else 1)\nexcept Exception: sys.exit(1)"
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "config.asgi:application"]
+# Use a shell form to allow runtime expansion of $PORT by the platform (Leapcell)
+# The entrypoint will exec this command, so it is important to keep it as a single
+# string passed to a shell so ${PORT} expands. Default to 8000 if PORT is not set.
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 4 --worker-class uvicorn.workers.UvicornWorker config.asgi:application"]

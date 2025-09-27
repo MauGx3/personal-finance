@@ -27,16 +27,52 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          # include python version in the key to avoid restoring wheels built for a different CPython
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt', '**/constraints*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+
+      - name: Select constraints file
+        # pick a per-python constraints file if present, else fall back to constraints.txt
+        run: |
+          if [ -f "constraints-${{ matrix.python-version }}.txt" ]; then
+            echo "CONSTRAINTS=constraints-${{ matrix.python-version }}.txt" >> $GITHUB_ENV
+          else
+            echo "CONSTRAINTS=constraints.txt" >> $GITHUB_ENV
+          fi
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -c constraints.txt
+          # Use the chosen constraints file for this python version
+          C="$CONSTRAINTS"
+          echo "Using constraints file: $C"
+          # prefer binary wheels where available and use fast-deps for faster resolution
+          PIP_OPTS="--prefer-binary --use-feature=fast-deps -c $C"
+
+          # small retry helper to handle transient network issues
+          retry() {
+            n=0
+            until [ $n -ge 3 ]; do
+              "$@" && break
+              n=$((n+1))
+              echo "Command failed -- retrying ($n)"
+              sleep $((n * 3))
+            done
+            if [ $n -ge 3 ]; then
+              echo "Command failed after retries: $@"
+              exit 1
+            fi
+          }
+
+          retry pip install $PIP_OPTS -r requirements.txt
           # Install Django requirements for proper test environment
-          pip install -r requirements/base.txt -c constraints.txt
+          retry pip install $PIP_OPTS -r requirements/base.txt
+          # Install development and expanded finance extras used by tests
+          if [ -f requirements-dev.txt ]; then retry pip install $PIP_OPTS -r requirements-dev.txt; fi
           # Ensure testing dependencies are available in CI for test collection
-          pip install pytest-django celery django-celery-beat coverage
+          retry pip install pytest-django celery django-celery-beat coverage
 
       - name: Lint (flake8)
         run: |
@@ -50,6 +86,8 @@ jobs:
           DJANGO_SECRET_KEY: test-secret-key-for-ci
           DJANGO_DEBUG: False
         run: |
+          # Run Django system checks first (fast fail for obvious config issues)
+          python -m django check
           pytest -q || [ $? -eq 5 ]
 
   security-audit:
@@ -70,12 +108,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-audit
+          key: ${{ runner.os }}-pip-3.11-${{ hashFiles('**/requirements.txt', '**/constraints*.txt') }}-audit
+          restore-keys: |
+            ${{ runner.os }}-pip-3.11-
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies and pip-audit
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt -c constraints.txt
+          # pick a constraints file (prefer per-python file if present)
+          if [ -f "constraints-3.11.txt" ]; then
+            C=constraints-3.11.txt
+          else
+            C=constraints.txt
+          fi
+          echo "Using constraints file: $C"
+          python -m pip install -r requirements.txt -c $C
 
       - name: Run pip-audit
         run: |

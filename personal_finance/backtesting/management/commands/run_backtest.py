@@ -4,7 +4,7 @@ This command allows running backtests programmatically, useful for
 scheduled backtesting, batch processing, and automated testing.
 """
 
-import logging
+from loguru import logger
 from decimal import Decimal
 from datetime import datetime, date, timedelta
 
@@ -20,7 +20,7 @@ from personal_finance.backtesting.services import (
 )
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class Command(BaseCommand):
@@ -158,7 +158,7 @@ class Command(BaseCommand):
 
         # Configure logging
         if options["verbose"]:
-            logging.basicConfig(level=logging.INFO)
+            # Logging configured via loguru
 
         try:
             if options["create_strategy"]:

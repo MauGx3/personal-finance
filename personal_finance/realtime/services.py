@@ -6,7 +6,7 @@ and integration with multiple data sources for real-time feeds.
 """
 
 import asyncio
-import logging
+from loguru import logger
 from typing import Dict, List, Set, Any
 from datetime import datetime
 from decimal import Decimal
@@ -53,7 +53,7 @@ except ImportError:
         return data
 
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class PriceFeedService:

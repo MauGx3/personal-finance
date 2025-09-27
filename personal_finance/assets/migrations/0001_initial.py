@@ -139,7 +139,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
+                        on_delete=django.db.models.deletion.CASCADE,
                         related_name="holdings",
                         to="assets.Portfolio",
                     ),
@@ -162,6 +162,12 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(
                 fields=["user", "asset", "portfolio"],
                 name="unique_user_asset_portfolio",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="portfolio",
+            constraint=models.UniqueConstraint(
+                fields=["user", "name"], name="unique_user_portfolio_name"
             ),
         ),
     ]

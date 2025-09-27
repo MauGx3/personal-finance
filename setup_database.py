@@ -4,20 +4,16 @@ Database initialization and migration script
 """
 
 import sys
-import logging
 from pathlib import Path
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from personal_finance.database import DatabaseManager
+from personal_finance.logs import logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
-logger = logging.getLogger(__name__)
+# Configure logging - SECURITY AUDIT: Using package logger for consistency
+# and environment variable-based log level control
 
 
 def initialize_database():

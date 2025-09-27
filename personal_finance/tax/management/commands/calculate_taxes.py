@@ -1,6 +1,6 @@
 """Management command to calculate tax implications for transactions."""
 
-import logging
+from loguru import logger
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
@@ -15,7 +15,7 @@ except ImportError:
 from personal_finance.tax.services import TaxCalculationService
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class Command(BaseCommand):
@@ -64,7 +64,7 @@ class Command(BaseCommand):
         self.verbose = options["verbose"]
 
         if self.verbose:
-            logging.basicConfig(level=logging.INFO)
+            # Logging configured via loguru
 
         tax_service = TaxCalculationService()
 

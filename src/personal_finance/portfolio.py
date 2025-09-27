@@ -1,4 +1,3 @@
-import logging
 import json
 from dataclasses import dataclass
 from datetime import datetime
@@ -9,13 +8,14 @@ try:
 except ImportError:
     sd = None  # stockdex not available
 from .database import DatabaseManager
+from .logs import logger
 
 # import yahoo_finance as yf
 
-# Configure basic logging
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+# Configure basic logging - SECURITY AUDIT:
+# Using package logger instead of basicConfig for better control
+# Log level controlled via PORTFOLIO_LOG_LEVEL environment variable
+# to prevent sensitive information exposure in production
 
 
 @dataclass
@@ -48,9 +48,9 @@ class PortfolioManager:
                     data = json.load(file)
                     self.portfolio = data
             except FileNotFoundError as e:
-                logging.error("Portfolio file not found: %s", e)
+                logger.error(f"Portfolio file not found: {e}")
             except json.JSONDecodeError as e:
-                logging.error("Invalid JSON in portfolio file: %s", e)
+                logger.error(f"Invalid JSON in portfolio file: {e}")
         else:
             # Load from database
             positions = self.db_manager.get_portfolio_positions()
@@ -102,12 +102,12 @@ class PortfolioManager:
             # Update ticker info
             self.db_manager.add_or_update_ticker(symbol, name)
 
-            logging.info(
+            logger.info(
                 f"Added/Updated position: {symbol} - {quantity} shares"
             )
 
         except Exception as e:
-            logging.error(f"Error adding position {symbol}: {e}")
+            logger.error(f"Error adding position {symbol}: {e}")
             raise
 
     def remove_position(self, symbol: str):
@@ -115,11 +115,11 @@ class PortfolioManager:
         try:
             success = self.db_manager.remove_portfolio_position(symbol)
             if success:
-                logging.info(f"Removed position: {symbol}")
+                logger.info(f"Removed position: {symbol}")
             else:
-                logging.warning(f"Position {symbol} not found")
+                logger.warning(f"Position {symbol} not found")
         except Exception as e:
-            logging.error(f"Error removing position {symbol}: {e}")
+            logger.error(f"Error removing position {symbol}: {e}")
             raise
 
     def get_current_prices(self) -> Dict[str, float]:
@@ -132,7 +132,7 @@ class PortfolioManager:
 
         for position in positions:
             try:
-                logging.debug("Fetching price for %s", position.symbol)
+                logger.debug(f"Fetching price for {position.symbol}")
                 if sd is not None:
                     ticker = sd.Ticker(ticker=position.symbol)
                     price_data = ticker.yahoo_api_price(
@@ -149,15 +149,14 @@ class PortfolioManager:
                             position.symbol, position.name, latest_price
                         )
                 else:
-                    logging.warning(
-                        "stockdex not available, cannot fetch price for %s",
-                        position.symbol,
+                    logger.warning(
+                        f"stockdex not available, cannot fetch price for {position.symbol}"
                     )
                     prices[position.symbol] = 0.0
 
             except Exception as e:
-                logging.error(
-                    "Error fetching price for %s: %s", position.symbol, str(e)
+                logger.error(
+                    f"Error fetching price for {position.symbol}: {str(e)}"
                 )
                 prices[position.symbol] = 0.0
 
@@ -205,17 +204,14 @@ class PortfolioManager:
                                 volume=row.get("Volume"),
                             )
                 else:
-                    logging.warning(
-                        "stockdex not available, cannot fetch historical data for %s",
-                        position.symbol,
+                    logger.warning(
+                        f"stockdex not available, cannot fetch historical data for {position.symbol}"
                     )
                     historical_data[position.symbol] = None
 
             except Exception as e:
-                logging.error(
-                    "Error fetching historical data for %s: %s",
-                    position.symbol,
-                    str(e),
+                logger.error(
+                    f"Error fetching historical data for {position.symbol}: {str(e)}"
                 )
 
         return historical_data

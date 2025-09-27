@@ -4,14 +4,12 @@ Re-exports functions from personal_finance.assets.yahoo_finance
 
 from .assets.yahoo_finance import *  # noqa: F401,F403
 import yfinance
-import logging
 import requests
 import json
 from datetime import datetime
 from typing import Optional, Dict, List
 from .database import DatabaseManager
-
-logger = logging.getLogger(__name__)
+from .logs import logger
 
 
 def verify_yfinance():
@@ -20,11 +18,11 @@ def verify_yfinance():
         ticker = yfinance.Ticker("AAPL")
         data = ticker.history(period="1d")
         if data.empty:
-            logging.warning("yfinance returned empty data")
+            logger.warning("yfinance returned empty data")
             return False
         return True
     except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
-        logging.error("yfinance verification failed: %s", e)
+        logger.error(f"yfinance verification failed: {e}")
         return False
 
 
@@ -47,10 +45,10 @@ def get_ticker_price(
                 db_manager.add_or_update_ticker(symbol, name, price)
 
             return price
-        logging.warning("No price data available for %s", symbol)
+        logger.warning(f"No price data available for {symbol}")
         return 0
     except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
-        logging.error("Error fetching price for %s: %s", symbol, e)
+        logger.error(f"Error fetching price for {symbol, e}: %s")
         return 0
 
 
@@ -65,7 +63,7 @@ def fetch_and_store_historical_data(
         hist = ticker.history(period=period)
 
         if hist.empty:
-            logging.warning("No historical data available for %s", symbol)
+            logger.warning(f"No historical data available for {symbol}")
             return None
 
         # Store in database if manager provided
@@ -90,7 +88,7 @@ def fetch_and_store_historical_data(
         return hist.to_dict()
 
     except Exception as e:
-        logging.error("Error fetching historical data for %s: %s", symbol, e)
+        logger.error(f"Error fetching historical data for {symbol, e}: %s")
         return None
 
 
@@ -118,7 +116,7 @@ def get_stored_historical_data(
             for price in prices
         ]
     except Exception as e:
-        logging.error("Error retrieving historical data for %s: %s", symbol, e)
+        logger.error(f"Error retrieving historical data for {symbol, e}: %s")
         return []
 
 
@@ -133,11 +131,11 @@ def update_all_ticker_prices(db_manager: DatabaseManager):
             if price > 0:
                 updated_count += 1
 
-        logging.info(f"Updated prices for {updated_count} tickers")
+        logger.info(f"Updated prices for {updated_count} tickers")
         return updated_count
 
     except Exception as e:
-        logging.error("Error updating ticker prices: %s", e)
+        logger.error(f"Error updating ticker prices: {e}")
         return 0
 
 
