@@ -13,6 +13,7 @@ try:
     from loguru import logger
 except ImportError:
     import logging
+
     logger = logging.getLogger(__name__)
 
 from abc import ABC, abstractmethod
@@ -25,30 +26,37 @@ try:
     from django.conf import settings
     from django.core.cache import cache
     from django.utils import timezone
+
     DJANGO_AVAILABLE = True
 except ImportError:
     # Fallback for when Django is not available
     DJANGO_AVAILABLE = False
     settings = None
-    
+
     class FakeCache:
         def get(self, key):
             return None
+
         def set(self, key, value, timeout=None):
             pass
-    
+
     cache = FakeCache()
-    
+
     class FakeTimezone:
         @staticmethod
         def now():
             return datetime.now()
-    
+
     timezone = FakeTimezone()
 
 # Import new types and adapters
 from .types import PricePoint, HistoricalSeries, CompanyInfo
-from .adapter import BaseDataSourceAdapter, YFinanceAdapter, MockAdapter, DataSourceError
+from .adapter import (
+    BaseDataSourceAdapter,
+    YFinanceAdapter,
+    MockAdapter,
+    DataSourceError,
+)
 
 # Using logger imported above
 
@@ -112,133 +120,148 @@ class APIError(DataSourceError):
 
 class DataSourceService:
     """Modern data source service with adapter pattern.
-    
+
     This service provides a clean, testable interface for financial data
     by using dependency injection of data source adapters. It supports
     caching, error handling, and can be easily mocked for testing.
     """
-    
-    def __init__(self, adapter: BaseDataSourceAdapter, cache_timeout: int = 300):
+
+    def __init__(
+        self, adapter: BaseDataSourceAdapter, cache_timeout: int = 300
+    ):
         """Initialize service with an adapter.
-        
+
         Args:
             adapter: Data source adapter to use for fetching data
             cache_timeout: Cache timeout in seconds (default: 5 minutes)
         """
         self.adapter = adapter
         self.cache_timeout = cache_timeout
-        
+
     def get_current_price(self, symbol: str) -> Optional[PricePoint]:
         """Get current price for a symbol with caching.
-        
+
         Args:
             symbol: Stock symbol (e.g., "AAPL")
-            
+
         Returns:
             PricePoint with current price data or None if unavailable
-            
+
         Raises:
             DataSourceError: If there's an error fetching data
         """
         if not symbol:
             return None
-            
+
         # Clean symbol
         symbol = symbol.strip().upper()
-        
+
         # Check cache first
         cache_key = f"price_{self.adapter.name}_{symbol}"
         cached_data = cache.get(cache_key)
         if cached_data:
             logger.debug(f"Cache hit for {symbol}")
             return cached_data
-        
+
         try:
             price_point = self.adapter.get_current_price(symbol)
-            
+
             if price_point:
                 # Cache successful result
                 cache.set(cache_key, price_point, self.cache_timeout)
-                logger.info(f"Fetched current price for {symbol}: ${price_point.price}")
-            
+                logger.info(
+                    f"Fetched current price for {symbol}: ${price_point.price}"
+                )
+
             return price_point
-            
+
         except Exception as e:
             logger.error(f"Error fetching current price for {symbol}: {e}")
-            raise DataSourceError(f"Failed to get current price for {symbol}: {e}")
-    
+            raise DataSourceError(
+                f"Failed to get current price for {symbol}: {e}"
+            )
+
     def fetch_historical(
-        self, 
-        symbol: str, 
-        period: str = "1y", 
-        interval: str = "1d"
+        self, symbol: str, period: str = "1y", interval: str = "1d"
     ) -> HistoricalSeries:
         """Fetch historical data for a symbol.
-        
+
         Args:
             symbol: Stock symbol (e.g., "AAPL")
             period: Time period (e.g., "1d", "5d", "1mo", "1y", etc.)
             interval: Data interval (e.g., "1d", "1wk", "1mo")
-            
+
         Returns:
             HistoricalSeries with price data points
-            
+
         Raises:
             DataSourceError: If there's an error fetching data
         """
         if not symbol:
             raise DataSourceError("Symbol cannot be empty")
-            
+
         symbol = symbol.strip().upper()
-        
+
         # Cache key includes period and interval
-        cache_key = f"historical_{self.adapter.name}_{symbol}_{period}_{interval}"
+        cache_key = (
+            f"historical_{self.adapter.name}_{symbol}_{period}_{interval}"
+        )
         cached_data = cache.get(cache_key)
         if cached_data:
             logger.debug(f"Cache hit for historical data: {symbol}")
             return cached_data
-        
+
         try:
-            historical_series = self.adapter.fetch_historical(symbol, period, interval)
-            
+            historical_series = self.adapter.fetch_historical(
+                symbol, period, interval
+            )
+
             # Cache for longer time since historical data doesn't change much
-            cache.set(cache_key, historical_series, self.cache_timeout * 12)  # 1 hour default
-            logger.info(f"Fetched {len(historical_series.data_points)} historical points for {symbol}")
-            
+            cache.set(
+                cache_key, historical_series, self.cache_timeout * 12
+            )  # 1 hour default
+            logger.info(
+                f"Fetched {len(historical_series.data_points)} historical points for {symbol}"
+            )
+
             return historical_series
-            
+
         except Exception as e:
             logger.error(f"Error fetching historical data for {symbol}: {e}")
-            raise DataSourceError(f"Failed to fetch historical data for {symbol}: {e}")
-    
-    def bulk_get_current(self, symbols: List[str]) -> Dict[str, Optional[PricePoint]]:
+            raise DataSourceError(
+                f"Failed to fetch historical data for {symbol}: {e}"
+            )
+
+    def bulk_get_current(
+        self, symbols: List[str]
+    ) -> Dict[str, Optional[PricePoint]]:
         """Get current prices for multiple symbols efficiently.
-        
+
         Args:
             symbols: List of stock symbols
-            
+
         Returns:
             Dictionary mapping symbols to PricePoint objects (None if unavailable)
-            
+
         Raises:
             DataSourceError: If there's a critical error in bulk fetching
         """
         if not symbols:
             return {}
-        
+
         # Clean and validate symbols
         cleaned_symbols = []
         for symbol in symbols:
             if symbol and isinstance(symbol, str):
                 cleaned_symbols.append(symbol.strip().upper())
-        
+
         if not cleaned_symbols:
             return {}
-        
+
         # Check cache for each symbol first
         results = {}
         symbols_to_fetch = []
-        
+
         for symbol in cleaned_symbols:
             cache_key = f"price_{self.adapter.name}_{symbol}"
             cached_data = cache.get(cache_key)
@@ -246,21 +269,23 @@ class DataSourceService:
                 results[symbol] = cached_data
             else:
                 symbols_to_fetch.append(symbol)
-        
+
         # Fetch uncached symbols
         if symbols_to_fetch:
             try:
                 fetched_data = self.adapter.bulk_get_current(symbols_to_fetch)
-                
+
                 # Cache the results and merge with cached data
                 for symbol, price_point in fetched_data.items():
                     results[symbol] = price_point
                     if price_point:
                         cache_key = f"price_{self.adapter.name}_{symbol}"
                         cache.set(cache_key, price_point, self.cache_timeout)
-                
-                logger.info(f"Bulk fetched prices for {len(symbols_to_fetch)} symbols")
-                
+
+                logger.info(
+                    f"Bulk fetched prices for {len(symbols_to_fetch)} symbols"
+                )
+
             except Exception as e:
                 logger.error(f"Error in bulk fetch: {e}")
                 # Fall back to individual calls for unfetched symbols
@@ -268,38 +293,42 @@ class DataSourceService:
                     try:
                         results[symbol] = self.get_current_price(symbol)
                     except Exception as individual_error:
-                        logger.warning(f"Individual fetch failed for {symbol}: {individual_error}")
+                        logger.warning(
+                            f"Individual fetch failed for {symbol}: {individual_error}"
+                        )
                         results[symbol] = None
-        
+
         return results
-    
+
     def get_company_info(self, symbol: str) -> Optional[CompanyInfo]:
         """Get company information for a symbol.
-        
+
         Args:
             symbol: Stock symbol
-            
+
         Returns:
             CompanyInfo object or None if unavailable
         """
         if not symbol:
             return None
-            
+
         symbol = symbol.strip().upper()
-        
+
         # Cache company info for longer since it changes infrequently
         cache_key = f"company_{self.adapter.name}_{symbol}"
         cached_data = cache.get(cache_key)
         if cached_data:
             return cached_data
-        
+
         try:
             company_info = self.adapter.get_company_info(symbol)
             if company_info:
-                cache.set(cache_key, company_info, self.cache_timeout * 48)  # 4 hours default
-                
+                cache.set(
+                    cache_key, company_info, self.cache_timeout * 48
+                )  # 4 hours default
+
             return company_info
-            
+
         except Exception as e:
             logger.warning(f"Error fetching company info for {symbol}: {e}")
             return None
