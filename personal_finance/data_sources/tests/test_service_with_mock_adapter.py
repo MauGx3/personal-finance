@@ -2,7 +2,7 @@
 
 import pytest
 from decimal import Decimal
-from datetime import datetime, date
+from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from personal_finance.data_sources.services import (
@@ -60,6 +60,9 @@ class TestDataSourceService:
         )
         result = self.service.get_current_price("AAPL")
 
+        # Verify the result is valid and from cache
+        assert result is not None
+        assert result.symbol == "AAPL"
         assert mock_cache.get.call_count >= 2
 
     def test_fetch_historical_success(self):

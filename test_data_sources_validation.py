@@ -9,7 +9,6 @@ def test_basic_imports():
     """Test that all modules can be imported without errors."""
     try:
         from personal_finance.data_sources import (
-            DataSourceService,
             create_mock_service,
             PricePoint,
             HistoricalSeries,

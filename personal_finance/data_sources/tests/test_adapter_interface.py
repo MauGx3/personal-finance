@@ -25,7 +25,7 @@ class TestBaseDataSourceAdapter:
     def test_cannot_instantiate_abstract_base(self):
         """Test that BaseDataSourceAdapter cannot be instantiated directly."""
         with pytest.raises(TypeError):
-            BaseDataSourceAdapter("Test")
+            BaseDataSourceAdapter("Test")  # pylint: disable=E0110
 
     def test_symbol_validation(self):
         """Test symbol validation logic."""

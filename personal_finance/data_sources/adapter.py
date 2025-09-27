@@ -9,7 +9,6 @@ import re
 from abc import ABC, abstractmethod
 from decimal import Decimal
 from datetime import datetime, date, timedelta
-from typing import List, Optional, Dict, Any
 
 # Handle optional dependencies gracefully
 try:
@@ -56,7 +55,7 @@ class BaseDataSourceAdapter(ABC):
         self.name = name
 
     @abstractmethod
-    def get_current_price(self, symbol: str) -> Optional[PricePoint]:
+    def get_current_price(self, symbol: str) -> PricePoint | None:
         """Get current price for a symbol.
 
         Args:
@@ -93,8 +92,8 @@ class BaseDataSourceAdapter(ABC):
 
     @abstractmethod
     def bulk_get_current(
-        self, symbols: List[str]
-    ) -> Dict[str, Optional[PricePoint]]:
+        self, symbols: list[str]
+    ) -> dict[str, PricePoint | None]:
         """Get current prices for multiple symbols.
 
         Args:
@@ -109,7 +108,7 @@ class BaseDataSourceAdapter(ABC):
         pass
 
     @abstractmethod
-    def get_company_info(self, symbol: str) -> Optional[CompanyInfo]:
+    def get_company_info(self, symbol: str) -> CompanyInfo | None:
         """Get company information for a symbol.
 
         Args:
@@ -159,7 +158,7 @@ class YFinanceAdapter(BaseDataSourceAdapter):
         super().__init__("Yahoo Finance")
         self._session = None
 
-    def get_current_price(self, symbol: str) -> Optional[PricePoint]:
+    def get_current_price(self, symbol: str) -> PricePoint | None:
         """Get current price from Yahoo Finance."""
         symbol = self._validate_symbol(symbol)
 
@@ -260,8 +259,8 @@ class YFinanceAdapter(BaseDataSourceAdapter):
             )
 
     def bulk_get_current(
-        self, symbols: List[str]
-    ) -> Dict[str, Optional[PricePoint]]:
+        self, symbols: list[str]
+    ) -> dict[str, PricePoint | None]:
         """Get current prices for multiple symbols."""
         results = {}
 
@@ -339,7 +338,7 @@ class YFinanceAdapter(BaseDataSourceAdapter):
 
         return results
 
-    def get_company_info(self, symbol: str) -> Optional[CompanyInfo]:
+    def get_company_info(self, symbol: str) -> CompanyInfo | None:
         """Get company information from Yahoo Finance."""
         symbol = self._validate_symbol(symbol)
 
@@ -384,7 +383,7 @@ class MockAdapter(BaseDataSourceAdapter):
             "TSLA": Decimal("800.00"),
         }
 
-    def get_current_price(self, symbol: str) -> Optional[PricePoint]:
+    def get_current_price(self, symbol: str) -> PricePoint | None:
         """Return mock price data."""
         symbol = self._validate_symbol(symbol)
 
@@ -438,8 +437,8 @@ class MockAdapter(BaseDataSourceAdapter):
         )
 
     def bulk_get_current(
-        self, symbols: List[str]
-    ) -> Dict[str, Optional[PricePoint]]:
+        self, symbols: list[str]
+    ) -> dict[str, PricePoint | None]:
         """Return mock prices for multiple symbols."""
         results = {}
         for symbol in symbols:
@@ -449,7 +448,7 @@ class MockAdapter(BaseDataSourceAdapter):
                 results[symbol] = None
         return results
 
-    def get_company_info(self, symbol: str) -> Optional[CompanyInfo]:
+    def get_company_info(self, symbol: str) -> CompanyInfo | None:
         """Return mock company information."""
         symbol = self._validate_symbol(symbol)
 

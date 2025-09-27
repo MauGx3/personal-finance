@@ -18,9 +18,15 @@ except ImportError:
 
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Dict, List, Optional, Any
 from datetime import datetime, date, timedelta
 from dataclasses import dataclass
+
+# For compatibility with built-in type hints
+try:
+    # Python 3.10+ has built-in union types, but keep Optional for compatibility
+    from typing import Optional, Dict, List, Any
+except ImportError:
+    pass
 
 try:
     from django.conf import settings
@@ -138,7 +144,7 @@ class DataSourceService:
         self.adapter = adapter
         self.cache_timeout = cache_timeout
 
-    def get_current_price(self, symbol: str) -> Optional[PricePoint]:
+    def get_current_price(self, symbol: str) -> PricePoint | None:
         """Get current price for a symbol with caching.
 
         Args:
@@ -233,8 +239,8 @@ class DataSourceService:
             )
 
     def bulk_get_current(
-        self, symbols: List[str]
-    ) -> Dict[str, Optional[PricePoint]]:
+        self, symbols: list[str]
+    ) -> dict[str, PricePoint | None]:
         """Get current prices for multiple symbols efficiently.
 
         Args:
@@ -300,7 +306,7 @@ class DataSourceService:
 
         return results
 
-    def get_company_info(self, symbol: str) -> Optional[CompanyInfo]:
+    def get_company_info(self, symbol: str) -> CompanyInfo | None:
         """Get company information for a symbol.
 
         Args:

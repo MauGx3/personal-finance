@@ -5,7 +5,6 @@ recorded fixtures to avoid external dependencies in CI/CD.
 """
 
 import pytest
-import json
 from decimal import Decimal
 from datetime import datetime, date
 from pathlib import Path
@@ -15,10 +14,7 @@ from personal_finance.data_sources.adapter import (
     YFinanceAdapter,
     DataSourceError,
 )
-from personal_finance.data_sources.services import (
-    DataSourceService,
-    create_yfinance_service,
-)
+from personal_finance.data_sources.services import create_yfinance_service
 from personal_finance.data_sources.types import PricePoint, HistoricalSeries
 
 

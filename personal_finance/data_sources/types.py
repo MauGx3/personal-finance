@@ -8,7 +8,12 @@ type safety.
 from dataclasses import dataclass
 from decimal import Decimal
 from datetime import datetime, date
-from typing import List, Optional
+
+# For compatibility with built-in type hints
+try:
+    from typing import Optional, List
+except ImportError:
+    pass
 
 
 @dataclass
@@ -23,7 +28,7 @@ class PricePoint:
     price: Decimal
     timestamp: datetime
     currency: str = "USD"
-    volume: Optional[int] = None
+    volume: int | None = None
 
     def __post_init__(self):
         """Ensure price is a Decimal for precision."""
@@ -42,7 +47,7 @@ class HistoricalPricePoint:
     low_price: Decimal
     close_price: Decimal
     volume: int = 0
-    adjusted_close: Optional[Decimal] = None
+    adjusted_close: Decimal | None = None
     dividend_amount: Decimal = Decimal("0")
     split_ratio: Decimal = Decimal("1")
 
@@ -70,7 +75,7 @@ class HistoricalSeries:
     """Collection of historical price points for a symbol."""
 
     symbol: str
-    data_points: List[HistoricalPricePoint]
+    data_points: list[HistoricalPricePoint]
     start_date: date
     end_date: date
 
@@ -93,11 +98,11 @@ class CompanyInfo:
 
     symbol: str
     name: str
-    sector: Optional[str] = None
-    industry: Optional[str] = None
-    market_cap: Optional[Decimal] = None
+    sector: str | None = None
+    industry: str | None = None
+    market_cap: Decimal | None = None
     currency: str = "USD"
-    exchange: Optional[str] = None
+    exchange: str | None = None
 
     def __post_init__(self):
         """Ensure market_cap is a Decimal if provided."""
