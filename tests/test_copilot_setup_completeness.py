@@ -85,11 +85,15 @@ class TestCopilotSetupCompleteness:
                     [sys.executable, "-c", f"import {tool}"],
                     capture_output=True,
                     text=True,
+                    check=False,
                 )
                 if result.returncode != 0:
                     # Some tools might be available as CLI commands but not modules
                     result = subprocess.run(
-                        [tool, "--version"], capture_output=True, text=True
+                        [tool, "--version"],
+                        capture_output=True,
+                        text=True,
+                        check=False,
                     )
                     if result.returncode != 0:
                         pytest.fail(
