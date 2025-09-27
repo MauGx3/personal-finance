@@ -49,11 +49,17 @@ except ImportError:
 
     class FakeCache:
         def get(self, key):
-            logger.warning("FakeCache: Attempted to get key '%s' but caching is disabled (Django not available).", key)
+            logger.warning(
+                "FakeCache: Attempted to get key '%s' but caching is disabled (Django not available).",
+                key,
+            )
             return None
 
         def set(self, key, value, timeout=None):
-            logger.warning("FakeCache: Attempted to set key '%s' but caching is disabled (Django not available).", key)
+            logger.warning(
+                "FakeCache: Attempted to set key '%s' but caching is disabled (Django not available).",
+                key,
+            )
 
     cache = FakeCache()
 
