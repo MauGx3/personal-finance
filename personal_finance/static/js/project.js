@@ -1,1 +1,1 @@
-/* Project specific Javascript goes here. */
+// TODO: Add project-specific JavaScript functionality here
