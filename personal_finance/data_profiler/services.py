@@ -598,18 +598,18 @@ class DataProfilerService:
 
 def profile_data(data: Any, **options) -> Dict[str, Any]:
     """Create a data profile with validation and return standardized results.
-    
+
     This is the main entry point for programmatic data profiling. It provides
     a simple interface that returns a standardized dictionary format suitable
     for JSON serialization.
-    
+
     Args:
         data: Data to profile (DataFrame, array, file path, list of dicts, etc.)
         **options: Additional options for profiling:
             - enable_sensitive_data_detection (bool): Enable PII detection (default: True)
             - samples_per_update: DataProfiler sampling option
             - min_true_samples: DataProfiler minimum samples option
-            
+
     Returns:
         Dictionary with standardized profile results containing:
         - rows (int): Number of data rows
@@ -618,10 +618,10 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
         - fields (Dict[str, Any]): Per-column field summaries
         - data_quality (Dict[str, Any]): Data quality analysis
         - financial_patterns (Dict[str, Any]): Financial-specific patterns (if applicable)
-        
+
     Raises:
         ProfileDataError: If data is not compatible with profiling
-        
+
     Example:
         >>> import pandas as pd
         >>> df = pd.DataFrame({'amount': [100, 200, 300], 'account': ['A1', 'B2', 'C3']})
@@ -631,14 +631,18 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
         ...     print("PII found in data!")
     """
     # Extract profiling options
-    enable_sensitive_detection = options.pop('enable_sensitive_data_detection', True)
-    
+    enable_sensitive_detection = options.pop(
+        "enable_sensitive_data_detection", True
+    )
+
     # Create service instance
-    service = DataProfilerService(enable_sensitive_data_detection=enable_sensitive_detection)
-    
+    service = DataProfilerService(
+        enable_sensitive_data_detection=enable_sensitive_detection
+    )
+
     # Validate and prepare the data first
     validated_data = validate_and_prepare_data(data)
-    
+
     # Initialize result structure
     result = {
         "rows": 0,
@@ -648,7 +652,7 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
         "data_quality": {},
         "financial_patterns": {},
     }
-    
+
     # Determine data dimensions
     if isinstance(validated_data, pd.DataFrame):
         result["rows"] = len(validated_data)
@@ -659,8 +663,12 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
         result["columns"] = 1
         column_names = [validated_data.name or "series_data"]
     elif isinstance(validated_data, np.ndarray):
-        result["rows"] = validated_data.shape[0] if validated_data.ndim > 0 else 1
-        result["columns"] = validated_data.shape[1] if validated_data.ndim > 1 else 1
+        result["rows"] = (
+            validated_data.shape[0] if validated_data.ndim > 0 else 1
+        )
+        result["columns"] = (
+            validated_data.shape[1] if validated_data.ndim > 1 else 1
+        )
         column_names = [f"col_{i}" for i in range(result["columns"])]
     elif isinstance(validated_data, str):
         # For file paths, we can't determine dimensions without loading
@@ -670,11 +678,11 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
         column_names = []
     else:
         # For other data types (lists, etc.), make best guess
-        if hasattr(validated_data, '__len__'):
+        if hasattr(validated_data, "__len__"):
             result["rows"] = len(validated_data)
         result["columns"] = 1
         column_names = ["data"]
-    
+
     # Run profiling if DataProfiler is available
     if service.is_available():
         try:
@@ -684,13 +692,13 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
                 summary = profile_results.get("summary", {})
                 column_profiles = profile_results.get("column_profiles", {})
                 sensitive_data = profile_results.get("sensitive_data", [])
-                
+
                 # Update dimensions from actual profiling results
                 if summary.get("total_samples", 0) > 0:
                     result["rows"] = summary["total_samples"]
                 if summary.get("total_columns", 0) > 0:
                     result["columns"] = summary["total_columns"]
-                
+
                 # Format field summaries
                 for col_name, col_profile in column_profiles.items():
                     result["fields"][col_name] = {
@@ -699,31 +707,35 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
                         "null_ratio": col_profile.get("null_ratio", 0.0),
                         "statistics": col_profile.get("statistics", {}),
                     }
-                
+
                 # Check for PII detection
                 result["pii_detected"] = len(sensitive_data) > 0
                 if result["pii_detected"]:
                     result["sensitive_findings"] = sensitive_data
-                    
+
         except Exception as e:
             logger.warning(f"DataProfiler analysis failed: {e}")
             # Continue with basic analysis even if DataProfiler fails
-    
+
     # If we have a DataFrame, run additional analysis
     if isinstance(validated_data, pd.DataFrame):
         try:
             # Run financial analysis if it looks like financial data
             analysis = service.analyze_financial_data(validated_data)
             result["data_quality"] = analysis.get("data_quality", {})
-            result["financial_patterns"] = analysis.get("financial_patterns", {})
-            
+            result["financial_patterns"] = analysis.get(
+                "financial_patterns", {}
+            )
+
             # If we didn't get PII from DataProfiler, check our custom detection
             if not result["pii_detected"] and enable_sensitive_detection:
-                sensitive_findings = analysis.get("sensitive_data_detected", [])
+                sensitive_findings = analysis.get(
+                    "sensitive_data_detected", []
+                )
                 result["pii_detected"] = len(sensitive_findings) > 0
                 if result["pii_detected"]:
                     result["sensitive_findings"] = sensitive_findings
-                    
+
             # Fill in field info if not already populated
             if not result["fields"]:
                 for col in validated_data.columns:
@@ -735,12 +747,12 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
                         "statistics": {
                             "count": int(len(col_data)),
                             "unique_count": int(col_data.nunique()),
-                        }
+                        },
                     }
-                    
+
         except Exception as e:
             logger.warning(f"Financial analysis failed: {e}")
-            
+
     return result
 
 
@@ -749,29 +761,33 @@ if __name__ == "__main__":
     import sys
     import json
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Profile data using DataProfiler")
-    parser.add_argument("--path", required=True, help="Path to data file (CSV, JSON, etc.)")
-    parser.add_argument("--no-pii", action="store_true", help="Disable PII detection")
+
+    parser = argparse.ArgumentParser(
+        description="Profile data using DataProfiler"
+    )
+    parser.add_argument(
+        "--path", required=True, help="Path to data file (CSV, JSON, etc.)"
+    )
+    parser.add_argument(
+        "--no-pii", action="store_true", help="Disable PII detection"
+    )
     parser.add_argument("--output", help="Output file for results (JSON)")
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Profile the data
-        options = {
-            'enable_sensitive_data_detection': not args.no_pii
-        }
+        options = {"enable_sensitive_data_detection": not args.no_pii}
         result = profile_data(args.path, **options)
-        
+
         # Output results
         if args.output:
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 json.dump(result, f, indent=2, default=str)
             print(f"Results saved to {args.output}")
         else:
             print(json.dumps(result, indent=2, default=str))
-            
+
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
