@@ -8,7 +8,9 @@
 
 ## Pending
 
-- None yet
+- [TASK003] Implement robust data source service (yfinance) - Replace placeholder implementations in `personal_finance/data_sources/services.py` and add tests
+- [TASK004] Implement realtime price streamer/service - replace NotImplemented and placeholder returns in `personal_finance/realtime/services.py` with an MVP websocket/streaming implementation and tests
+- [TASK005] Complete DataProfiler services & validators - replace placeholder passes in `personal_finance/data_profiler/services.py` and `validators.py` with end-to-end validation flow and tests
 
 ## Completed
 
