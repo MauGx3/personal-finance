@@ -9,7 +9,7 @@ The following Django migrations have been successfully created and tested:
 - **Models**: TaxYear, TaxLot, CapitalGainLoss, DividendIncome, TaxLossHarvestingOpportunity, TaxOptimizationRecommendation, TaxReport
 - **Status**: ✅ Migration created and tested
 
-### Backtesting App (personal_finance.backtesting)  
+### Backtesting App (personal_finance.backtesting)
 - **File**: `personal_finance/backtesting/migrations/0001_initial.py`
 - **Models**: Strategy, Backtest, BacktestResult, BacktestPortfolioSnapshot, BacktestTrade
 - **Status**: ✅ Migration created and tested

@@ -16,7 +16,6 @@ from .logs import logger
 # Using package logger instead of basicConfig for better control
 # Log level controlled via PORTFOLIO_LOG_LEVEL environment variable
 # to prevent sensitive information exposure in production
-import os
 
 
 @dataclass
