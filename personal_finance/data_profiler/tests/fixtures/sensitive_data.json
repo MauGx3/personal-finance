@@ -1,0 +1,5 @@
+[
+  {"name": "John Doe", "ssn": "123-45-6789", "account": "987654321", "balance": 1000.0},
+  {"name": "Jane Smith", "ssn": "987-65-4321", "account": "123456789", "balance": 2500.5},
+  {"name": "Bob Johnson", "ssn": "456-78-9012", "account": "555666777", "balance": 750.25}
+]
