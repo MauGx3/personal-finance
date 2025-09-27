@@ -5,7 +5,7 @@ to ensure reliable access to financial data from multiple providers.
 Implements the circuit breaker pattern for reliability.
 """
 
-import logging
+from loguru import logger
 from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Dict, List, Optional, Any
@@ -16,7 +16,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 @dataclass

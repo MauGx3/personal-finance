@@ -6,12 +6,12 @@ Designed for production deployment with proper error handling and monitoring.
 """
 
 import asyncio
-import logging
+from loguru import logger
 from django.core.management.base import BaseCommand
 
 from personal_finance.realtime.services import price_feed_service
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class Command(BaseCommand):
@@ -42,7 +42,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Execute the command."""
         if options["verbose"]:
-            logging.basicConfig(level=logging.DEBUG)
+            # Logging configured via loguru
 
         interval = options["interval"]
         batch_size = options["batch_size"]

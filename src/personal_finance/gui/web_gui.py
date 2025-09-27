@@ -144,9 +144,11 @@ def asset_summary(symbol: str):
             "cost_basis": cost_basis,
             "current_value": current_value,
         }
-    except HTTPException:
-        raise
     except Exception as exc:
+        # If it's already an HTTPException, re-raise as-is
+        if isinstance(exc, HTTPException):
+            raise
+        # For other exceptions, wrap in HTTPException
         raise HTTPException(
             status_code=503, detail=f"Database unavailable: {exc}"
         )
@@ -183,9 +185,11 @@ def get_prices(symbol: str, limit: int = None):
             price_dicts = price_dicts[:limit]
 
         return price_dicts
-    except HTTPException:
-        raise
     except Exception as exc:
+        # If it's already an HTTPException, re-raise as-is
+        if isinstance(exc, HTTPException):
+            raise
+        # For other exceptions, wrap in HTTPException
         raise HTTPException(
             status_code=503, detail=f"Database unavailable: {exc}"
         )
@@ -204,9 +208,11 @@ def get_ticker(symbol: str):
             "name": ticker.name,
             "price": ticker.price,
         }
-    except HTTPException:
-        raise
     except Exception as exc:
+        # If it's already an HTTPException, re-raise as-is
+        if isinstance(exc, HTTPException):
+            raise
+        # For other exceptions, wrap in HTTPException
         raise HTTPException(
             status_code=503, detail=f"Database unavailable: {exc}"
         )

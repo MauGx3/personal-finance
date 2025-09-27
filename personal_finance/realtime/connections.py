@@ -6,12 +6,12 @@ and message broadcasting for live market data updates.
 """
 
 import json
-import logging
+from loguru import logger
 from typing import Dict, Set, Optional, Any
 from datetime import datetime
 from decimal import Decimal
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class ConnectionManager:

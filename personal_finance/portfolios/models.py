@@ -6,12 +6,21 @@ from typing import Optional
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from model_utils.models import TimeStampedModel
 
 User = get_user_model()
 
 
-class Portfolio(TimeStampedModel):
+class TimestampedModel(models.Model):
+    """Abstract base class with created and modified timestamp fields."""
+
+    created = models.DateTimeField(auto_now_add=True, verbose_name="created")
+    modified = models.DateTimeField(auto_now=True, verbose_name="modified")
+
+    class Meta:
+        abstract = True
+
+
+class Portfolio(TimestampedModel):
     """User portfolio containing multiple positions.
 
     A portfolio represents a collection of investment positions owned by a user.
@@ -87,7 +96,7 @@ class Portfolio(TimeStampedModel):
         return (self.total_return / self.total_cost_basis) * 100
 
 
-class Position(TimeStampedModel):
+class Position(TimestampedModel):
     """Individual investment position within a portfolio.
 
     Represents a specific asset holding with quantity, cost basis,
@@ -214,7 +223,7 @@ class Position(TimeStampedModel):
         self.save(update_fields=["quantity", "average_cost"])
 
 
-class Transaction(TimeStampedModel):
+class Transaction(TimestampedModel):
     """Investment transaction record.
 
     Tracks all buy/sell transactions for portfolio positions,
@@ -290,7 +299,7 @@ class Transaction(TimeStampedModel):
             self.position.update_from_transactions()
 
 
-class PortfolioSnapshot(TimeStampedModel):
+class PortfolioSnapshot(TimestampedModel):
     """Historical snapshot of portfolio performance.
 
     Stores point-in-time portfolio values for performance tracking

@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: pf-postgres
     environment:
       POSTGRES_USER: finance
       POSTGRES_PASSWORD: finance
@@ -13,23 +12,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    # Bind to an alternate host port to reduce accidental exposure
     ports:
-      - "5432:5432"
+      - "52135:5432"
 
   app:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    container_name: pf-app
     depends_on:
       db:
         condition: service_healthy
     environment:
       PORT: 8000
+      # Use the internal DB port; host mapping happens above
       DATABASE_URL: postgresql+psycopg2://finance:finance@db:5432/finance
       RUN_MIGRATIONS_ON_START: "1"
-      USE_DOCKER: "yes"
-      DJANGO_SETTINGS_MODULE: "config.settings.local"
+      USE_DOCKER: "no"
+      DJANGO_SETTINGS_MODULE: "config.settings.production"
     ports:
       - "8000:8000"
     restart: unless-stopped

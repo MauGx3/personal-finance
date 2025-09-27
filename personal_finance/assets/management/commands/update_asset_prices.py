@@ -1,6 +1,6 @@
 """Management command to update asset prices from external data sources."""
 
-import logging
+from loguru import logger
 from typing import List, Optional
 from datetime import timedelta
 
@@ -21,7 +21,7 @@ try:
 except ImportError:
     data_source_manager = None
 
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class Command(BaseCommand):

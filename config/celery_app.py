@@ -21,6 +21,11 @@ def config_loggers(*args, **kwargs):
 
     from django.conf import settings  # noqa: PLC0415
 
+    # SECURITY AUDIT: dictConfig() configures logging system
+    # Ensure LOGGING settings don't expose sensitive information:
+    # - Check log levels are appropriate for production
+    # - Verify no sensitive data is logged in debug mode
+    # - Confirm log storage location is secure
     dictConfig(settings.LOGGING)
 
 

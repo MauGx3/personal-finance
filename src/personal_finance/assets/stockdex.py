@@ -1,10 +1,8 @@
-# stockdex shim moved from top-level _stockdex.py
+# stockdex shim moved from top-level _stockdx.py
 # Provide wrapper functions used by the codebase
 
 from typing import Optional
-import logging
-
-logger = logging.getLogger(__name__)
+from ..logs import logger
 
 
 class Ticker:

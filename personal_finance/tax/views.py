@@ -1,6 +1,6 @@
 """API views for tax functionality."""
 
-import logging
+from loguru import logger
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -45,7 +45,7 @@ from .services import (
 from .report_service import TaxReportService
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class TaxYearViewSet(viewsets.ReadOnlyModelViewSet):

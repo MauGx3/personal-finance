@@ -1,6 +1,6 @@
 """Management command to generate tax reports."""
 
-import logging
+from loguru import logger
 from pathlib import Path
 
 from django.contrib.auth import get_user_model
@@ -10,7 +10,7 @@ from personal_finance.tax.models import TaxYear
 from personal_finance.tax.report_service import TaxReportService
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
+# Using loguru logger imported above
 
 
 class Command(BaseCommand):
@@ -68,7 +68,7 @@ class Command(BaseCommand):
         self.output_dir = options["output_dir"]
 
         if self.verbose:
-            logging.basicConfig(level=logging.INFO)
+            # Logging configured via loguru
 
         if self.output_dir:
             output_path = Path(self.output_dir)

@@ -9,7 +9,7 @@ SOURCEDIR     = .
 BUILDDIR      = ./_build
 APP = /app
 
-.PHONY: html livehtml apidocs Makefile
+.PHONY: html livehtml apidocs changelog-validate changelog-new-section Makefile
 
 # Put it first so that "make" without argument is like "make html".
 html:
@@ -22,6 +22,18 @@ livehtml:
 # Outputs rst files from django application code
 apidocs:
 	sphinx-apidoc -o $(SOURCEDIR)/api $(APP)
+
+# Validate changelog format
+changelog-validate:
+	python $(SOURCEDIR)/changelog_utils.py --validate
+
+# Create new changelog section (usage: make changelog-new-section VERSION=1.2.0)
+changelog-new-section:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Usage: make changelog-new-section VERSION=x.y.z"; \
+		exit 1; \
+	fi
+	python $(SOURCEDIR)/changelog_utils.py --create-section $(VERSION)
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
