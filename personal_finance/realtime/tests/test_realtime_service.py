@@ -7,7 +7,7 @@ behavior, and graceful shutdown using mock data source adapters.
 
 import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock, patch
 from decimal import Decimal
 from datetime import datetime
 

@@ -4,8 +4,7 @@ Tests for the WebSocket price streaming functionality.
 
 import pytest
 import json
-import asyncio
-from unittest.mock import Mock, AsyncMock, MagicMock
+from unittest.mock import Mock, AsyncMock
 from decimal import Decimal
 
 from personal_finance.realtime.services import PricePoint

@@ -6,7 +6,6 @@ and pushes price updates in real-time using the RealtimeService.
 """
 
 import json
-import asyncio
 from typing import Dict, Any, List
 from loguru import logger
 
