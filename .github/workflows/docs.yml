@@ -71,7 +71,7 @@ jobs:
         DJANGO_SECRET_KEY: "docs-build-key-not-for-production"
 
     - name: Upload documentation artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: documentation
         path: docs/_build/html
@@ -82,7 +82,7 @@ jobs:
 
     - name: Upload to GitHub Pages
       if: github.ref == 'refs/heads/main'
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: docs/_build/html
 
@@ -97,4 +97,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
