@@ -266,8 +266,8 @@ class RealtimeService:
                     price_point = PricePoint(
                         symbol=symbol,
                         price=price_data.current_price,
-                        change=price_data.previous_close
-                        - price_data.current_price
+                        change=price_data.current_price
+                        - price_data.previous_close
                         if price_data.previous_close
                         else None,
                         change_percent=(
