@@ -198,6 +198,41 @@ AGENTS.md                 # Agent operating handbook
 - **Docker Compose (production)**: `docker-compose.production.yml` includes
   hardened settings, static file serving via WhiteNoise, and background workers.
 
+## Documentation
+
+📚 **Comprehensive Sphinx documentation is available at**: [https://maugx3.github.io/personal-finance/](https://maugx3.github.io/personal-finance/)
+
+### Documentation Structure
+
+The documentation follows the [Diátaxis framework](https://diataxis.fr/) and includes:
+
+- **🚀 Quick Start Guide**: Get up and running in minutes
+- **🏗️ Architecture Overview**: System design and component interactions
+- **⚙️ Configuration Reference**: Environment variables, Django settings, and security
+- **🔌 API Documentation**: Complete REST API reference with examples
+- **📊 Feature Modules**: Deep-dive guides for backtesting, visualization, tax reporting, real-time data, and data profiling
+- **🚀 Deployment Guide**: Production deployment for Docker, cloud platforms, and security hardening
+- **🔧 Development Guide**: Local setup, testing, code quality, and contribution guidelines
+
+### Building Documentation Locally
+
+```bash
+# Install documentation dependencies
+pip install -r requirements-docs.txt
+
+# Build documentation
+./build-docs.sh
+
+# Or manually:
+cd docs
+make html
+# Open docs/_build/html/index.html in your browser
+```
+
+### Documentation Deployment
+
+Documentation is automatically built and deployed to GitHub Pages via GitHub Actions when changes are pushed to the main branch. The workflow builds the Sphinx documentation and publishes it at the GitHub Pages URL.
+
 ## Reference materials
 
 - `AGENTS.md` for deep-dive operational procedures.
