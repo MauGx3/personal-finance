@@ -11,6 +11,8 @@ to make safe, well-scoped changes.
 - Config: Django settings in `config/` and an application structured under `personal_finance/`.
 - Packaging/build: standard Python project (see `pyproject.toml`, `requirements.txt`, `requirements-dev.txt`).
 - Database: SQLite used by default (`db.sqlite3`, `test_db.sqlite3`); production may use a different DB (env-configured).
+- **Security**: Recent Django security update (4.2.24) addresses CVE-2025-57833. CodeQL scanning active.
+- **Documentation**: Process specifications in `/spec/` directory for CI/CD and other workflows.
 
 Closest important files and folders:
 
@@ -19,17 +21,21 @@ Closest important files and folders:
 - `setup_database.py` — database bootstrapping helper.
 - `personal_finance/` — main Django app package and modules (tests under `personal_finance/` and `tests/`).
 - `docker-compose*.yml`, `Dockerfile` — container development and deployment artifacts.
+- `/spec/` — process and architecture specifications for agents.
 
 ## Agent contract (what you can do safely)
 
 - Inputs: edit/update files under the repo, add tests, update docs.
 - Outputs: changes must keep tests passing and linting green (where available), follow commit conventions below.
 - Error modes: do not assume external network access for fetching secrets. Fail with a clear message if secrets are missing.
+- **Security First**: All changes must maintain or improve security posture. Review CodeQL alerts and address vulnerabilities.
+- **Specification Compliance**: Update relevant specifications in `/spec/` before making process changes.
 
 Before making non-trivial changes, prefer to:
 
 - Run tests locally (`pytest`) and ensure green.
 - Add or update at least one focused unit/integration test that covers the changed behavior.
+- Check for security implications, especially when handling financial/PII data.
 
 ## Setup (local environment) — fish shell
 
@@ -129,6 +135,8 @@ Test locations and patterns:
 
 - Unit/integration tests live under `personal_finance/` and the top-level `tests/` directory.
 - Use `pytest -q` to run the suite; CI should run the same command.
+- **CI Testing**: CI runs tests across Python 3.10 and 3.11 with security scanning (pip-audit) and linting (flake8).
+- **Security Testing**: When adding code that handles sensitive data, ensure tests verify no accidental logging of PII/financial information.
 
 ## Code style, linting and formatting
 
@@ -153,12 +161,21 @@ docker compose -f docker-compose.local.yml up --build
 ```
 
 - CI/CD: inspect `.github/workflows/` (if present) to reproduce pipeline steps used by CI.
+- **Security-Enhanced CI**: The CI workflow (`.github/workflows/ci.yml`) includes:
+  - Explicit GITHUB_TOKEN permissions (contents: read only)
+  - Automated dependency security scanning via pip-audit
+  - Multi-version Python testing (3.10, 3.11)
+  - CodeQL security scanning for vulnerabilities
+- **Specifications**: CI/CD processes are documented in `/spec/` directory. Update specifications before making workflow changes.
 
 ## Security and secrets (agent guidance)
 
 - Never print or commit secrets or private keys. If a secret is required for a task, fail and ask the human for a credential.
 - Validate any external URLs before the agent instructs the runtime to fetch them (SSRF protection).
 - When touching code that handles PII/financial data, add or update tests that ensure no accidental logging of sensitive fields.
+- **Recent Security Updates**: Django was updated to 4.2.24 to resolve CVE-2025-57833 (SQL injection vulnerability in FilteredRelation). Always ensure Django dependencies are kept current.
+- **Code Scanning**: The project uses CodeQL for automated security scanning. All identified vulnerabilities should be addressed promptly.
+- **CI/CD Security**: GitHub Actions workflows now include explicit GITHUB_TOKEN permissions (contents: read only) to follow principle of least privilege.
 
 ## Pull Request & commit conventions
 
@@ -183,6 +200,8 @@ Agent PR checklist (automated):
 - `pytest` passes locally.
 - Formatting and linting applied.
 - No secrets or credentials in the diff.
+- Security implications reviewed (especially for financial/PII data handling).
+- Specifications updated if processes/workflows changed.
 
 ## Debugging and troubleshooting
 
@@ -193,6 +212,7 @@ Agent PR checklist (automated):
 ## Where to add more agent guidance
 
 - If the repo grows into a monorepo or adds subpackages, add `AGENTS.md` to the subpackage root. The closest `AGENTS.md` wins for agents working in a subfolder.
+- **Specifications Directory**: Process and architecture specifications are maintained in `/spec/`. Update relevant specifications before making changes to documented processes.
 
 ## Minimal example tasks an agent can perform safely
 
