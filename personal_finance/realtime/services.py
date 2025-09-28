@@ -832,7 +832,9 @@ def subscribe_to_prices(symbols: List[str], callback: Callable):
         loop = asyncio.get_event_loop()
         if loop.is_running():
             # If we're in an async context, schedule the coroutine and return the task
-            return asyncio.create_task(realtime_service.subscribe(symbols, callback))
+            return asyncio.create_task(
+                realtime_service.subscribe(symbols, callback)
+            )
         else:
             # If we're not in an async context, run it
             loop.run_until_complete(
