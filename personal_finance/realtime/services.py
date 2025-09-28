@@ -840,4 +840,9 @@ def subscribe_to_prices(symbols: List[str], callback: Callable):
             )
     except RuntimeError:
         # No event loop running, create one
-        asyncio.run(realtime_service.subscribe(symbols, callback))
+        new_loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(new_loop)
+            new_loop.run_until_complete(realtime_service.subscribe(symbols, callback))
+        finally:
+            new_loop.close()
