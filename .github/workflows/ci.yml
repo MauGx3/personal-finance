@@ -73,6 +73,8 @@ jobs:
           if [ -f requirements-dev.txt ]; then retry pip install $PIP_OPTS -r requirements-dev.txt; fi
           # Ensure testing dependencies are available in CI for test collection
           retry pip install pytest-django celery django-celery-beat coverage
+          # Ensure loguru is available in CI (required by logging modules)
+          retry pip install $PIP_OPTS loguru
 
       - name: Lint (flake8)
         run: |
@@ -124,6 +126,8 @@ jobs:
           fi
           echo "Using constraints file: $C"
           python -m pip install -r requirements.txt -c $C
+          # Ensure loguru is present for security scanning and testing
+          python -m pip install loguru -c $C
 
       - name: Run pip-audit
         run: |
