@@ -1,10 +1,10 @@
 ---
 title: CI/CD Workflow Specification - CI
-version: 1.0
+version: 1.1
 date_created: 2025-09-23
-last_updated: 2025-09-23
+last_updated: 2025-09-28
 owner: DevOps Team
-tags: [process, cicd, github-actions, automation, python, testing]
+tags: [process, cicd, github-actions, automation, python, testing, security]
 ---
 
 ## Workflow Overview
@@ -31,10 +31,10 @@ graph TD
 
 ## Jobs & Dependencies
 
-| Job Name | Purpose | Dependencies | Execution Context |
-|----------|---------|--------------|-------------------|
-| test | Install dependencies, run focused lint, run test suite under 2 Python versions | none (triggered directly) | ubuntu-latest, matrix python 3.10 & 3.11 |
-| security-audit | Run dependency security scan via pip-audit | needs: test | ubuntu-latest, python 3.11 |
+| Job Name | Purpose | Dependencies | Execution Context | Security Permissions |
+|----------|---------|--------------|-------------------|---------------------|
+| test | Install dependencies, run focused lint, run test suite under 2 Python versions | none (triggered directly) | ubuntu-latest, matrix python 3.10 & 3.11 | contents: read |
+| security-audit | Run dependency security scan via pip-audit | needs: test | ubuntu-latest, python 3.11 | contents: read |
 
 ## Requirements Matrix
 
@@ -48,10 +48,10 @@ graph TD
 
 ### Security Requirements
 
-| ID | Requirement | Implementation Constraint |
-|----|-------------|---------------------------|
-| SEC-001 | Limit default token permissions used by workflow | GITHUB_TOKEN scope: contents: read (minimal) |
-| SEC-002 | Scan dependencies for known vulnerabilities | Use SCA tool (pip-audit) with non-interactive mode |
+| ID | Requirement | Implementation Constraint | Status |
+|----|-------------|---------------------------|--------|
+| SEC-001 | Limit default token permissions used by workflow | GITHUB_TOKEN scope: contents: read (minimal) | ✅ Implemented |
+| SEC-002 | Scan dependencies for known vulnerabilities | Use SCA tool (pip-audit) with non-interactive mode | ✅ Implemented |
 
 ### Performance Requirements
 
@@ -86,10 +86,10 @@ Job outputs: none persisted as artifacts by the workflow. The workflow emits log
 
 ### Secrets & Variables
 
-| Type | Name | Purpose | Scope |
-|------|------|---------|-------|
-| Variable | DJANGO_SECRET_KEY | CI-only secret value used to bootstrap Django in tests | Workflow (repo) |
-| Token | GITHUB_TOKEN | API actions the workflow may call; limited to contents: read | Workflow |
+| Type | Name | Purpose | Scope | Implementation |
+|------|------|---------|-------|----------------|
+| Variable | DJANGO_SECRET_KEY | CI-only secret value used to bootstrap Django in tests | Workflow (repo) | ✅ Implemented |
+| Token | GITHUB_TOKEN | API actions the workflow may call; limited to contents: read | Workflow | ✅ Implemented via workflow-level permissions |
 
 ## Execution Constraints
 
@@ -198,6 +198,14 @@ Security Controls:
 
 - PERF-001: Median test job time < 15 minutes for incremental runs.
 
+## 7. Rationale & Context
+
+### Security Implementation Notes
+
+- **GITHUB_TOKEN Permissions**: Explicit permissions block added at workflow level to comply with GitHub's security best practices and address CodeQL security alerts. This limits the token scope to read-only access, reducing the blast radius of potential token compromise.
+- **Dependency Scanning**: pip-audit integration provides automated vulnerability detection in CI pipeline, enabling early identification of security issues in third-party dependencies.
+- **Matrix Testing**: Multi-version Python testing ensures compatibility across supported runtime versions while maintaining security patches.
+
 ## Change Management
 
 Update Process:
@@ -214,6 +222,7 @@ Version History
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| 1.1 | 2025-09-28 | Updated security requirements to reflect implemented GITHUB_TOKEN permissions and added rationale section documenting security enhancements | DevOps Team |
 | 1.0 | 2025-09-23 | Initial specification extracted from `.github/workflows/ci.yml` | DevOps Team |
 
 ## Related Specifications
