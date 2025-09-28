@@ -1,13 +1,17 @@
 # Active Context
 
-Current focus (2025-09-23):
+Current focus (2025-09-28):
 
-- Make the repository deployable as a Portainer stack and resilient to PaaS (Leapcell) requirements. Add stack env examples and healthcheck aliases.
+- Finalize Portainer deployment workflow and align docs for PaaS (Leapcell). Ensure healthchecks and env merges are documented.
+- Kick off core feature implementation for data sources (yfinance adapter/service) and realtime polling service.
 
 Recent changes:
 
-- Added `deploy/portainer` artifacts and guarded runtime settings for PaaS.
+- Added Memory Bank core files (`systemPatterns.md`, `techContext.md`, `progress.md`) and reconciled tasks index.
+- Portainer PR previously created; now tracking reviewers/labels.
 
 Next steps:
 
-- Create PR for Portainer changes, run CI checks, and optionally add a push-image CI pipeline for prebuilt artifacts.
+- Add reviewers/labels to Portainer PR and monitor CI.
+- Implement `DataSourceService` with adapter pattern (TASK003) and tests using fixtures.
+- Implement `RealtimeService` polling MVP (TASK004) leveraging the data source adapter.
