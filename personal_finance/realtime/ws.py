@@ -6,6 +6,7 @@ and pushes price updates in real-time using the RealtimeService.
 """
 
 import json
+import uuid
 from typing import Dict, Any, List
 from loguru import logger
 
@@ -35,7 +36,7 @@ class WebSocketPriceEndpoint:
         self, websocket: WebSocketServerProtocol, path: str
     ):
         """Handle a new WebSocket connection."""
-        connection_id = f"ws_{id(websocket)}"
+        connection_id = str(uuid.uuid4())
         self.connections[connection_id] = websocket
         self.connection_subscriptions[connection_id] = []
 
@@ -247,7 +248,7 @@ class ASGIWebSocketApp:
         # Accept the connection
         await send({"type": "websocket.accept"})
 
-        connection_id = f"asgi_{id(scope)}"
+        connection_id = str(uuid.uuid4())
 
         try:
             while True:
