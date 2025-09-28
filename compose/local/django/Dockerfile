@@ -93,4 +93,9 @@ RUN chmod +x /start-flower
 # copy application code to WORKDIR
 COPY . ${APP_HOME}
 
+# Container-level healthcheck: use pg_isready so the daemon checks Postgres properly.
+# This will evaluate environment variables at container runtime.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" >/dev/null 2>&1 || exit 1
+
 ENTRYPOINT ["/entrypoint"]
