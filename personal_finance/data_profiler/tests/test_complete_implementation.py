@@ -134,6 +134,7 @@ class TestProfileDataFunction:
         # PII detection should be disabled
         assert result["pii_detected"] == False
         assert result["pii_detected"] is False
+
     def test_profile_data_pii_detection_enabled(self):
         """Test profile_data with PII detection enabled."""
         df = pd.DataFrame(
