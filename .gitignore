@@ -162,3 +162,4 @@ cython_debug/
 
 # Codacy analysis output
 results.sarif
+.DS_Store

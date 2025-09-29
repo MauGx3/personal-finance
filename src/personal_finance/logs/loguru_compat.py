@@ -13,22 +13,36 @@ from loguru import logger as loguru_logger
 from .level import LOG_FORMAT, resolve_level
 
 # Configure loguru to replace standard logging
-loguru_logger.remove()  # Remove default handler
+module_logger = loguru_logger
+module_logger.remove()  # Remove default handler
 
 # Get log level from environment and validate it for security compliance
 log_level = resolve_level(os.environ.get("PORTFOLIO_LOG_LEVEL"))
 
-# Add console handler with a shared format
-loguru_logger.add(
+# Container-aware configuration: produce JSON when running in containers so
+# logs are structured and easy to ship. Developers can set
+# PORTFOLIO_CONTAINERIZED=1 in container images.
+containerized = os.environ.get("PORTFOLIO_CONTAINERIZED") in (
+    "1",
+    "true",
+    "True",
+)
+
+# Add console handler with a shared format. When containerized, serialize
+# (JSON) the output; otherwise print human-friendly colorized logs.
+module_logger.add(
     __import__("sys").stdout,
     level=log_level,
     format=LOG_FORMAT.replace("{extra[name]} - ", ""),
-    colorize=True,
+    colorize=not containerized,
+    serialize=containerized,
 )
 
 
 class LoguruLogger:
-    """Loguru-based logger that mimics the standard logging.Logger interface."""
+    """Loguru-based logger that mimics the standard logging.Logger
+    interface.
+    """
 
     def __init__(self, name: str):
         self.name = name
@@ -58,6 +72,16 @@ class LoguruLogger:
             message = message % args
         self.logger.debug(message)
 
+    def trace(self, message: str, *args):
+        """Log trace level message (very verbose)."""
+        if args:
+            message = message % args
+        try:
+            self.logger.trace(message)
+        except AttributeError:
+            # Fall back to debug if trace is not available
+            self.logger.debug(message)
+
 
 # Compatibility functions to replace logging module functions
 def getLogger(name: str = "root") -> LoguruLogger:
@@ -65,14 +89,17 @@ def getLogger(name: str = "root") -> LoguruLogger:
     return LoguruLogger(name)
 
 
-def basicConfig(level=None, format=None, **kwargs):
-    """Configure basic logging - compatibility function."""
-    # This is handled in the module initialization above
-    # We maintain this function for compatibility but it's essentially a no-op
-    pass
+def basicConfig(level=None, fmt=None, **_kwargs):
+    """Compatibility stub for logging.basicConfig.
+
+    This module configures loguru at import time; this function remains for
+    compatibility and intentionally does nothing.
+    """
+    return None
 
 
 # Constants for compatibility with logging module
+TRACE = "TRACE"
 DEBUG = "DEBUG"
 INFO = "INFO"
 WARNING = "WARNING"

@@ -1,0 +1,18 @@
+# Documentation building requirements
+# Used by GitHub Actions to build Sphinx documentation
+
+# Core Sphinx and extensions
+sphinx>=7.0.0
+sphinx-rtd-theme>=2.0.0
+sphinx-autobuild>=2021.3.14
+
+# Django integration for autodoc
+django>=4.2.0
+
+# Additional useful extensions
+sphinx-copybutton>=0.5.0
+sphinx-tabs>=3.4.0
+myst-parser>=2.0.0
+
+# Documentation utilities
+doc8>=1.1.0

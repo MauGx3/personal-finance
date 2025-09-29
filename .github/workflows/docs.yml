@@ -1,0 +1,143 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'personal_finance/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'personal_finance/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Build documentation
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libpq-dev
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-docs.txt
+        # Install the repository package in editable mode so Django and
+        # the project's packages are importable during the Sphinx build.
+        pip install -e .
+
+    - name: Setup Django for docs
+      run: |
+        export DATABASE_URL="sqlite:///docs_build.db"
+        export DJANGO_SETTINGS_MODULE="config.settings.local"
+        python manage.py collectstatic --noinput --clear
+      env:
+        DATABASE_URL: "sqlite:///docs_build.db"
+        DJANGO_SETTINGS_MODULE: "config.settings.local"
+        DJANGO_SECRET_KEY: "docs-build-key-not-for-production"
+        # Ensure Python can import the project packages when running
+        # manage.py and Sphinx (extra safety alongside editable install).
+        PYTHONPATH: ${{ github.workspace }}
+
+    - name: Build documentation
+      run: |
+        cd docs
+        make html
+      env:
+        DATABASE_URL: "sqlite:///docs_build.db"
+        DJANGO_SETTINGS_MODULE: "config.settings.local"
+        DJANGO_SECRET_KEY: "docs-build-key-not-for-production"
+        PYTHONPATH: ${{ github.workspace }}
+
+    - name: List built documentation files (diagnostic)
+      run: |
+        echo "Files in docs/_build/html:"
+        ls -lah docs/_build/html || true
+        echo "Top-level listing (first 200 entries):"
+        find docs/_build/html -maxdepth 2 -type f | sed -n '1,200p' || true
+        echo "Show start of index.html (if present):"
+        [ -f docs/_build/html/index.html ] && head -n 60 docs/_build/html/index.html || echo "index.html not found"
+
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation
+        path: docs/_build/html
+
+    - name: Setup Pages
+      if: github.ref == 'refs/heads/main'
+      uses: actions/configure-pages@v3
+
+    - name: Upload to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs/_build/html
+
+  # Deploy to GitHub Pages (only on main branch)
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Install jq (for diagnostic JSON pretty-printing)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Query Pages site metadata (diagnostic)
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Fetching Pages site metadata"
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages" | jq '.' || true
+
+      - name: Query Pages builds (diagnostic)
+        run: |
+          echo "Fetching Pages builds"
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages/builds" | jq '.' || true
+
+      - name: Query Pages deployment (diagnostic)
+        run: |
+          echo "Fetching Pages deployment info"
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages/deployment" | jq '.' || true

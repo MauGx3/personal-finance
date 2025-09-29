@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   # dependencies for building Python packages
   build-essential \
   # psycopg dependencies
-  libpq-dev
+  libpq-dev \
+  # provide pg_isready for reliable Postgres readiness checks
+  postgresql-client
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements .
@@ -30,6 +32,7 @@ ARG APP_HOME=/app
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV BUILD_ENV=${BUILD_ENVIRONMENT}
+ENV PORTFOLIO_CONTAINERIZED=1
 
 WORKDIR ${APP_HOME}
 
@@ -50,7 +53,8 @@ RUN groupadd --gid 1000 dev-user \
 RUN apt-get update && apt-get install --no-install-recommends -y \
   # psycopg dependencies
   libpq-dev \
-  wait-for-it \
+  # provide pg_isready for reliable Postgres readiness checks
+  postgresql-client \
   # Translations dependencies
   gettext \
   # cleaning up unused files
@@ -89,5 +93,10 @@ RUN chmod +x /start-flower
 
 # copy application code to WORKDIR
 COPY . ${APP_HOME}
+
+# Container-level healthcheck: use pg_isready so the daemon checks Postgres properly.
+# This will evaluate environment variables at container runtime.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" >/dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["/entrypoint"]

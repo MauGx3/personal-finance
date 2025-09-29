@@ -14,7 +14,8 @@ services:
       retries: 5
     # Bind to an alternate host port to reduce accidental exposure
     ports:
-      - "52135:5432"
+      # bind to localhost only to avoid exposing Postgres to external probes
+      - "127.0.0.1:52135:5432"
 
   app:
     build:
@@ -27,6 +28,11 @@ services:
       PORT: 8000
       # Use the internal DB port; host mapping happens above
       DATABASE_URL: postgresql+psycopg2://finance:finance@db:5432/finance
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: finance
+      POSTGRES_PASSWORD: finance
+      POSTGRES_DB: finance
       RUN_MIGRATIONS_ON_START: "1"
       USE_DOCKER: "no"
       DJANGO_SETTINGS_MODULE: "config.settings.production"

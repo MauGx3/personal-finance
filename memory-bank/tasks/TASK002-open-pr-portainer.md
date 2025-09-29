@@ -2,7 +2,7 @@
 
 **Status:** In Progress
 **Added:** 2025-09-23
-**Updated:** 2025-09-23
+**Updated:** 2025-09-28
 
 ## Original Request
 Open a pull request for the `deploy/portainer` branch that contains Portainer deploy artifacts and runtime fixes so reviewers can validate and merge.
@@ -30,3 +30,7 @@ Open a pull request for the `deploy/portainer` branch that contains Portainer de
 ### 2025-09-23
 
 - Programmatically created PR #141: [https://github.com/MauGx3/personal-finance/pull/141](https://github.com/MauGx3/personal-finance/pull/141)
+
+### 2025-09-28
+
+- Verified Memory Bank and deployment docs alignment. Next actions: assign reviewers/labels to PR #141 and monitor CI; prepare optional image push workflow proposal.

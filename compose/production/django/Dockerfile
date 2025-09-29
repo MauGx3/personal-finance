@@ -32,6 +32,7 @@ ARG APP_HOME=/app
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV BUILD_ENV=${BUILD_ENVIRONMENT}
+ENV PORTFOLIO_CONTAINERIZED=1
 
 WORKDIR ${APP_HOME}
 
@@ -43,10 +44,10 @@ RUN addgroup --system django \
 RUN apt-get update && apt-get install --no-install-recommends -y \
   # psycopg dependencies
   libpq-dev \
+  # provide pg_isready for readiness checks
+  postgresql-client \
   # Translations dependencies
   gettext \
-  # entrypoint
-  wait-for-it \
   # cleaning up unused files
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
