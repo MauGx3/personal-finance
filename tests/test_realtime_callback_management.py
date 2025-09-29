@@ -6,7 +6,7 @@ to ensure proper cleanup and prevent memory leaks.
 """
 
 import pytest
-from unittest.mock import Mock, call
+from unittest.mock import Mock
 from personal_finance.realtime.connections import ConnectionManager
 
 
