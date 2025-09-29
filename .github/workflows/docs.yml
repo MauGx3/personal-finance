@@ -77,6 +77,15 @@ jobs:
         DJANGO_SECRET_KEY: "docs-build-key-not-for-production"
         PYTHONPATH: ${{ github.workspace }}
 
+    - name: List built documentation files (diagnostic)
+      run: |
+        echo "Files in docs/_build/html:"
+        ls -lah docs/_build/html || true
+        echo "Top-level listing (first 200 entries):"
+        find docs/_build/html -maxdepth 2 -type f | sed -n '1,200p' || true
+        echo "Show start of index.html (if present):"
+        [ -f docs/_build/html/index.html ] && head -n 60 docs/_build/html/index.html || echo "index.html not found"
+
     - name: Upload documentation artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -105,3 +114,30 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Install jq (for diagnostic JSON pretty-printing)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Query Pages site metadata (diagnostic)
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Fetching Pages site metadata"
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages" | jq '.' || true
+
+      - name: Query Pages builds (diagnostic)
+        run: |
+          echo "Fetching Pages builds"
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages/builds" | jq '.' || true
+
+      - name: Query Pages deployment (diagnostic)
+        run: |
+          echo "Fetching Pages deployment info"
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages/deployment" | jq '.' || true
