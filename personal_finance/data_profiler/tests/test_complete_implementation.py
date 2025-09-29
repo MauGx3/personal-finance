@@ -226,22 +226,22 @@ class TestInputValidation:
         # Valid DataFrame
         df = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
         assert validate_profile_data(df) == True
+        assert validate_profile_data(df) is True
 
         # Valid Series
         series = pd.Series([1, 2, 3])
-        assert validate_profile_data(series) == True
+        assert validate_profile_data(series) is True
 
         # Valid numpy array
         arr = np.array([1, 2, 3])
-        assert validate_profile_data(arr) == True
+        assert validate_profile_data(arr) is True
 
         # Valid list of dictionaries
         records = [{"a": 1, "b": "x"}, {"a": 2, "b": "y"}]
-        assert validate_profile_data(records) == True
+        assert validate_profile_data(records) is True
 
         # Valid file path string
-        assert validate_profile_data("test.csv") == True
-
+        assert validate_profile_data("test.csv") is True
     def test_validate_profile_data_invalid_inputs(self):
         """Test validation with invalid inputs."""
         # None input
