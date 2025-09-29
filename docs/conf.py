@@ -16,15 +16,52 @@ import sys
 
 import django
 
+# Ensure the repository root is on sys.path so Sphinx can import the
+# Django settings module (config.settings.local) during CI (GitHub Actions,
+# ReadTheDocs, etc.). Previously we tried to use /app which doesn't exist
+# in the Actions runner and caused ModuleNotFoundError: No module named 'config'.
+sys.path.insert(0, os.path.abspath(".."))
+
+# Also make src/ importable (some projects put the package in src/)
+sys.path.insert(0, os.path.abspath("../src"))
+
+# Keep a couple of ReadTheDocs-specific environment fallbacks when appropriate.
 if os.getenv("READTHEDOCS", default="False") == "True":
-    sys.path.insert(0, os.path.abspath(".."))
     os.environ["DJANGO_READ_DOT_ENV_FILE"] = "True"
     os.environ["USE_DOCKER"] = "no"
-else:
-    sys.path.insert(0, os.path.abspath("/app"))
 os.environ["DATABASE_URL"] = "sqlite:///readthedocs.db"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
-django.setup()
+
+# Try to setup Django but be defensive: only call django.setup() when the
+# configured settings module can be found. This avoids Sphinx aborting with
+# a ConfigError when the project hasn't been installed yet on CI runners.
+_DJANGO_AVAILABLE = False
+try:  # pragma: no cover - best-effort in CI
+    import importlib
+    import importlib.util
+
+    # If django is not importable, skip setup entirely.
+    try:
+        import django as _django
+    except Exception:
+        _django = None
+
+    if _django is not None:
+        settings_mod = os.environ.get("DJANGO_SETTINGS_MODULE")
+        # Only call setup() if the settings module (or its package) is importable.
+        if settings_mod and importlib.util.find_spec(settings_mod):
+            try:
+                _django.setup()
+                _DJANGO_AVAILABLE = True
+            except Exception:
+                # If setup fails, continue without Django to allow Sphinx to
+                # build non-Django docs. Some autodoc features may be limited.
+                _DJANGO_AVAILABLE = False
+        else:
+            # Don't attempt to initialise Django when settings aren't present.
+            _DJANGO_AVAILABLE = False
+except Exception:
+    _DJANGO_AVAILABLE = False
 
 # -- Project information -----------------------------------------------------
 
@@ -40,12 +77,20 @@ author = "Mauricio Gioachini"
 try:
     import sys
     import os
+    # Prefer reading the installed package version if available.
+    try:
+        # When the package is installed (pip install -e .) this will work.
+        from importlib.metadata import version as _pkg_version
 
-    sys.path.insert(0, os.path.abspath("../src"))
-    from personal_finance import __version__
+        version = _pkg_version("personal-finance")
+        release = version
+    except Exception:
+        # Fall back to importing the local package from the repo's src/ dir.
+        sys.path.insert(0, os.path.abspath("../src"))
+        from personal_finance import __version__
 
-    version = __version__
-    release = __version__
+        version = __version__
+        release = __version__
 except ImportError:
     # Fallback version if import fails
     version = "0.1.0"

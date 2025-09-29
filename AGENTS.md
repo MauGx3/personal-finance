@@ -11,13 +11,13 @@ Comprehensive instructions for autonomous coding agents working on this reposito
 
 ### Architecture Snapshot
 
-| Component | Location | Notes |
-|-----------|----------|-------|
-| Django project | `config/` + `personal_finance/` | Settings split under `config/settings/`; apps live under `personal_finance/` (analytics, assets, backtesting, etc.). |
-| Celery workers | `config/celery_app.py` | Requires Redis; start separately. |
-| Background scripts | `run_finance.py`, `setup_database.py`, `alembic/` | ETL + DB bootstrap. |
-| Infrastructure | `docker-compose*.yml`, `Dockerfile`, `render.yaml`, `Procfile` | Local/production orchestrations. |
-| Documentation | `/spec/`, `/docs/`, `/memory-bank/` | Specifications, Sphinx docs, running context. |
+| Component          | Location                                                               | Notes                                                                                                                    |
+| ------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Django project     | `config/` + `personal_finance/`                                    | Settings split under `config/settings/`; apps live under `personal_finance/` (analytics, assets, backtesting, etc.). |
+| Celery workers     | `config/celery_app.py`                                               | Requires Redis; start separately.                                                                                        |
+| Background scripts | `run_finance.py`, `setup_database.py`, `alembic/`                | ETL + DB bootstrap.                                                                                                      |
+| Infrastructure     | `docker-compose*.yml`, `Dockerfile`, `render.yaml`, `Procfile` | Local/production orchestrations.                                                                                         |
+| Documentation      | `/spec/`, `/docs/`, `/memory-bank/`                              | Specifications, Sphinx docs, running context.                                                                            |
 
 ### Repository Layout Highlights
 
@@ -57,11 +57,11 @@ python -m pip install -r requirements-dev.txt
 
 1. Copy template if needed:
 
-    ```fish
-    cp .env.example .env
-    ```
-
+   ```fish
+   cp .env.example .env
+   ```
 2. Populate `.env` with local secrets (never commit secrets):
+
    - `DATABASE_URL` (falls back to SQLite if unset)
    - `REDIS_URL` (for Celery/WebSockets)
    - `DJANGO_SECRET_KEY`, `DJANGO_SETTINGS_MODULE` (see `config/settings/`)
@@ -82,6 +82,10 @@ alembic upgrade head
 ```
 
 ## 3. Daily Development Workflow
+
+- One of the most important things when doing absolutely any task is to leverage the available MCP server tools. Before doing anything, see if there is a configured server that specializes in the task you want to do and choose the appropriate tools.
+- MCP tools most certainly knows better than you.
+- For example, all GitHub actions must be carried using the github-mcp-server, while documentation must be obtained via context7 to improve knowledge about an external dependency.
 
 ### Run Services
 
@@ -112,11 +116,12 @@ docker compose up -d redis postgres
 
 Default framework: **pytest** with Django + Celery fixtures configured in `personal_finance/conftest.py`.
 
-| Scenario | Command |
-|----------|---------|
-| Run full suite | ```fish
-pytest -q
-``` |
+| Scenario       | Command |
+| -------------- | ------- |
+| Run full suite | ```fish |
+| pytest -q      |         |
+
+```|
 | Single file | ```fish
 pytest tests/test_file.py -q
 ``` |
@@ -156,17 +161,16 @@ If adding dependencies, update `requirements.txt`, any relevant `requirements-*.
 
 - **Docker (local)**:
 
-    ```fish
-    docker compose -f docker-compose.local.yml up --build
-    ```
+  ```fish
+  docker compose -f docker-compose.local.yml up --build
+  ```
 
-    Spins up Django, Redis, Postgres, Celery worker, and ancillary services.
-
+  Spins up Django, Redis, Postgres, Celery worker, and ancillary services.
 - **Production artifacts**:
+
   - `docker-compose.production.yml` for multi-service deploys.
   - `render.yaml` / `Procfile` for platform-specific hosting.
   - Static files handled via Django’s `collectstatic` (configure storage backend per environment).
-
 - **Environment promotion**: ensure migrations and `pip-audit` are green before deploying.
 
 ## 7. CI/CD Summary

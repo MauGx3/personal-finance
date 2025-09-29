@@ -50,6 +50,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-docs.txt
+        # Install the repository package in editable mode so Django and
+        # the project's packages are importable during the Sphinx build.
+        pip install -e .
 
     - name: Setup Django for docs
       run: |
@@ -60,6 +63,9 @@ jobs:
         DATABASE_URL: "sqlite:///docs_build.db"
         DJANGO_SETTINGS_MODULE: "config.settings.local"
         DJANGO_SECRET_KEY: "docs-build-key-not-for-production"
+        # Ensure Python can import the project packages when running
+        # manage.py and Sphinx (extra safety alongside editable install).
+        PYTHONPATH: ${{ github.workspace }}
 
     - name: Build documentation
       run: |
@@ -69,6 +75,7 @@ jobs:
         DATABASE_URL: "sqlite:///docs_build.db"
         DJANGO_SETTINGS_MODULE: "config.settings.local"
         DJANGO_SECRET_KEY: "docs-build-key-not-for-production"
+        PYTHONPATH: ${{ github.workspace }}
 
     - name: Upload documentation artifacts
       uses: actions/upload-artifact@v4
