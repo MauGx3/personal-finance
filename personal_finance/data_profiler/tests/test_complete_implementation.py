@@ -242,6 +242,7 @@ class TestInputValidation:
 
         # Valid file path string
         assert validate_profile_data("test.csv") is True
+
     def test_validate_profile_data_invalid_inputs(self):
         """Test validation with invalid inputs."""
         # None input
@@ -331,6 +332,7 @@ class TestDataProfilerServiceIntegration:
         )
         assert service_no_pii.enable_sensitive_data_detection == False
         assert service_no_pii.enable_sensitive_data_detection is False
+
     def test_service_availability_check(self):
         """Test availability checking works."""
         service = DataProfilerService()
