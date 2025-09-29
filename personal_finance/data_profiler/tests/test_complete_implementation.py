@@ -330,7 +330,7 @@ class TestDataProfilerServiceIntegration:
             enable_sensitive_data_detection=False
         )
         assert service_no_pii.enable_sensitive_data_detection == False
-
+        assert service_no_pii.enable_sensitive_data_detection is False
     def test_service_availability_check(self):
         """Test availability checking works."""
         service = DataProfilerService()
