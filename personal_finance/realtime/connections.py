@@ -7,7 +7,7 @@ and message broadcasting for live market data updates.
 
 import json
 from loguru import logger
-from typing import Dict, Set, Optional, Any
+from typing import Dict, Set, Optional, Any, Callable, List
 from datetime import datetime
 from decimal import Decimal
 
@@ -28,6 +28,9 @@ class ConnectionManager:
         self.user_connections: Dict[int, Set[str]] = {}
         self.portfolio_subscriptions: Dict[int, Set[str]] = {}
         self.asset_subscriptions: Dict[str, Set[str]] = {}
+        # Callback registries for cleanup operations
+        self.portfolio_cleanup_callbacks: Dict[str, List[Callable[[], None]]] = {}
+        self.asset_cleanup_callbacks: Dict[str, List[Callable[[], None]]] = {}
 
     async def connect(self, connection_id: str, user_id: Optional[int] = None):
         """
@@ -80,6 +83,8 @@ class ConnectionManager:
                 )
                 if not self.portfolio_subscriptions[portfolio_id]:
                     del self.portfolio_subscriptions[portfolio_id]
+            # Execute cleanup callbacks for portfolio
+            await self._execute_portfolio_callbacks(connection_id, portfolio_id)
 
         # Clean up asset subscriptions
         for asset_symbol in connection_info["assets"]:
@@ -87,12 +92,52 @@ class ConnectionManager:
                 self.asset_subscriptions[asset_symbol].discard(connection_id)
                 if not self.asset_subscriptions[asset_symbol]:
                     del self.asset_subscriptions[asset_symbol]
+            # Execute cleanup callbacks for asset
+            await self._execute_asset_callbacks(connection_id, asset_symbol)
 
         del self.connections[connection_id]
         logger.info("WebSocket disconnected: %s", connection_id)
 
+    def _register_portfolio_callback(self, connection_id: str, portfolio_id: int, callback: Callable[[], None]):
+        """Register a cleanup callback for portfolio subscription."""
+        callback_key = f"{connection_id}:{portfolio_id}"
+        if callback_key not in self.portfolio_cleanup_callbacks:
+            self.portfolio_cleanup_callbacks[callback_key] = []
+        self.portfolio_cleanup_callbacks[callback_key].append(callback)
+
+    def _register_asset_callback(self, connection_id: str, asset_symbol: str, callback: Callable[[], None]):
+        """Register a cleanup callback for asset subscription."""
+        callback_key = f"{connection_id}:{asset_symbol}"
+        if callback_key not in self.asset_cleanup_callbacks:
+            self.asset_cleanup_callbacks[callback_key] = []
+        self.asset_cleanup_callbacks[callback_key].append(callback)
+
+    async def _execute_portfolio_callbacks(self, connection_id: str, portfolio_id: int):
+        """Execute and remove cleanup callbacks for portfolio subscription."""
+        callback_key = f"{connection_id}:{portfolio_id}"
+        callbacks = self.portfolio_cleanup_callbacks.pop(callback_key, [])
+        
+        for callback in callbacks:
+            try:
+                callback()
+                logger.debug(f"Executed portfolio cleanup callback for {callback_key}")
+            except Exception as e:
+                logger.error(f"Error executing portfolio cleanup callback for {callback_key}: {e}")
+
+    async def _execute_asset_callbacks(self, connection_id: str, asset_symbol: str):
+        """Execute and remove cleanup callbacks for asset subscription."""
+        callback_key = f"{connection_id}:{asset_symbol}"
+        callbacks = self.asset_cleanup_callbacks.pop(callback_key, [])
+        
+        for callback in callbacks:
+            try:
+                callback()
+                logger.debug(f"Executed asset cleanup callback for {callback_key}")
+            except Exception as e:
+                logger.error(f"Error executing asset cleanup callback for {callback_key}: {e}")
+
     async def subscribe_to_portfolio(
-        self, connection_id: str, portfolio_id: int
+        self, connection_id: str, portfolio_id: int, cleanup_callback: Optional[Callable[[], None]] = None
     ):
         """
         Subscribe a connection to portfolio updates.
@@ -100,6 +145,7 @@ class ConnectionManager:
         Args:
             connection_id: Unique identifier for the connection
             portfolio_id: ID of the portfolio to subscribe to
+            cleanup_callback: Optional callback to execute when unsubscribing
         """
         if connection_id not in self.connections:
             return
@@ -110,17 +156,22 @@ class ConnectionManager:
             self.portfolio_subscriptions[portfolio_id] = set()
         self.portfolio_subscriptions[portfolio_id].add(connection_id)
 
+        # Register cleanup callback if provided
+        if cleanup_callback:
+            self._register_portfolio_callback(connection_id, portfolio_id, cleanup_callback)
+
         logger.debug(
             f"Connection {connection_id} subscribed to portfolio {portfolio_id}"
         )
 
-    async def subscribe_to_asset(self, connection_id: str, asset_symbol: str):
+    async def subscribe_to_asset(self, connection_id: str, asset_symbol: str, cleanup_callback: Optional[Callable[[], None]] = None):
         """
         Subscribe a connection to asset price updates.
 
         Args:
             connection_id: Unique identifier for the connection
             asset_symbol: Symbol of the asset to subscribe to
+            cleanup_callback: Optional callback to execute when unsubscribing
         """
         if connection_id not in self.connections:
             return
@@ -130,6 +181,10 @@ class ConnectionManager:
         if asset_symbol not in self.asset_subscriptions:
             self.asset_subscriptions[asset_symbol] = set()
         self.asset_subscriptions[asset_symbol].add(connection_id)
+
+        # Register cleanup callback if provided
+        if cleanup_callback:
+            self._register_asset_callback(connection_id, asset_symbol, cleanup_callback)
 
         logger.debug(
             f"Connection {connection_id} subscribed to asset {asset_symbol}"
@@ -155,6 +210,9 @@ class ConnectionManager:
             if not self.portfolio_subscriptions[portfolio_id]:
                 del self.portfolio_subscriptions[portfolio_id]
 
+        # Execute cleanup callbacks
+        await self._execute_portfolio_callbacks(connection_id, portfolio_id)
+
     async def unsubscribe_from_asset(
         self, connection_id: str, asset_symbol: str
     ):
@@ -174,6 +232,9 @@ class ConnectionManager:
             self.asset_subscriptions[asset_symbol].discard(connection_id)
             if not self.asset_subscriptions[asset_symbol]:
                 del self.asset_subscriptions[asset_symbol]
+
+        # Execute cleanup callbacks
+        await self._execute_asset_callbacks(connection_id, asset_symbol)
 
     def get_portfolio_subscribers(self, portfolio_id: int) -> Set[str]:
         """
