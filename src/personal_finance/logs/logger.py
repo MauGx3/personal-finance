@@ -26,21 +26,36 @@ class PackageLogger:
     def _setup_logger(self, log_file: Optional[Path] = None):
         """Setup logger with console and file handlers."""
         # Remove default handler and configure with our format
-        self.logger.remove()
+        # Configure the module-level loguru logger first, then bind for use by
+        # this PackageLogger instance. Using a local variable avoids some type
+        # checker issues with bound logger methods.
+        module_logger = loguru_logger
+        module_logger.remove()
 
         # Get log level from environment variable and validate it for security
         log_level = resolve_level(os.environ.get("PORTFOLIO_LOG_LEVEL"))
 
-        # Console handler with custom, shared format
-        self.logger.add(
+        # Determine whether we're running in a containerized environment.
+        # Developers may set PORTFOLIO_CONTAINERIZED=1 in container images.
+        containerized = os.environ.get("PORTFOLIO_CONTAINERIZED") in (
+            "1",
+            "true",
+            "True",
+        )
+
+        # Console handler: use JSON in containers for structured logging.
+        # This is easier to scrape/ship. Otherwise use a human-friendly colorized
+        # format.
+        module_logger.add(
             sys.stdout,
             level=log_level,
             format=LOG_FORMAT,
-            colorize=True,
+            colorize=not containerized,
+            serialize=containerized,
         )
 
         # Bind the logger name to maintain compatibility
-        self.logger = self.logger.bind(name=self.name)
+        self.logger = module_logger.bind(name=self.name)
 
         # File handler (optional)
         if log_file:
@@ -67,6 +82,19 @@ class PackageLogger:
     def debug(self, message: str):
         """Log debug level message."""
         self.logger.debug(message)
+
+    def trace(self, message: str):
+        """Log trace level message (very verbose, for deep debugging).
+
+        This should not be enabled in production. Use PORTFOLIO_LOG_LEVEL to
+        control the effective level.
+        """
+        # loguru supports `trace` level; ensure callers can invoke it.
+        try:
+            self.logger.trace(message)
+        except (AttributeError, TypeError):
+            # If trace is not supported for some reason, fall back to debug
+            self.logger.debug(message)
 
     def add_file_handler(self, log_file: Path):
         """Add file handler to the logger."""

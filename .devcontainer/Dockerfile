@@ -14,3 +14,4 @@ RUN pip install --upgrade pip
 USER vscode
 
 WORKDIR /workspace
+ENV PORTFOLIO_CONTAINERIZED=1
