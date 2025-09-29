@@ -77,6 +77,7 @@ author = "Mauricio Gioachini"
 try:
     import sys
     import os
+
     # Prefer reading the installed package version if available.
     try:
         # When the package is installed (pip install -e .) this will work.
