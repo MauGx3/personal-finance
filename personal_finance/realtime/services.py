@@ -7,9 +7,10 @@ and integration with multiple data sources for real-time feeds.
 
 import asyncio
 from loguru import logger
-from typing import Dict, List, Set, Any
+from typing import Dict, List, Set, Any, Optional, Callable
 from datetime import datetime
 from decimal import Decimal
+from dataclasses import dataclass
 
 from django.conf import settings
 from django.utils import timezone
@@ -27,7 +28,7 @@ except ImportError:
 
 # Temporary stub for PriceHistory; replace with actual model ASAP
 class PriceHistory:
-    """Stub PriceHistory model. Any usage should be replaced with the real model."""
+    """Stub PriceHistory model. Should be replaced with the real model."""
 
     @classmethod
     def objects(cls):
@@ -54,6 +55,309 @@ except ImportError:
 
 
 # Using loguru logger imported above
+
+
+@dataclass
+class PricePoint:
+    """Structured price data for realtime updates."""
+
+    symbol: str
+    price: Decimal
+    change: Optional[Decimal] = None
+    change_percent: Optional[Decimal] = None
+    volume: Optional[int] = None
+    high: Optional[Decimal] = None
+    low: Optional[Decimal] = None
+    timestamp: datetime = None
+    source: str = "realtime"
+
+    def __post_init__(self):
+        if self.timestamp is None:
+            self.timestamp = datetime.now()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "symbol": self.symbol,
+            "price": float(self.price),
+            "change": float(self.change) if self.change is not None else None,
+            "change_percent": float(self.change_percent)
+            if self.change_percent is not None
+            else None,
+            "volume": self.volume,
+            "high": float(self.high) if self.high is not None else None,
+            "low": float(self.low) if self.low is not None else None,
+            "timestamp": self.timestamp.isoformat()
+            if self.timestamp
+            else None,
+            "source": self.source,
+        }
+
+
+class RealtimeService:
+    """
+    Realtime price streaming service with polling and websocket support.
+
+    Provides a simple publish/subscribe API for receiving near real-time
+    price updates from multiple data sources. Supports both polling mode
+    (periodic HTTP queries) and websocket mode (push updates to clients).
+    """
+
+    def __init__(
+        self,
+        mode: str = "polling",
+        update_interval: int = 15,
+        max_batch_size: int = 50,
+    ):
+        """
+        Initialize the realtime service.
+
+        Args:
+            mode: Operating mode - "polling" or "ws" (websocket)
+            update_interval: Seconds between price updates (default 15s)
+            max_batch_size: Maximum symbols to process in one batch
+        """
+        self.mode = mode
+        self.update_interval = update_interval
+        self.max_batch_size = max_batch_size
+        self.is_running = False
+        self.update_task = None
+
+        # Subscriber management
+        self.subscribers: Dict[
+            str, List[Callable]
+        ] = {}  # symbol -> [callbacks]
+        self._subscription_lock = asyncio.Lock()
+
+        # Graceful shutdown support
+        self._shutdown_event = asyncio.Event()
+
+    async def start(self):
+        """Start the realtime service."""
+        if self.is_running:
+            logger.warning("RealtimeService is already running")
+            return
+
+        self.is_running = True
+
+        if self.mode == "polling":
+            self.update_task = asyncio.create_task(self._polling_loop())
+        elif self.mode == "ws":
+            # Websocket mode relies on external websocket server
+            # but we can still run background updates
+            self.update_task = asyncio.create_task(self._polling_loop())
+        else:
+            raise ValueError(
+                f"Invalid mode: {self.mode}. Must be 'polling' or 'ws'"
+            )
+
+        logger.info(f"RealtimeService started in {self.mode} mode")
+
+    async def stop(self):
+        """Stop the realtime service gracefully."""
+        logger.info("Stopping RealtimeService...")
+        self.is_running = False
+        self._shutdown_event.set()
+
+        if self.update_task:
+            self.update_task.cancel()
+            try:
+                await self.update_task
+            except asyncio.CancelledError:
+                pass
+
+        logger.info("RealtimeService stopped")
+
+    async def subscribe(self, symbols: List[str], callback: Callable):
+        """
+        Subscribe to price updates for given symbols.
+
+        Args:
+            symbols: List of asset symbols to subscribe to
+            callback: Function to call with PricePoint objects
+        """
+        async with self._subscription_lock:
+            for symbol in symbols:
+                if symbol not in self.subscribers:
+                    self.subscribers[symbol] = []
+                self.subscribers[symbol].append(callback)
+
+        logger.info(f"Subscribed to {len(symbols)} symbols: {symbols}")
+
+    async def unsubscribe(self, symbols: List[str], callback: Callable):
+        """
+        Unsubscribe from price updates.
+
+        Args:
+            symbols: List of asset symbols to unsubscribe from
+            callback: Callback function to remove
+        """
+        async with self._subscription_lock:
+            for symbol in symbols:
+                if (
+                    symbol in self.subscribers
+                    and callback in self.subscribers[symbol]
+                ):
+                    self.subscribers[symbol].remove(callback)
+                    if not self.subscribers[
+                        symbol
+                    ]:  # Remove empty subscriber list
+                        del self.subscribers[symbol]
+
+        logger.info(f"Unsubscribed from {len(symbols)} symbols: {symbols}")
+
+    async def get_subscribed_symbols(self) -> List[str]:
+        """Get list of currently subscribed symbols."""
+        async with self._subscription_lock:
+            return list(self.subscribers.keys())
+
+    async def _polling_loop(self):
+        """Main polling loop for price updates."""
+        while self.is_running:
+            try:
+                await self._update_subscribed_prices()
+                await asyncio.sleep(self.update_interval)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"Error in polling loop: {e}")
+                await asyncio.sleep(self.update_interval)
+
+    async def _update_subscribed_prices(self):
+        """Update prices for all subscribed symbols."""
+        symbols = await self.get_subscribed_symbols()
+        if not symbols:
+            return
+
+        logger.debug(f"Updating prices for {len(symbols)} subscribed symbols")
+
+        # Process in batches to respect rate limits
+        for i in range(0, len(symbols), self.max_batch_size):
+            batch = symbols[i : i + self.max_batch_size]
+            await self._update_batch(batch)
+
+    async def _update_batch(self, symbols: List[str]):
+        """Update prices for a batch of symbols."""
+        try:
+            price_updates = await self._fetch_prices(symbols)
+
+            # Notify subscribers
+            for symbol, price_data in price_updates.items():
+                await self._notify_subscribers(symbol, price_data)
+
+        except Exception as e:
+            logger.error(f"Error updating batch {symbols}: {e}")
+
+    async def _fetch_prices(self, symbols: List[str]) -> Dict[str, PricePoint]:
+        """Fetch current prices from data source manager."""
+        price_updates = {}
+
+        # Use data_source_manager if available
+        if data_source_manager is None:
+            logger.warning(
+                "data_source_manager not available, using mock data"
+            )
+            return self._generate_mock_prices(symbols)
+
+        for symbol in symbols:
+            try:
+                price_data = data_source_manager.get_current_price(symbol)
+                if price_data:
+                    price_point = PricePoint(
+                        symbol=symbol,
+                        price=price_data.current_price,
+                        change=price_data.current_price
+                        - price_data.previous_close
+                        if price_data.previous_close
+                        else None,
+                        change_percent=(
+                            (
+                                (
+                                    price_data.current_price
+                                    - price_data.previous_close
+                                )
+                                / price_data.previous_close
+                            )
+                            * 100
+                            if price_data.previous_close
+                            and price_data.previous_close != 0
+                            else None
+                        ),
+                        volume=price_data.volume,
+                        high=price_data.day_high,
+                        low=price_data.day_low,
+                        timestamp=price_data.last_updated,
+                        source=getattr(price_data, "source", "data_source"),
+                    )
+                    price_updates[symbol] = price_point
+
+            except Exception as e:
+                logger.error(f"Error fetching price for {symbol}: {e}")
+
+        return price_updates
+
+    def _generate_mock_prices(
+        self, symbols: List[str]
+    ) -> Dict[str, PricePoint]:
+        """Generate mock price data for testing purposes."""
+        import random
+
+        price_updates = {}
+
+        for symbol in symbols:
+            base_price = 100 + random.uniform(
+                -50, 150
+            )  # Random price between 50-250
+            change = random.uniform(-5, 5)
+            change_percent = (change / base_price) * 100
+
+            price_point = PricePoint(
+                symbol=symbol,
+                price=Decimal(str(round(base_price + change, 2))),
+                change=Decimal(str(round(change, 2))),
+                change_percent=Decimal(str(round(change_percent, 2))),
+                volume=random.randint(1000, 1000000),
+                high=Decimal(
+                    str(
+                        round(
+                            base_price + abs(change) + random.uniform(0, 3), 2
+                        )
+                    )
+                ),
+                low=Decimal(
+                    str(round(base_price + change - random.uniform(0, 3), 2))
+                ),
+                source="mock",
+            )
+            price_updates[symbol] = price_point
+
+        return price_updates
+
+    async def _notify_subscribers(self, symbol: str, price_point: PricePoint):
+        """Notify all subscribers for a symbol with new price data."""
+        async with self._subscription_lock:
+            callbacks = self.subscribers.get(symbol, [])
+
+        if not callbacks:
+            return
+
+        logger.debug(f"Notifying {len(callbacks)} subscribers for {symbol}")
+
+        # Call all callbacks for this symbol
+        for callback in callbacks:
+            try:
+                if asyncio.iscoroutinefunction(callback):
+                    await callback(price_point)
+                else:
+                    callback(price_point)
+            except Exception as e:
+                logger.error(
+                    f"Error calling subscriber callback for {symbol}: {e}"
+                )
+
+
+# Global realtime service instance
+realtime_service = RealtimeService()
 
 
 class PriceFeedService:
@@ -494,3 +798,55 @@ async def start_price_feed():
 async def stop_price_feed():
     """Stop the price feed service."""
     await price_feed_service.stop()
+
+
+async def start_realtime_service(
+    mode: str = "polling", update_interval: int = 15
+):
+    """Start the realtime service."""
+    global realtime_service
+    realtime_service = RealtimeService(
+        mode=mode, update_interval=update_interval
+    )
+    await realtime_service.start()
+
+
+async def stop_realtime_service():
+    """Stop the realtime service."""
+    if realtime_service:
+        await realtime_service.stop()
+
+
+def subscribe_to_prices(symbols: List[str], callback: Callable):
+    """
+    Subscribe to price updates (sync wrapper).
+
+    Args:
+        symbols: List of asset symbols to subscribe to
+        callback: Function to call with PricePoint objects
+    """
+    import asyncio
+
+    loop = None
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If we're in an async context, schedule the coroutine and return the task
+            return asyncio.create_task(
+                realtime_service.subscribe(symbols, callback)
+            )
+        else:
+            # If we're not in an async context, run it
+            loop.run_until_complete(
+                realtime_service.subscribe(symbols, callback)
+            )
+    except RuntimeError:
+        # No event loop running, create one
+        new_loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(new_loop)
+            new_loop.run_until_complete(
+                realtime_service.subscribe(symbols, callback)
+            )
+        finally:
+            new_loop.close()
