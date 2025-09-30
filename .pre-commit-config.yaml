@@ -48,6 +48,11 @@ repos:
       - id: djlint-reformat-django
       - id: djlint-django
 
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.2
+    hooks:
+      - id: gitleaks
+
 # sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
 ci:
   autoupdate_schedule: weekly
