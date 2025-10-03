@@ -8,28 +8,35 @@ and examples for developers of all skill levels.
 
 # Personal Finance Platform Test Suite
 
-## 🎯 Test Suite Status: SIGNIFICANTLY EXPANDED
+## 🎯 Test Suite Status: Focused & Maintained
 
-The test suite has been **dramatically expanded** from minimal coverage to comprehensive testing across multiple domains. See [`README_EXPANDED.md`](README_EXPANDED.md) for complete documentation.
+The active suite purposefully targets code paths that are maintained today: core
+Django models, data-profiler services, dependency policy checks, logging
+hardening, and deterministic analytics helpers. Legacy expansion suites remain
+in the repository for reference but load as skipped tests so they no longer add
+noise to daily workflows.
 
-### 📈 **Expansion Summary**
+### 📈 **Current Coverage Snapshot**
 
-**Before**: Only `test_minimal_core.py` (basic Django connectivity)
-**After**: 7+ comprehensive test files covering models, calculations, infrastructure, and more
+- **Core Django smoke tests** via `test_minimal_core.py` and
+  `test_reenabled_basic_functionality.py`.
+- **Assets & portfolio domain checks** in `test_expanded_assets.py`.
+- **Data Profiler validation flow** through `test_data_profiler_service.py` and
+  `test_data_profiler_validation.py`.
+- **Operational guardrails** in `test_dependency_compatibility.py`,
+  `test_dependency_consistency.py`, and `test_logging_security.py`.
+- **Financial analytics** with `test_analytics_metrics.py`, covering the shared
+  helpers shipped in `personal_finance.analytics.metrics`.
 
-### ✅ **Active Test Files**
+### 💤 **Legacy Suites**
 
-#### Core Functionality (High Coverage)
-- **`test_minimal_core.py`** - Basic Django connectivity (CI-safe)
-- **`test_expanded_assets.py`** - Comprehensive Asset/Portfolio/Holding model tests
-- **`test_reenabled_basic_functionality.py`** - Re-enabled CRUD and relationship tests
-- **`test_expanded_calculations.py`** - Complete financial mathematics test suite
-- **`test_expanded_django_config.py`** - Django infrastructure and security tests
-
-#### Infrastructure & Services
-- **`test_dependency_compatibility.py`** - Package compatibility validation
-- **`test_data_profiler_*.py`** - Data profiling and validation services
-- **Enhanced `conftest.py`** - Test factories and fixtures
+- `test_copilot_setup_completeness.py` and `test_expanded_calculations.py` are
+  now module-level skips documenting deprecated coverage areas. They remain in
+  place so historical notes and fixtures are easy to consult while we decide on
+  permanent archival.
+- Files ending with `.disabled` have been quarantined; treat them as design
+  references only. When reviving a capability, migrate relevant cases into the
+  active suite using the shared fixtures and analytics helpers.
 
 ### 🚀 **Quick Start**
 
@@ -42,16 +49,18 @@ python tests/run_expanded_test_suite.py
 
 # Run specific categories
 pytest tests/test_expanded_assets.py -v          # Model testing
-pytest tests/test_expanded_calculations.py -v   # Financial math
-pytest tests/test_expanded_django_config.py -v  # Infrastructure
+pytest tests/test_analytics_metrics.py -v       # Financial analytics
 ```
 
 ### 📊 **Coverage Achievements**
 
 - **Models**: 95%+ coverage for migrated apps (assets, portfolios, users)
-- **Financial Calculations**: 100% formula accuracy with edge cases
-- **Django Infrastructure**: Complete settings, security, and database testing
-- **Test Infrastructure**: Factories, fixtures, and comprehensive documentation
+- **Financial Analytics**: Deterministic helpers verified through
+  `test_analytics_metrics.py`, replacing the sprawling legacy calculations
+  suite.
+- **Operational Guardrails**: Dependency and logging safety nets kept current.
+- **Test Infrastructure**: Factories, fixtures, and documentation refreshed as
+  active modules evolve.
 
 ### 🔧 **Key Improvements**
 
@@ -64,7 +73,8 @@ pytest tests/test_expanded_django_config.py -v  # Infrastructure
 
 ### 📁 **Previously Disabled Tests**
 
-12 comprehensive test files remain disabled pending migrations:
+12 comprehensive test files remain disabled as historical references. Review
+them when reactivating the corresponding feature area:
 - `test_comprehensive_platform.py.disabled` - Full platform (needs backtesting migrations)
 - `test_api_integration.py.disabled` - API endpoints
 - `test_tax_compliance.py.disabled` - Tax features (migrations exist, ready to enable)

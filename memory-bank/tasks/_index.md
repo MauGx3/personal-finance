@@ -3,6 +3,7 @@
 ## In Progress
 
 - [TASK002] Open PR for Portainer deploy artifacts - PR created, awaiting reviewers/labels and CI
+- [TASK006] Rationalize test suite coverage - Legacy suites skipped, analytics metrics module + docs/tests landed, full pytest run green
 
 ## Pending
 

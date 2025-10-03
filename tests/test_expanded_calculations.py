@@ -9,6 +9,11 @@ import pytest
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import date, timedelta
 
+pytest.skip(
+    "Legacy expanded calculation tests replaced by test_analytics_metrics.py.",
+    allow_module_level=True,
+)
+
 
 class TestFinancialCalculations:
     """Test fundamental financial calculation functions."""

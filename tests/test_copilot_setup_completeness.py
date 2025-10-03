@@ -1,9 +1,4 @@
-"""
-Test that the copilot setup steps install all required dependencies.
-
-This test validates that the expanded copilot-setup-steps.yml workflow
-provides comprehensive coverage of all packages needed for the entire project.
-"""
+"""Legacy Copilot setup dependency test (deprecated)."""
 
 import importlib
 import subprocess
@@ -11,6 +6,12 @@ import sys
 from pathlib import Path
 
 import pytest
+
+pytest.skip(
+    "Legacy Copilot setup checks have been superseded by targeted dependency "
+    "consistency tests.",
+    allow_module_level=True,
+)
 
 
 # Key packages to check for constraints compatibility
