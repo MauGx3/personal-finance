@@ -3,12 +3,12 @@
 # Keep this file updated when you upgrade major libraries.
 
 # Core web/runtime
-fastapi==0.116.1
-uvicorn==0.35.0
-pydantic==2.11.7
+fastapi==0.118.0
+uvicorn==0.37.0
+pydantic==2.11.10
 ## NOTE: fastapi 0.116.x requires starlette >=0.47.0,<0.48.0; pin to latest compatible 0.47.x
-starlette==0.47.3
-anyio==4.10.0
+starlette==0.48.0
+anyio==4.11.0
 
 # HTTP
 urllib3==2.5.0
@@ -17,16 +17,16 @@ idna==3.10
 requests==2.32.5
 
 # Data stack
-pandas==2.3.2
-matplotlib==3.10.5
+pandas==2.3.3
+matplotlib==3.10.6
 seaborn==0.13.2
-scikit-learn==1.7.1
+scikit-learn==1.7.2
 statsmodels==0.14.5
 numpy==2.3.1
 
 # IO / scraping
-beautifulsoup4==4.12.3
-lxml==6.0.1
+beautifulsoup4==4.14.2
+lxml==6.0.2
 
 # Finance libs
 yfinance==0.2.66
