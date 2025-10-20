@@ -51,7 +51,7 @@ gunicorn==23.0.0
 
 # Misc
 pip-audit==2.9.0
-pillow==11.3.0
+pillow==12.0.0
 redis==6.4.0
 celery==5.5.3
 
