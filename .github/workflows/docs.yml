@@ -87,7 +87,7 @@ jobs:
         [ -f docs/_build/html/index.html ] && head -n 60 docs/_build/html/index.html || echo "index.html not found"
 
     - name: Upload documentation artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: documentation
         path: docs/_build/html
