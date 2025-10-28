@@ -1,27 +1,136 @@
 # Project Brief
 
-Project: Personal Finance (personal-finance)
+## Project Name
 
-Created: 2025-09-23
+Personal Finance Management System
 
-Purpose:
+## Core Purpose
 
-- Provide a single-source-of-truth summary for the Personal Finance repository to help future work continue after memory resets.
+Build a comprehensive Django web application that enables users to track, manage, and analyze their financial assets, portfolios, and investment positions with precision and ease.
 
-- Capture goals, stakeholders, and high-level constraints so work can proceed reliably.
+## Primary Goals
 
-Core goals:
+### 1. Asset Management
 
-- Make the repository deployable as a Portainer stack and resilient to PaaS (Leapcell) deployments.
+- Catalog financial assets globally (stocks, bonds, ETFs, crypto, etc.)
+- Support international markets and currencies
+- Maintain accurate asset identification (ticker, ISIN, CUSIP, SEDOL)
+- Classify assets by type, sector, industry, and geography
 
-- Maintain a secure and reproducible build pipeline with clear runtime configuration.
+### 2. Portfolio Tracking
 
-- Keep developer experience smooth for local development (dev compose, useful defaults) while ensuring production safety.
+- Allow users to create multiple portfolios
+- Track individual asset holdings with quantity and cost basis
+- Calculate portfolio values and performance metrics
+- Support default portfolio designation
 
-Primary contacts:
+### 3. Financial Precision
 
-- Repository owner: mauGx3 (GitHub: MauGx3)
+- Use Decimal arithmetic for all financial calculations
+- Avoid floating-point precision errors
+- Maintain accurate cost basis and transaction history
+- Support multiple currencies
 
-Scope:
+### 4. User Experience
 
-- This memory bank stores high-level product context, active decisions, system patterns, tech choices, progress logs, and a task tracker to coordinate ongoing and future work.
+- Provide intuitive Django admin interface for data management
+- Expose REST API for programmatic access and future integrations
+- Enable quick asset lookups and portfolio views
+- Support real-time data updates (future)
+
+### 5. Data Integration
+
+- Integrate with financial data providers for live pricing
+- Support CSV/Excel import for bulk operations
+- Enable export for reporting and tax purposes
+- Connect to real-time market data feeds
+
+## Success Criteria
+
+1. **Data Accuracy**: All financial calculations must use Decimal precision
+2. **Global Coverage**: Support 70+ countries and major international markets
+3. **User Security**: Proper authentication and data isolation per user
+4. **API First**: Well-documented REST API with OpenAPI/Swagger
+5. **Testability**: Comprehensive unit tests with >80% coverage
+6. **Performance**: Efficient database queries with proper indexing
+7. **Extensibility**: Modular design allowing easy feature additions
+
+## Key Constraints
+
+- **Python Version**: Python 3.9+ for compatibility
+- **Database**: PostgreSQL for reliability and advanced features
+- **Framework**: Django 4.2+ for LTS support
+- **Architecture**: Monolithic Django app with modular apps structure
+- **Financial Accuracy**: Mandatory use of Decimal fields for all money/quantity values
+- **Authentication**: Django Allauth for user management
+
+## Non-Goals (Out of Scope)
+
+- Real-time trading execution
+- Financial advice or recommendations
+- Cryptocurrency wallet management
+- Tax filing automation (reporting only)
+- Mobile native apps (web-first approach)
+- Social features or sharing
+
+## Target Users
+
+1. **Individual Investors**: Track personal investment portfolios
+2. **Financial Enthusiasts**: Monitor multiple asset classes globally
+3. **Developers**: API access for custom integrations
+4. **Administrators**: Manage asset catalog and user data
+
+## Technical Approach
+
+- **Backend**: Django with Django REST Framework
+- **Database**: PostgreSQL with proper constraints and indexes
+- **Package Manager**: uv for fast, reliable dependency management
+- **API Documentation**: Automatic OpenAPI/Swagger generation
+- **Testing**: Django TestCase with comprehensive coverage
+- **Admin**: Django admin with custom configuration
+- **Deployment**: Docker containers with docker-compose
+
+## Timeline Phases
+
+### Phase 1: Foundation ✅
+
+- Django project setup
+- PostgreSQL database configuration
+- User authentication with Django Allauth
+- Basic project structure
+
+### Phase 2: Asset Management ✅
+
+- Asset model with global coverage
+- Portfolio and Holding models
+- Database migrations and constraints
+- Admin interface configuration
+- REST API serializers
+- Unit tests (7 passing)
+
+### Phase 3: Data Integration (Next)
+
+- Financial data API integration
+- Live pricing updates
+- Historical data storage
+- Real-time websocket support
+
+### Phase 4: Analytics & Reporting
+
+- Portfolio performance calculations
+- Tax reporting features
+- Export functionality
+- Advanced analytics
+
+## Measuring Success
+
+- **Functionality**: All core features working and tested
+- **Performance**: API response times < 200ms
+- **Reliability**: 99.9% uptime for production
+- **Data Quality**: Zero precision errors in financial calculations
+- **User Adoption**: Track active users and portfolio creation
+- **API Usage**: Monitor API endpoint utilization
+
+## Current Status
+
+**Phase 2 Complete** - Asset management system fully implemented with Asset, Portfolio, and Holding models. Database contains example AAPL asset. Ready for Phase 3 data integration.

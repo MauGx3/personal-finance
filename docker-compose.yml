@@ -1,46 +1,83 @@
 services:
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: finance
-      POSTGRES_PASSWORD: finance
-      POSTGRES_DB: finance
+  web:
+    build: .
+    command: uv run gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --reload
     volumes:
-      - pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "finance"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    # Bind to an alternate host port to reduce accidental exposure
+      - .:/app
     ports:
-      # bind to localhost only to avoid exposing Postgres to external probes
-      - "127.0.0.1:52135:5432"
-
-  app:
-    build:
-      context: .
-      dockerfile: ./compose/local/django/Dockerfile
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
     environment:
-      PORT: 8000
-      # Use the internal DB port; host mapping happens above
-      DATABASE_URL: postgresql+psycopg2://finance:finance@db:5432/finance
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: finance
-      POSTGRES_PASSWORD: finance
-      POSTGRES_DB: finance
-      RUN_MIGRATIONS_ON_START: "1"
-      USE_DOCKER: "no"
-      DJANGO_SETTINGS_MODULE: "config.settings.production"
-    ports:
-      - "8000:8000"
-    restart: unless-stopped
+      - DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-docker-dev-key
+
+      - DATABASE_URL=postgresql://personal_finance_user:personal_finance_password@db:5432/personal_finance_db
+
+
+      - REDIS_URL=redis://redis:6379/0
+
+      - EMAIL_HOST=mailpit
+      - EMAIL_PORT=1025
+
+      - UV_NO_CACHE=1
+
+    env_file:
+      - .env
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: personal_finance_db
+      POSTGRES_USER: personal_finance_user
+      POSTGRES_PASSWORD: personal_finance_password
     volumes:
-      - .:/app
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U personal_finance_user -d personal_finance_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"  # UI
+      - "4318:4318"    # OTLP gRPC
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
 
 volumes:
-  pg_data:
+  postgres_data:
+
+  redis_data:

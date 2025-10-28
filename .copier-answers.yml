@@ -1,0 +1,32 @@
+# Changes here will be overwritten by Copier
+_src_path: /private/var/folders/vy/6tr9w9yn1r319t2hmjbgdjtm0000gn/T/copier._vcs.clone.1l_1in_s
+_commit: 85046c9dd355124ddfd7a81bb4d6b504acb89924
+project_type: web-app
+project_name: Personal Finance
+project_slug: personal_finance
+project_description: A Django project built with django-keel
+author_name: Mauricio Gioachini
+author_email: maugx3@gmail.com
+git_repository_url: github.com/maugx3/personal-finance
+python_version: 3.14
+dependency_manager: uv
+database: postgresql
+cache: redis
+api_style: drf
+frontend: nextjs
+background_tasks: celery
+use_channels: True
+auth_backend: both
+use_2fa: True
+observability_level: full
+use_sentry: True
+deployment_targets: docker,kubernetes
+media_storage: local-whitenoise
+security_profile: standard
+use_sops: True
+use_teams: False
+use_stripe: False
+use_search: opensearch
+use_i18n: False
+ci_provider: github-actions
+license: MIT

@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: personal_finance
+  labels:
+    app: personal_finance
+spec:
+  selector:
+    matchLabels:
+      app: personal_finance
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics

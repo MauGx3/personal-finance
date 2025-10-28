@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: personal-finance-pg-credentials
+type: kubernetes.io/basic-auth
+stringData:
+  username: personal-finance_user
+  password: changeme
+
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: personal-finance-pg
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+
+  storage:
+    size: 10Gi
+
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: "256MB"
+
+  bootstrap:
+    initdb:
+      database: personal-finance_db
+      owner: personal-finance_user
+      secret:
+        name: personal-finance-pg-credentials
+
+  monitoring:
+    enablePodMonitor: true

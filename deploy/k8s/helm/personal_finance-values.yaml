@@ -1,0 +1,53 @@
+# Default values for personal_finance
+
+replicaCount: 2
+
+image:
+  repository: personal_finance
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: personal_finance.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: personal_finance-tls
+      hosts:
+        - personal_finance.example.com
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+postgresql:
+  enabled: true
+  auth:
+    database: personal_finance_db
+    username: personal_finance_user
+    password: changeme
+
+redis:
+  enabled: true
+  architecture: standalone
