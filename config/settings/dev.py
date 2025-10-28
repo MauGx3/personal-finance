@@ -1,6 +1,7 @@
 """
 Development settings for Personal Finance project.
 """
+
 # ! not needed right now, base code is already 100% dev-specific
 from .base import *
 
@@ -41,6 +42,7 @@ LOGGING["loggers"]["personal_finance"] = {
 if DEBUG:
     try:
         import debug_toolbar
+
         INSTALLED_APPS.append("debug_toolbar")
         MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
         INTERNAL_IPS = ["127.0.0.1", "localhost"]

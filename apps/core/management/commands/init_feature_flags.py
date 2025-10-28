@@ -1,9 +1,11 @@
 """Initialize default feature flags, switches, and samples."""
+
 from django.core.management.base import BaseCommand
+
 from apps.core.feature_flags import (
     create_default_flags,
-    create_default_switches,
     create_default_samples,
+    create_default_switches,
 )
 
 
@@ -25,9 +27,5 @@ class Command(BaseCommand):
         create_default_samples()
         self.stdout.write(self.style.SUCCESS("✓ Created default samples"))
 
-        self.stdout.write(
-            self.style.SUCCESS("\nFeature flags initialized successfully!")
-        )
-        self.stdout.write(
-            "You can manage them in the Django admin under 'Waffle'"
-        )
+        self.stdout.write(self.style.SUCCESS("\nFeature flags initialized successfully!"))
+        self.stdout.write("You can manage them in the Django admin under 'Waffle'")

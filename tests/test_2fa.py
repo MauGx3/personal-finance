@@ -1,6 +1,6 @@
 """Tests for two-factor authentication functionality."""
-import pytest
 
+import pytest
 
 # 2FA Configuration Tests
 
@@ -31,11 +31,7 @@ def test_user_can_create_totp_device(user):
     try:
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
-        device = TOTPDevice.objects.create(
-            user=user,
-            name="default",
-            confirmed=True
-        )
+        device = TOTPDevice.objects.create(user=user, name="default", confirmed=True)
 
         assert device.user == user
         assert device.confirmed
@@ -49,10 +45,7 @@ def test_totp_device_str_representation(user):
     try:
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
-        device = TOTPDevice.objects.create(
-            user=user,
-            name="default"
-        )
+        device = TOTPDevice.objects.create(user=user, name="default")
 
         assert str(device) is not None
     except ImportError:
@@ -83,11 +76,7 @@ def test_totp_token_generation(user):
     try:
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
-        device = TOTPDevice.objects.create(
-            user=user,
-            name="default",
-            confirmed=True
-        )
+        device = TOTPDevice.objects.create(user=user, name="default", confirmed=True)
 
         # Generate token
         token = device.token()
@@ -103,11 +92,7 @@ def test_totp_token_verification(user):
     try:
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
-        device = TOTPDevice.objects.create(
-            user=user,
-            name="default",
-            confirmed=True
-        )
+        device = TOTPDevice.objects.create(user=user, name="default", confirmed=True)
 
         # Get current token
         token = device.token()
@@ -124,11 +109,7 @@ def test_invalid_token_rejected(user):
     try:
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
-        device = TOTPDevice.objects.create(
-            user=user,
-            name="default",
-            confirmed=True
-        )
+        device = TOTPDevice.objects.create(user=user, name="default", confirmed=True)
 
         # Invalid token should be rejected
         assert not device.verify_token("000000")
@@ -145,10 +126,7 @@ def test_user_can_create_backup_tokens(user):
     try:
         from django_otp.plugins.otp_static.models import StaticDevice
 
-        device = StaticDevice.objects.create(
-            user=user,
-            name="backup"
-        )
+        device = StaticDevice.objects.create(user=user, name="backup")
 
         # Create backup tokens
         device.token_set.create(token="backup1")
@@ -165,10 +143,7 @@ def test_backup_token_verification(user):
     try:
         from django_otp.plugins.otp_static.models import StaticDevice, StaticToken
 
-        device = StaticDevice.objects.create(
-            user=user,
-            name="backup"
-        )
+        device = StaticDevice.objects.create(user=user, name="backup")
 
         StaticToken.objects.create(device=device, token="backup123")
 
@@ -184,10 +159,7 @@ def test_backup_token_consumed_after_use(user):
     try:
         from django_otp.plugins.otp_static.models import StaticDevice, StaticToken
 
-        device = StaticDevice.objects.create(
-            user=user,
-            name="backup"
-        )
+        device = StaticDevice.objects.create(user=user, name="backup")
 
         StaticToken.objects.create(device=device, token="backup123")
 
@@ -210,11 +182,7 @@ def test_2fa_required_for_login(client, user):
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
         # Create verified device for user
-        TOTPDevice.objects.create(
-            user=user,
-            name="default",
-            confirmed=True
-        )
+        TOTPDevice.objects.create(user=user, name="default", confirmed=True)
 
         # Login should require 2FA
         logged_in = client.login(username=user.email, password="testpass123")
@@ -250,8 +218,8 @@ def test_2fa_setup_url_exists(client, user):
 def test_qr_code_generation(user):
     """Test QR code generation for TOTP setup."""
     try:
-        from django_otp.plugins.otp_totp.models import TOTPDevice
         import qrcode
+        from django_otp.plugins.otp_totp.models import TOTPDevice
 
         device = TOTPDevice.objects.create(user=user, name="default")
 
@@ -272,11 +240,7 @@ def test_user_can_disable_2fa(user):
     try:
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
-        device = TOTPDevice.objects.create(
-            user=user,
-            name="default",
-            confirmed=True
-        )
+        device = TOTPDevice.objects.create(user=user, name="default", confirmed=True)
 
         # Disable by deleting device
         device.delete()
@@ -306,11 +270,7 @@ def test_admin_2fa_enforcement(admin_user):
     try:
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
-        device = TOTPDevice.objects.create(
-            user=admin_user,
-            name="admin_device",
-            confirmed=True
-        )
+        device = TOTPDevice.objects.create(user=admin_user, name="admin_device", confirmed=True)
 
         assert device.user.is_staff
     except ImportError:
@@ -329,7 +289,7 @@ def test_unconfirmed_device_not_used(user):
         device = TOTPDevice.objects.create(
             user=user,
             name="default",
-            confirmed=False  # Not confirmed
+            confirmed=False,  # Not confirmed
         )
 
         # Unconfirmed device should not verify

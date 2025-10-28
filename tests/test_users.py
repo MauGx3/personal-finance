@@ -1,4 +1,5 @@
 """Tests for user model and authentication."""
+
 import pytest
 from django.contrib.auth import get_user_model
 
@@ -11,10 +12,7 @@ User = get_user_model()
 @pytest.mark.django_db
 def test_create_user():
     """Test creating a regular user."""
-    user = User.objects.create_user(
-        email="newuser@example.com",
-        password="testpass123"
-    )
+    user = User.objects.create_user(email="newuser@example.com", password="testpass123")
     assert user.email == "newuser@example.com"
     assert user.is_active
     assert not user.is_staff
@@ -25,10 +23,7 @@ def test_create_user():
 @pytest.mark.django_db
 def test_create_superuser():
     """Test creating a superuser."""
-    admin = User.objects.create_superuser(
-        email="admin@example.com",
-        password="adminpass123"
-    )
+    admin = User.objects.create_superuser(email="admin@example.com", password="adminpass123")
     assert admin.is_active
     assert admin.is_staff
     assert admin.is_superuser
@@ -61,10 +56,7 @@ def test_create_user_without_email_raises_error():
 @pytest.mark.django_db
 def test_user_can_login(client, user):
     """Test that a user can log in."""
-    response = client.post("/admin/login/", {
-        "username": user.email,
-        "password": "testpass123"
-    })
+    response = client.post("/admin/login/", {"username": user.email, "password": "testpass123"})
     # Check if login attempt was made (might redirect)
     assert response.status_code in [200, 302]
 
@@ -72,10 +64,7 @@ def test_user_can_login(client, user):
 @pytest.mark.django_db
 def test_user_login_with_wrong_password_fails(client, user):
     """Test that login fails with wrong password."""
-    logged_in = client.login(
-        username=user.email,
-        password="wrongpassword"
-    )
+    logged_in = client.login(username=user.email, password="wrongpassword")
     assert not logged_in
 
 
@@ -99,10 +88,9 @@ def test_user_email_verification_status(user):
     from allauth.account.models import EmailAddress
 
     # New user should not have verified email
-    assert not EmailAddress.objects.filter(
-        user=user,
-        verified=True
-    ).exists()
+    assert not EmailAddress.objects.filter(user=user, verified=True).exists()
+
+
 # User Permissions Tests
 
 

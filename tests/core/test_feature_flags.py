@@ -1,17 +1,18 @@
 """Tests for feature flags."""
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.test import RequestFactory
-from waffle.models import Flag, Switch, Sample
+from waffle.models import Flag, Switch
 
 from apps.core.feature_flags import (
-    is_feature_enabled,
-    is_switch_enabled,
-    feature_flag,
-    feature_switch,
     create_default_flags,
     create_default_switches,
+    feature_flag,
+    feature_switch,
+    is_feature_enabled,
+    is_switch_enabled,
 )
 
 User = get_user_model()
@@ -20,10 +21,7 @@ User = get_user_model()
 @pytest.fixture
 def user(db):
     """Create a test user."""
-    return User.objects.create_user(
-        email="user@example.com",
-        password="testpass123"
-    )
+    return User.objects.create_user(email="user@example.com", password="testpass123")
 
 
 @pytest.fixture

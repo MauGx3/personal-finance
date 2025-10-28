@@ -1,4 +1,5 @@
 """Tests for Asset model."""
+
 from django.test import TestCase
 
 from apps.assets.models import Asset

@@ -1,4 +1,5 @@
 """Tests for user impersonation."""
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory
@@ -16,28 +17,20 @@ User = get_user_model()
 def staff_user(db):
     """Create a staff user."""
     return User.objects.create_user(
-        email="staff@example.com",
-        password="testpass123",
-        is_staff=True
+        email="staff@example.com", password="testpass123", is_staff=True
     )
 
 
 @pytest.fixture
 def superuser(db):
     """Create a superuser."""
-    return User.objects.create_superuser(
-        email="admin@example.com",
-        password="testpass123"
-    )
+    return User.objects.create_superuser(email="admin@example.com", password="testpass123")
 
 
 @pytest.fixture
 def regular_user(db):
     """Create a regular user."""
-    return User.objects.create_user(
-        email="user@example.com",
-        password="testpass123"
-    )
+    return User.objects.create_user(email="user@example.com", password="testpass123")
 
 
 @pytest.fixture
@@ -52,6 +45,7 @@ class TestImpersonationMiddleware:
 
     def test_middleware_without_impersonation(self, rf, regular_user):
         """Test middleware does nothing without impersonation."""
+
         def get_response(request):
             return None
 
@@ -68,6 +62,7 @@ class TestImpersonationMiddleware:
 
     def test_middleware_with_impersonation(self, rf, staff_user, regular_user):
         """Test middleware swaps user when impersonating."""
+
         def get_response(request):
             return None
 
@@ -85,6 +80,7 @@ class TestImpersonationMiddleware:
 
     def test_middleware_with_invalid_user_id(self, rf, staff_user):
         """Test middleware clears invalid impersonate_id."""
+
         def get_response(request):
             return None
 
@@ -108,25 +104,18 @@ class TestImpersonationViews:
         """Test staff can impersonate users."""
         client.force_login(staff_user)
 
-        response = client.get(
-            reverse("users:impersonate", kwargs={"user_id": regular_user.id})
-        )
+        response = client.get(reverse("users:impersonate", kwargs={"user_id": regular_user.id}))
 
         assert response.status_code == 302
         assert client.session.get("impersonate_id") == regular_user.id
 
     def test_impersonate_as_non_staff(self, client, regular_user):
         """Test non-staff cannot impersonate."""
-        another_user = User.objects.create_user(
-            email="another@example.com",
-            password="testpass123"
-        )
+        another_user = User.objects.create_user(email="another@example.com", password="testpass123")
 
         client.force_login(regular_user)
 
-        response = client.get(
-            reverse("users:impersonate", kwargs={"user_id": another_user.id})
-        )
+        response = client.get(reverse("users:impersonate", kwargs={"user_id": another_user.id}))
 
         assert response.status_code == 302  # Redirect
         assert "impersonate_id" not in client.session
@@ -135,9 +124,7 @@ class TestImpersonationViews:
         """Test staff cannot impersonate superusers."""
         client.force_login(staff_user)
 
-        response = client.get(
-            reverse("users:impersonate", kwargs={"user_id": superuser.id})
-        )
+        response = client.get(reverse("users:impersonate", kwargs={"user_id": superuser.id}))
 
         assert response.status_code == 302
         assert "impersonate_id" not in client.session
@@ -145,15 +132,12 @@ class TestImpersonationViews:
     def test_can_impersonate_superuser_as_superuser(self, client, superuser):
         """Test superuser can impersonate other superusers."""
         another_super = User.objects.create_superuser(
-            email="another_admin@example.com",
-            password="testpass123"
+            email="another_admin@example.com", password="testpass123"
         )
 
         client.force_login(superuser)
 
-        response = client.get(
-            reverse("users:impersonate", kwargs={"user_id": another_super.id})
-        )
+        response = client.get(reverse("users:impersonate", kwargs={"user_id": another_super.id}))
 
         assert response.status_code == 302
         assert client.session.get("impersonate_id") == another_super.id
@@ -162,9 +146,7 @@ class TestImpersonationViews:
         """Test cannot impersonate yourself."""
         client.force_login(staff_user)
 
-        response = client.get(
-            reverse("users:impersonate", kwargs={"user_id": staff_user.id})
-        )
+        response = client.get(reverse("users:impersonate", kwargs={"user_id": staff_user.id}))
 
         assert response.status_code == 302
         assert "impersonate_id" not in client.session
@@ -174,9 +156,7 @@ class TestImpersonationViews:
         client.force_login(staff_user)
 
         # Start impersonating
-        client.get(
-            reverse("users:impersonate", kwargs={"user_id": regular_user.id})
-        )
+        client.get(reverse("users:impersonate", kwargs={"user_id": regular_user.id}))
 
         assert "impersonate_id" in client.session
 
@@ -209,9 +189,11 @@ class TestPreventWhileImpersonatingDecorator:
 
     def test_blocks_when_impersonating(self, rf, staff_user):
         """Test decorator blocks access when impersonating."""
+
         @prevent_while_impersonating
         def view(request):
             from django.http import HttpResponse
+
             return HttpResponse("Success")
 
         request = rf.get("/")

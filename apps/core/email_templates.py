@@ -1,5 +1,7 @@
 """Professional email template system."""
+
 import logging
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -36,7 +38,9 @@ class EmailTemplate:
         # Add default context
         self.context.setdefault("site_name", getattr(settings, "SITE_NAME", "Django Keel"))
         self.context.setdefault("site_url", getattr(settings, "SITE_URL", "http://localhost:8000"))
-        self.context.setdefault("support_email", getattr(settings, "SUPPORT_EMAIL", self.from_email))
+        self.context.setdefault(
+            "support_email", getattr(settings, "SUPPORT_EMAIL", self.from_email)
+        )
 
     def render_subject(self):
         """Render email subject."""
@@ -100,6 +104,7 @@ class EmailTemplate:
 
 # Common email templates
 
+
 class WelcomeEmail(EmailTemplate):
     """Welcome email for new users."""
 
@@ -126,6 +131,7 @@ class NotificationEmail(EmailTemplate):
 
 # Utility functions for sending emails
 
+
 def send_welcome_email(user):
     """Send welcome email to new user."""
     email = WelcomeEmail(
@@ -133,7 +139,7 @@ def send_welcome_email(user):
         context={
             "user": user,
             "name": user.get_full_name() or user.email,
-        }
+        },
     )
     return email.send()
 
@@ -141,13 +147,12 @@ def send_welcome_email(user):
 def send_notification_email(to_email, subject_text, message, context=None):
     """Send a generic notification email."""
     ctx = context or {}
-    ctx.update({
-        "subject": subject_text,
-        "message": message,
-    })
-
-    email = NotificationEmail(
-        to_email=to_email,
-        context=ctx
+    ctx.update(
+        {
+            "subject": subject_text,
+            "message": message,
+        }
     )
+
+    email = NotificationEmail(to_email=to_email, context=ctx)
     return email.send()

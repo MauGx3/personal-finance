@@ -1,10 +1,10 @@
 """Core views."""
+
 from django.conf import settings
+from django.core.cache import cache
 from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import render
-
-from django.core.cache import cache
 
 
 def index(request):
@@ -16,7 +16,6 @@ def index(request):
         "django_version": "5.2+",
     }
     return render(request, "core/index.html", context)
-
 
 
 def health_check(request):

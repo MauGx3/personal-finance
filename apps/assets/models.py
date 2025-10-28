@@ -1,4 +1,5 @@
 """Assets models."""
+
 from decimal import Decimal
 
 from django.conf import settings
@@ -383,7 +384,7 @@ class Asset(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(ticker__regex=r'^[A-Z0-9\-_.]+$'),
+                check=models.Q(ticker__regex=r"^[A-Z0-9\-_.]+$"),
                 name="ticker_format_check",
             ),
         ]
@@ -476,9 +477,9 @@ class Portfolio(models.Model):
         """Ensure only one default portfolio per user."""
         if self.is_default:
             # Set all other portfolios for this user to non-default
-            Portfolio.objects.filter(user=self.user, is_default=True).exclude(
-                pk=self.pk
-            ).update(is_default=False)
+            Portfolio.objects.filter(user=self.user, is_default=True).exclude(pk=self.pk).update(
+                is_default=False
+            )
         super().save(*args, **kwargs)
 
     @property
@@ -595,10 +596,7 @@ class Holding(models.Model):
     def __str__(self) -> str:
         """String representation of the holding."""
         portfolio_name = f" in {self.portfolio.name}" if self.portfolio else ""
-        return (
-            f"{self.user.email} - {self.asset.ticker} "
-            f"({self.quantity}){portfolio_name}"
-        )
+        return f"{self.user.email} - {self.asset.ticker} " f"({self.quantity}){portfolio_name}"
 
     def __init__(self, *args, **kwargs):
         """Compatibility shim: accept legacy `cost_basis_per_unit` kwarg."""

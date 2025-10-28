@@ -4,7 +4,7 @@
 
 ### Django Project Structure
 
-```
+```text
 personal-finance/
 ├── apps/                    # Django apps (modular features)
 │   ├── assets/             # Asset management (✅ Complete)
@@ -13,6 +13,13 @@ personal-finance/
 │   │   ├── serializers.py  # DRF API serializers
 │   │   ├── tests/          # Unit tests
 │   │   └── migrations/     # Database migrations
+│   ├── data_sources/       # Financial data providers (✅ Complete)
+│   │   ├── base.py         # Abstract framework and data models
+│   │   ├── yfinance/       # Yahoo Finance implementation
+│   │   │   ├── source.py   # YFinanceDataSource implementation
+│   │   │   └── __init__.py # Package exports
+│   │   ├── __init__.py     # Package exports
+│   │   └── apps.py         # Django app configuration
 │   ├── core/               # Core utilities and base classes
 │   └── users/              # User management extensions
 ├── config/                  # Django settings and configuration
@@ -275,11 +282,150 @@ models.CheckConstraint(check=models.Q(quantity__gte=0))
 
 **Pattern**: Validate at all levels for maximum safety.
 
+### 11. Abstract Data Source Framework
+
+**Decision**: Use abstract base classes for financial data providers
+
+**Rationale**:
+
+- Enables multiple data source implementations (yfinance, Alpha Vantage, etc.)
+- Provides consistent API across different providers
+- Allows easy switching between data sources
+- Supports extensibility for new financial data providers
+
+**Implementation**:
+
+```python
+class BaseDataSource(ABC):
+    """Abstract base class for financial data sources."""
+
+    @abstractmethod
+    def get_price_history(self, symbol: str, **kwargs) -> PriceData:
+        """Get historical price data."""
+        pass
+
+    @abstractmethod
+    def get_company_info(self, symbol: str) -> CompanyInfo:
+        """Get company fundamentals."""
+        pass
+
+class YFinanceDataSource(BaseDataSource):
+    """Yahoo Finance implementation."""
+
+    def get_price_history(self, symbol: str, **kwargs) -> PriceData:
+        # Implementation using yfinance library
+        pass
+```
+
+**Pattern**: Abstract base classes for data providers, concrete implementations for specific APIs.
+
+### 12. Data Class Pattern for Financial Data
+
+**Decision**: Use dataclasses for structured financial data
+
+**Rationale**:
+
+- Immutable data structures prevent accidental modification
+- Type safety with type hints
+- Clean, readable code
+- Automatic `__eq__`, `__hash__`, `__repr__` methods
+
+**Implementation**:
+
+```python
+@dataclass(frozen=True)
+class PriceData:
+    """Historical price data structure."""
+    symbol: str
+    prices: List[PricePoint]
+    interval: str
+    period: str
+
+@dataclass(frozen=True)
+class PricePoint:
+    """Individual price point."""
+    date: datetime
+    open: Decimal
+    high: Decimal
+    low: Decimal
+    close: Decimal
+    volume: int
+```
+
+**Pattern**: Use frozen dataclasses for data transfer objects.
+
+### 13. Comprehensive Error Handling Hierarchy
+
+**Decision**: Structured error hierarchy for different failure modes
+
+**Rationale**:
+
+- Different error types allow specific handling
+- Network errors vs API errors vs data errors
+- Enables graceful degradation and retry logic
+- Clear error messages for debugging
+
+**Implementation**:
+
+```python
+class DataSourceError(Exception):
+    """Base exception for data source errors."""
+    pass
+
+class NetworkError(DataSourceError):
+    """Network connectivity issues."""
+    pass
+
+class RateLimitError(DataSourceError):
+    """API rate limit exceeded."""
+    pass
+
+class DataNotFoundError(DataSourceError):
+    """Requested data not available."""
+    pass
+```
+
+**Pattern**: Hierarchical exception classes for different error conditions.
+
+### 14. Mixin Pattern for Extensibility
+
+**Decision**: Use mixins for optional data source features
+
+**Rationale**:
+
+- Allows optional features without base class bloat
+- Multiple inheritance enables feature composition
+- Keeps core interface clean while allowing extensions
+
+**Implementation**:
+
+```python
+class CachingMixin:
+    """Adds caching capability to data sources."""
+
+    def __init__(self, cache_timeout: int = 300):
+        self.cache_timeout = cache_timeout
+        self._cache = {}
+
+    def _get_cached(self, key: str):
+        # Cache implementation
+        pass
+
+class RateLimitingMixin:
+    """Adds rate limiting to prevent API abuse."""
+
+    def __init__(self, requests_per_minute: int = 60):
+        self.requests_per_minute = requests_per_minute
+        # Rate limiting logic
+```
+
+**Pattern**: Mixins for optional, composable features.
+
 ## Component Relationships
 
 ### Data Flow: Asset Management
 
-```
+```text
 User Authentication (Django Allauth)
     ↓
 Django Admin Interface / REST API
@@ -295,7 +441,7 @@ PostgreSQL Database (constraints)
 
 ### Model Relationships
 
-```
+```text
 User (Django auth)
     ↓ One-to-Many
 Portfolio (user's portfolio grouping)

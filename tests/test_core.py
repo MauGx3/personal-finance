@@ -1,7 +1,7 @@
 """Tests for core application functionality."""
+
 import pytest
 from django.urls import reverse
-
 
 # Health Check Tests
 
@@ -85,6 +85,8 @@ def test_whitenoise_middleware_loaded():
     from django.conf import settings
 
     assert "whitenoise.middleware.WhiteNoiseMiddleware" in settings.MIDDLEWARE
+
+
 # Settings Tests
 
 
@@ -151,6 +153,8 @@ def test_cors_middleware_enabled():
     from django.conf import settings
 
     assert "corsheaders.middleware.CorsMiddleware" in settings.MIDDLEWARE
+
+
 # Database Tests
 
 
@@ -184,6 +188,8 @@ def test_cache_configured():
 
     assert "default" in settings.CACHES
     assert "BACKEND" in settings.CACHES["default"]
+
+
 # Internationalization Tests
 
 

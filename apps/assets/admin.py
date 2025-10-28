@@ -1,4 +1,5 @@
 """Assets admin configuration."""
+
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
@@ -300,8 +301,4 @@ class HoldingAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         """Optimize queryset for admin list view."""
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("user", "asset", "portfolio")
-        )
+        return super().get_queryset(request).select_related("user", "asset", "portfolio")

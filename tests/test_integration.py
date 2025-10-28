@@ -1,16 +1,9 @@
 """Integration tests for SaaS features."""
+
 import pytest
 from django.contrib.auth import get_user_model
+
 User = get_user_model()
-
-
-
-
-
-
-
-
-
 
 
 @pytest.mark.django_db
@@ -20,30 +13,21 @@ class TestFeatureFlagIntegration:
 
     def test_feature_flag_with_user_groups(self):
         """Test feature flags with user groups."""
-        from waffle.models import Flag
         from django.contrib.auth.models import Group
+        from waffle.models import Flag
 
         # Create a flag for beta users
-        flag = Flag.objects.create(
-            name="beta_features",
-            everyone=False
-        )
+        flag = Flag.objects.create(name="beta_features", everyone=False)
 
         # Create beta group
         beta_group = Group.objects.create(name="Beta Testers")
         flag.groups.add(beta_group)
 
         # Create users
-        beta_user = User.objects.create_user(
-            email="beta@example.com",
-            password="testpass123"
-        )
+        beta_user = User.objects.create_user(email="beta@example.com", password="testpass123")
         beta_user.groups.add(beta_group)
 
-        regular_user = User.objects.create_user(
-            email="regular@example.com",
-            password="testpass123"
-        )
+        regular_user = User.objects.create_user(email="regular@example.com", password="testpass123")
 
         # Test access
         from apps.core.feature_flags import is_feature_enabled
@@ -62,16 +46,9 @@ class TestImpersonationIntegration:
         from waffle.models import Flag
 
         # Create a staff-only flag
-        Flag.objects.create(
-            name="admin_panel",
-            staff=True,
-            everyone=False
-        )
+        Flag.objects.create(name="admin_panel", staff=True, everyone=False)
 
-        regular_user = User.objects.create_user(
-            email="regular@example.com",
-            password="testpass123"
-        )
+        regular_user = User.objects.create_user(email="regular@example.com", password="testpass123")
 
         # Staff user can access
         client.force_login(staff_user)

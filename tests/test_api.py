@@ -1,8 +1,8 @@
 """Tests for API endpoints."""
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
-
 
 # Health Check Tests
 
@@ -42,7 +42,7 @@ def test_unauthenticated_api_access(api_client):
     assert response.status_code in [
         status.HTTP_200_OK,
         status.HTTP_401_UNAUTHORIZED,
-        status.HTTP_403_FORBIDDEN
+        status.HTTP_403_FORBIDDEN,
     ]
 
 
@@ -71,6 +71,8 @@ def test_api_docs_endpoint(api_client):
     response = api_client.get("/api/docs/")
 
     assert response.status_code == status.HTTP_200_OK
+
+
 # Pagination Tests
 
 
@@ -95,16 +97,10 @@ def test_api_pagination(authenticated_api_client, multiple_users):
 def test_api_filtering(authenticated_api_client, multiple_users):
     """Test that API supports filtering."""
     # Example: filter by email
-    response = authenticated_api_client.get(
-        "/api/users/",
-        {"email": multiple_users[0].email}
-    )
+    response = authenticated_api_client.get("/api/users/", {"email": multiple_users[0].email})
 
     # Should work or return 404 if endpoint doesn't exist
-    assert response.status_code in [
-        status.HTTP_200_OK,
-        status.HTTP_404_NOT_FOUND
-    ]
+    assert response.status_code in [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND]
 
 
 # Content Type Tests
@@ -152,7 +148,7 @@ def test_api_invalid_method(api_client):
     assert response.status_code in [
         status.HTTP_200_OK,  # Many health checks accept all methods
         status.HTTP_405_METHOD_NOT_ALLOWED,
-        status.HTTP_400_BAD_REQUEST
+        status.HTTP_400_BAD_REQUEST,
     ]
 
 
@@ -185,6 +181,8 @@ def test_api_cors_headers(api_client):
     # CORS should be configured
     # Headers might not be present in test environment
     assert response.status_code in [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND]
+
+
 # Throttling Tests
 
 

@@ -189,25 +189,28 @@ psql personal_finance < backup.sql
 
 ### Core Dependencies (Production)
 
-```
+```bash
 Django>=4.2.24
 djangorestframework>=3.14.0
 django-allauth>=0.57.0
 psycopg>=3.1.0
 python-decouple>=3.8
+yfinance>=0.2.66
+pandas>=2.3.3
 ```
 
 ### Development Dependencies
 
-```
+```bash
 django-extensions>=3.2.0
 django-debug-toolbar>=4.2.0
 ipython>=8.12.0
+ruff>=0.1.0
 ```
 
 ### Future Dependencies
 
-```
+```bash
 celery>=5.3.0           # Task queue
 redis>=5.0.0            # Message broker for Celery
 channels>=4.0.0         # WebSocket support
@@ -300,7 +303,7 @@ pandas>=2.0.0           # Data analysis
 - **Password hashing**: Django's PBKDF2 by default
 - **Admin access**: Restricted by authentication
 
-### Future
+### Future Security Practices
 
 - **API authentication**: Token-based (JWT or DRF tokens)
 - **Rate limiting**: Prevent abuse
@@ -310,7 +313,7 @@ pandas>=2.0.0           # Data analysis
 
 ## Testing Strategy
 
-### Current
+### Current Testing
 
 - **Unit tests**: Model logic and calculations
 - **Coverage**: 7 tests passing, expanding coverage
@@ -397,11 +400,9 @@ pandas>=2.0.0           # Data analysis
 
 1. **Celery + Redis**: Async task processing for price updates
 2. **Django Channels**: WebSocket support for real-time features
-3. **yfinance or Alpha Vantage**: Financial data API
-4. **pandas**: Data analysis and calculations
-5. **matplotlib/plotly**: Charts and visualizations
-6. **django-import-export**: CSV/Excel import/export
-7. **django-filter**: Advanced API filtering
-8. **drf-spectacular**: Enhanced OpenAPI documentation
-9. **pytest**: More flexible testing framework
-10. **Coverage.py**: Test coverage reporting
+3. **matplotlib/plotly**: Charts and visualizations
+4. **django-import-export**: CSV/Excel import/export
+5. **django-filter**: Advanced API filtering
+6. **drf-spectacular**: Enhanced OpenAPI documentation
+7. **pytest**: More flexible testing framework
+8. **Coverage.py**: Test coverage reporting

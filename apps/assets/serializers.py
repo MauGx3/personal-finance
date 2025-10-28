@@ -1,4 +1,5 @@
 """Assets API serializers."""
+
 from rest_framework import serializers
 
 from .models import Asset, Holding, Portfolio
@@ -82,7 +83,8 @@ class AssetCreateSerializer(serializers.ModelSerializer):
     def validate_ticker(self, value):
         """Validate ticker format."""
         import re
-        if not re.match(r'^[A-Z0-9\-_.]+$', value):
+
+        if not re.match(r"^[A-Z0-9\-_.]+$", value):
             raise serializers.ValidationError(
                 "Ticker must contain only uppercase letters, "
                 "numbers, hyphens, underscores, and dots."
@@ -93,7 +95,8 @@ class AssetCreateSerializer(serializers.ModelSerializer):
         """Validate ISIN format if provided."""
         if value:
             import re
-            if not re.match(r'^[A-Z]{2}[A-Z0-9]{10}$', value):
+
+            if not re.match(r"^[A-Z]{2}[A-Z0-9]{10}$", value):
                 raise serializers.ValidationError(
                     "ISIN must be 12 characters: 2 letters followed by "
                     "10 alphanumeric characters."
@@ -104,7 +107,8 @@ class AssetCreateSerializer(serializers.ModelSerializer):
         """Validate CUSIP format if provided."""
         if value:
             import re
-            if not re.match(r'^[A-Z0-9]{9}$', value):
+
+            if not re.match(r"^[A-Z0-9]{9}$", value):
                 raise serializers.ValidationError(
                     "CUSIP must be exactly 9 alphanumeric characters."
                 )
@@ -114,7 +118,8 @@ class AssetCreateSerializer(serializers.ModelSerializer):
         """Validate SEDOL format if provided."""
         if value:
             import re
-            if not re.match(r'^[A-Z0-9]{7}$', value):
+
+            if not re.match(r"^[A-Z0-9]{7}$", value):
                 raise serializers.ValidationError(
                     "SEDOL must be exactly 7 alphanumeric characters."
                 )
@@ -309,17 +314,13 @@ class HoldingSerializer(serializers.ModelSerializer):
     def validate_quantity(self, value):
         """Validate quantity is positive."""
         if value <= 0:
-            raise serializers.ValidationError(
-                "Quantity must be greater than zero."
-            )
+            raise serializers.ValidationError("Quantity must be greater than zero.")
         return value
 
     def validate_average_price(self, value):
         """Validate average price is positive if provided."""
         if value is not None and value <= 0:
-            raise serializers.ValidationError(
-                "Average price must be greater than zero."
-            )
+            raise serializers.ValidationError("Average price must be greater than zero.")
         return value
 
 
@@ -344,17 +345,13 @@ class HoldingCreateSerializer(serializers.ModelSerializer):
     def validate_quantity(self, value):
         """Validate quantity is positive."""
         if value <= 0:
-            raise serializers.ValidationError(
-                "Quantity must be greater than zero."
-            )
+            raise serializers.ValidationError("Quantity must be greater than zero.")
         return value
 
     def validate_average_price(self, value):
         """Validate average price is positive if provided."""
         if value is not None and value <= 0:
-            raise serializers.ValidationError(
-                "Average price must be greater than zero."
-            )
+            raise serializers.ValidationError("Average price must be greater than zero.")
         return value
 
 

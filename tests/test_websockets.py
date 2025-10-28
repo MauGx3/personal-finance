@@ -1,8 +1,8 @@
 """Tests for Django Channels WebSocket functionality."""
-import pytest
-from channels.testing import WebsocketCommunicator
-from channels.layers import get_channel_layer
 
+import pytest
+from channels.layers import get_channel_layer
+from channels.testing import WebsocketCommunicator
 
 # Channel Layer Configuration Tests
 
@@ -33,8 +33,9 @@ def test_asgi_application_configured():
 
 def test_asgi_uses_channels():
     """Test that ASGI uses Channels."""
-    from config.asgi import application
     from channels.routing import ProtocolTypeRouter
+
+    from config.asgi import application
 
     # Should be a ProtocolTypeRouter
     assert isinstance(application, ProtocolTypeRouter)
@@ -47,6 +48,7 @@ def test_websocket_urlpatterns_exist():
     """Test that WebSocket URL patterns are defined."""
     try:
         from config.routing import websocket_urlpatterns
+
         assert websocket_urlpatterns is not None
     except ImportError:
         pytest.skip("WebSocket routing not defined")
@@ -61,6 +63,7 @@ async def test_websocket_consumer_exists():
     """Test that WebSocket consumer exists."""
     try:
         from apps.core.consumers import ChatConsumer
+
         assert ChatConsumer is not None
     except ImportError:
         pytest.skip("No WebSocket consumer defined")
@@ -118,10 +121,7 @@ async def test_channel_groups_work():
     channel_layer = get_channel_layer()
 
     await channel_layer.group_add("test_group", "test_channel")
-    await channel_layer.group_send(
-        "test_group",
-        {"type": "test.message", "message": "Hello"}
-    )
+    await channel_layer.group_send("test_group", {"type": "test.message", "message": "Hello"})
     await channel_layer.group_discard("test_group", "test_channel")
 
     assert True  # If we got here, groups work
@@ -170,9 +170,7 @@ async def test_websocket_scope():
         from apps.core.consumers import ChatConsumer
 
         communicator = WebsocketCommunicator(
-            ChatConsumer.as_asgi(),
-            "/ws/chat/",
-            headers=[(b"origin", b"http://localhost:8000")]
+            ChatConsumer.as_asgi(), "/ws/chat/", headers=[(b"origin", b"http://localhost:8000")]
         )
         connected, _ = await communicator.connect()
         assert connected

@@ -1,7 +1,7 @@
 """
 Base settings for Personal Finance project.
 """
-import os
+
 from pathlib import Path
 
 import environ
@@ -38,25 +38,25 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-"django.contrib.sites",
+    "django.contrib.sites",
 ]
 
 THIRD_PARTY_APPS = [
-"rest_framework",
+    "rest_framework",
     "drf_spectacular",
     "django_filters",
     "corsheaders",
-"allauth",
+    "allauth",
     "allauth.account",
     "allauth.socialaccount",
-"django_otp",
+    "django_otp",
     "django_otp.plugins.otp_totp",
-"django_celery_beat",
+    "django_celery_beat",
     "django_celery_results",
-"channels",
-"django_prometheus",
-"django_opensearch_dsl",
-"waffle",
+    "channels",
+    "django_prometheus",
+    "django_opensearch_dsl",
+    "waffle",
     "django_extensions",
     "django_alive",
 ]
@@ -66,26 +66,27 @@ LOCAL_APPS = [
     "apps.users",
     "apps.api",
     "apps.assets",
+    "apps.data_sources",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
-"django_prometheus.middleware.PrometheusBeforeMiddleware",
-"django.middleware.security.SecurityMiddleware",
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-"corsheaders.middleware.CorsMiddleware",
-"django.middleware.common.CommonMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-"allauth.account.middleware.AccountMiddleware",
-"django_otp.middleware.OTPMiddleware",
-"apps.users.impersonation.ImpersonationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    "django_otp.middleware.OTPMiddleware",
+    "apps.users.impersonation.ImpersonationMiddleware",
     "waffle.middleware.WaffleMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-"django_prometheus.middleware.PrometheusAfterMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -101,7 +102,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-"apps.users.impersonation.impersonation_context",
+                "apps.users.impersonation.impersonation_context",
                 "apps.core.feature_flags.get_feature_flags_for_template",
             ],
         },
@@ -162,7 +163,6 @@ USE_I18N = False
 USE_TZ = True
 
 
-
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -181,7 +181,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -196,9 +195,9 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-"rest_framework.authentication.SessionAuthentication",
-"rest_framework_simplejwt.authentication.JWTAuthentication",
-],
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
@@ -245,7 +244,9 @@ from datetime import timedelta
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env.int("JWT_ACCESS_TOKEN_LIFETIME", default=5)),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=env.int("JWT_REFRESH_TOKEN_LIFETIME", default=1440)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        minutes=env.int("JWT_REFRESH_TOKEN_LIFETIME", default=1440)
+    ),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
@@ -266,14 +267,10 @@ CELERY_TIMEZONE = TIME_ZONE
 
 
 # OpenSearch
-protocol = 'https' if env.bool('OPENSEARCH_USE_SSL', default=False) else 'http'
-host = env('OPENSEARCH_HOST', default='localhost')
-port = env.int('OPENSEARCH_PORT', default=9200)
-OPENSEARCH_DSL = {
-    'default': {
-        'hosts': f"{protocol}://{host}:{port}"
-    }
-}
+protocol = "https" if env.bool("OPENSEARCH_USE_SSL", default=False) else "http"
+host = env("OPENSEARCH_HOST", default="localhost")
+port = env.int("OPENSEARCH_PORT", default=9200)
+OPENSEARCH_DSL = {"default": {"hosts": f"{protocol}://{host}:{port}"}}
 
 
 # Email
@@ -311,12 +308,12 @@ LOGGING = {
             "level": env("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
-"celery": {
+        "celery": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
-},
+    },
 }
 
 # Site Configuration

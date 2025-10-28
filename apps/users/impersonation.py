@@ -1,9 +1,10 @@
 """User impersonation for admin support."""
+
 import logging
-from django.conf import settings
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
@@ -89,8 +90,7 @@ class ImpersonateView(View):
         )
 
         messages.success(
-            request,
-            _("You are now impersonating {user}").format(user=user_to_impersonate.email)
+            request, _("You are now impersonating {user}").format(user=user_to_impersonate.email)
         )
 
         # Redirect to homepage or specified URL
@@ -167,9 +167,8 @@ def impersonate_user_admin_action(modeladmin, request, queryset):
     messages.success(
         request,
         _("You are now impersonating {user}. Click here to stop: {url}").format(
-            user=user.email,
-            url=reverse("users:stop_impersonate")
-        )
+            user=user.email, url=reverse("users:stop_impersonate")
+        ),
     )
 
 
@@ -191,10 +190,7 @@ def prevent_while_impersonating(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if getattr(request, "is_impersonating", False):
-            messages.error(
-                request,
-                _("This action cannot be performed while impersonating.")
-            )
+            messages.error(request, _("This action cannot be performed while impersonating."))
             return redirect("/")
 
         return view_func(request, *args, **kwargs)
@@ -208,10 +204,7 @@ class PreventWhileImpersonatingMixin:
 
     def dispatch(self, request, *args, **kwargs):
         if getattr(request, "is_impersonating", False):
-            messages.error(
-                request,
-                _("This action cannot be performed while impersonating.")
-            )
+            messages.error(request, _("This action cannot be performed while impersonating."))
             return redirect("/")
 
         return super().dispatch(request, *args, **kwargs)

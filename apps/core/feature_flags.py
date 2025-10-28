@@ -1,17 +1,19 @@
 """Feature flags using django-waffle."""
+
 import logging
 from functools import wraps
-from django.shortcuts import redirect
+
 from django.contrib import messages
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
-from waffle import flag_is_active, switch_is_active, sample_is_active
-from waffle.decorators import waffle_flag, waffle_switch
+from waffle import flag_is_active, sample_is_active, switch_is_active
 
 logger = logging.getLogger(__name__)
 
 
 # Utility functions
+
 
 def is_feature_enabled(feature_name, request=None, user=None):
     """
@@ -51,6 +53,7 @@ def is_in_sample(sample_name, request):
 
 # Decorators for function-based views
 
+
 def feature_flag(
     flag_name,
     redirect_to="/",
@@ -69,6 +72,7 @@ def feature_flag(
         def beta_view(request):
             ...
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
@@ -76,16 +80,10 @@ def feature_flag(
                 return view_func(request, *args, **kwargs)
 
             # Feature not enabled
-            error_message = (
-                message or
-                _("This feature is not available.")
-            )
+            error_message = message or _("This feature is not available.")
 
             if ajax_response or request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return JsonResponse(
-                    {"error": str(error_message)},
-                    status=403
-                )
+                return JsonResponse({"error": str(error_message)}, status=403)
 
             if message:
                 messages.warning(request, error_message)
@@ -93,6 +91,7 @@ def feature_flag(
             return redirect(redirect_to)
 
         return wrapper
+
     return decorator
 
 
@@ -110,6 +109,7 @@ def feature_switch(
         def admin_only_view(request):
             ...
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
@@ -117,16 +117,10 @@ def feature_switch(
                 return view_func(request, *args, **kwargs)
 
             # Switch is off
-            error_message = (
-                message or
-                _("This feature is currently unavailable.")
-            )
+            error_message = message or _("This feature is currently unavailable.")
 
             if ajax_response or request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return JsonResponse(
-                    {"error": str(error_message)},
-                    status=503
-                )
+                return JsonResponse({"error": str(error_message)}, status=503)
 
             if message:
                 messages.info(request, error_message)
@@ -134,6 +128,7 @@ def feature_switch(
             return redirect(redirect_to)
 
         return wrapper
+
     return decorator
 
 
@@ -150,6 +145,7 @@ def feature_sample(
         def new_ui_view(request):
             ...
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
@@ -157,19 +153,18 @@ def feature_sample(
                 return view_func(request, *args, **kwargs)
 
             # Not in sample
-            error_message = (
-                message or
-                _("This feature is not available to you yet.")
-            )
+            error_message = message or _("This feature is not available to you yet.")
 
             messages.info(request, error_message)
             return redirect(redirect_to)
 
         return wrapper
+
     return decorator
 
 
 # Class-based view mixins
+
 
 class FeatureFlagMixin:
     """
@@ -245,6 +240,7 @@ class FeatureSampleMixin:
 
 # Template tag helpers (to be used in templates)
 
+
 def get_feature_flags_for_template(request):
     """
     Get all active feature flags for template context.
@@ -261,6 +257,7 @@ def get_feature_flags_for_template(request):
 
 
 # Management commands helpers
+
 
 def create_default_flags():
     """
@@ -289,7 +286,7 @@ def create_default_flags():
             defaults={
                 "everyone": flag_data["everyone"],
                 "note": flag_data["note"],
-            }
+            },
         )
 
     logger.info(f"Created {len(default_flags)} default feature flags")
@@ -310,7 +307,7 @@ def create_default_switches():
             "active": False,
             "note": "Enable read-only mode",
         },
-        ]
+    ]
 
     for switch_data in default_switches:
         Switch.objects.get_or_create(
@@ -318,7 +315,7 @@ def create_default_switches():
             defaults={
                 "active": switch_data["active"],
                 "note": switch_data["note"],
-            }
+            },
         )
 
     logger.info(f"Created {len(default_switches)} default switches")
@@ -342,7 +339,7 @@ def create_default_samples():
             defaults={
                 "percent": sample_data["percent"],
                 "note": sample_data["note"],
-            }
+            },
         )
 
     logger.info(f"Created {len(default_samples)} default samples")

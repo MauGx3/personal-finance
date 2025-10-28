@@ -4,40 +4,267 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Asset',
+            name="Asset",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ticker', models.CharField(db_index=True, help_text="The asset's ticker symbol (e.g., AAPL, BTC-USD)", max_length=20, unique=True, verbose_name='ticker symbol')),
-                ('name', models.CharField(help_text='The full name of the asset', max_length=255, verbose_name='name')),
-                ('asset_type', models.CharField(choices=[('STOCK', 'Stock'), ('BOND', 'Bond'), ('CRYPTO', 'Cryptocurrency'), ('CASH', 'Cash'), ('FUND', 'Fund'), ('ETF', 'ETF'), ('FOREX', 'Forex'), ('COMMODITY', 'Commodity'), ('REAL_ESTATE', 'Real Estate'), ('DERIVATIVE', 'Derivative')], db_index=True, help_text='The type of financial asset', max_length=20, verbose_name='asset type')),
-                ('country', models.CharField(choices=[('US', 'United States'), ('CA', 'Canada'), ('GB', 'United Kingdom'), ('DE', 'Germany'), ('FR', 'France'), ('NL', 'Netherlands'), ('JP', 'Japan'), ('CN', 'China'), ('HK', 'Hong Kong'), ('AU', 'Australia'), ('CH', 'Switzerland'), ('SE', 'Sweden'), ('NO', 'Norway'), ('DK', 'Denmark'), ('FI', 'Finland'), ('SG', 'Singapore'), ('KR', 'South Korea'), ('IN', 'India'), ('BR', 'Brazil'), ('MX', 'Mexico'), ('AR', 'Argentina'), ('CL', 'Chile'), ('CO', 'Colombia'), ('PE', 'Peru'), ('ZA', 'South Africa'), ('EG', 'Egypt'), ('TR', 'Turkey'), ('RU', 'Russia'), ('PL', 'Poland'), ('CZ', 'Czech Republic'), ('HU', 'Hungary'), ('RO', 'Romania'), ('GR', 'Greece'), ('PT', 'Portugal'), ('ES', 'Spain'), ('IT', 'Italy'), ('AT', 'Austria'), ('BE', 'Belgium'), ('IE', 'Ireland'), ('LU', 'Luxembourg'), ('MT', 'Malta'), ('CY', 'Cyprus'), ('SI', 'Slovenia'), ('SK', 'Slovakia'), ('EE', 'Estonia'), ('LV', 'Latvia'), ('LT', 'Lithuania'), ('HR', 'Croatia'), ('BA', 'Bosnia and Herzegovina'), ('ME', 'Montenegro'), ('MK', 'North Macedonia'), ('AL', 'Albania'), ('RS', 'Serbia'), ('XK', 'Kosovo'), ('IS', 'Iceland'), ('LI', 'Liechtenstein'), ('MC', 'Monaco'), ('SM', 'San Marino'), ('VA', 'Vatican City'), ('AD', 'Andorra'), ('GI', 'Gibraltar'), ('JE', 'Jersey'), ('GG', 'Guernsey'), ('IM', 'Isle of Man'), ('GLOBAL', 'Global/International')], db_index=True, help_text='Country where asset is primarily traded', max_length=10, verbose_name='country')),
-                ('market', models.CharField(choices=[('NYSE', 'New York Stock Exchange'), ('NASDAQ', 'NASDAQ'), ('AMEX', 'American Stock Exchange'), ('LSE', 'London Stock Exchange'), ('TSE', 'Toronto Stock Exchange'), ('HKEX', 'Hong Kong Stock Exchange'), ('SSE', 'Shanghai Stock Exchange'), ('SZSE', 'Shenzhen Stock Exchange'), ('EURONEXT', 'Euronext'), ('CRYPTO', 'Cryptocurrency Exchange'), ('FOREX', 'Foreign Exchange'), ('COMMODITY', 'Commodity Market'), ('OTHER', 'Other')], db_index=True, help_text='Primary market/exchange for trading', max_length=20, verbose_name='market')),
-                ('description', models.TextField(blank=True, help_text='Optional description of the asset', verbose_name='description')),
-                ('isin', models.CharField(blank=True, db_index=True, help_text='International Securities Identification Number', max_length=12, unique=True, verbose_name='ISIN')),
-                ('cusip', models.CharField(blank=True, db_index=True, help_text='CUSIP identifier', max_length=9, verbose_name='CUSIP')),
-                ('sedol', models.CharField(blank=True, db_index=True, help_text='Stock Exchange Daily Official List identifier', max_length=7, verbose_name='SEDOL')),
-                ('currency', models.CharField(default='USD', help_text='Asset currency (ISO 4217 code)', max_length=3, verbose_name='currency')),
-                ('sector', models.CharField(blank=True, help_text='The sector or industry category of the asset', max_length=100, verbose_name='sector')),
-                ('industry', models.CharField(blank=True, help_text='The specific industry within the sector', max_length=100, verbose_name='industry')),
-                ('is_active', models.BooleanField(db_index=True, default=True, help_text='Whether the asset is currently active and tradable', verbose_name='is active')),
-                ('metadata', models.JSONField(blank=True, default=dict, help_text='Additional metadata stored as JSON', verbose_name='metadata')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='created at')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='updated at')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "ticker",
+                    models.CharField(
+                        db_index=True,
+                        help_text="The asset's ticker symbol (e.g., AAPL, BTC-USD)",
+                        max_length=20,
+                        unique=True,
+                        verbose_name="ticker symbol",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="The full name of the asset", max_length=255, verbose_name="name"
+                    ),
+                ),
+                (
+                    "asset_type",
+                    models.CharField(
+                        choices=[
+                            ("STOCK", "Stock"),
+                            ("BOND", "Bond"),
+                            ("CRYPTO", "Cryptocurrency"),
+                            ("CASH", "Cash"),
+                            ("FUND", "Fund"),
+                            ("ETF", "ETF"),
+                            ("FOREX", "Forex"),
+                            ("COMMODITY", "Commodity"),
+                            ("REAL_ESTATE", "Real Estate"),
+                            ("DERIVATIVE", "Derivative"),
+                        ],
+                        db_index=True,
+                        help_text="The type of financial asset",
+                        max_length=20,
+                        verbose_name="asset type",
+                    ),
+                ),
+                (
+                    "country",
+                    models.CharField(
+                        choices=[
+                            ("US", "United States"),
+                            ("CA", "Canada"),
+                            ("GB", "United Kingdom"),
+                            ("DE", "Germany"),
+                            ("FR", "France"),
+                            ("NL", "Netherlands"),
+                            ("JP", "Japan"),
+                            ("CN", "China"),
+                            ("HK", "Hong Kong"),
+                            ("AU", "Australia"),
+                            ("CH", "Switzerland"),
+                            ("SE", "Sweden"),
+                            ("NO", "Norway"),
+                            ("DK", "Denmark"),
+                            ("FI", "Finland"),
+                            ("SG", "Singapore"),
+                            ("KR", "South Korea"),
+                            ("IN", "India"),
+                            ("BR", "Brazil"),
+                            ("MX", "Mexico"),
+                            ("AR", "Argentina"),
+                            ("CL", "Chile"),
+                            ("CO", "Colombia"),
+                            ("PE", "Peru"),
+                            ("ZA", "South Africa"),
+                            ("EG", "Egypt"),
+                            ("TR", "Turkey"),
+                            ("RU", "Russia"),
+                            ("PL", "Poland"),
+                            ("CZ", "Czech Republic"),
+                            ("HU", "Hungary"),
+                            ("RO", "Romania"),
+                            ("GR", "Greece"),
+                            ("PT", "Portugal"),
+                            ("ES", "Spain"),
+                            ("IT", "Italy"),
+                            ("AT", "Austria"),
+                            ("BE", "Belgium"),
+                            ("IE", "Ireland"),
+                            ("LU", "Luxembourg"),
+                            ("MT", "Malta"),
+                            ("CY", "Cyprus"),
+                            ("SI", "Slovenia"),
+                            ("SK", "Slovakia"),
+                            ("EE", "Estonia"),
+                            ("LV", "Latvia"),
+                            ("LT", "Lithuania"),
+                            ("HR", "Croatia"),
+                            ("BA", "Bosnia and Herzegovina"),
+                            ("ME", "Montenegro"),
+                            ("MK", "North Macedonia"),
+                            ("AL", "Albania"),
+                            ("RS", "Serbia"),
+                            ("XK", "Kosovo"),
+                            ("IS", "Iceland"),
+                            ("LI", "Liechtenstein"),
+                            ("MC", "Monaco"),
+                            ("SM", "San Marino"),
+                            ("VA", "Vatican City"),
+                            ("AD", "Andorra"),
+                            ("GI", "Gibraltar"),
+                            ("JE", "Jersey"),
+                            ("GG", "Guernsey"),
+                            ("IM", "Isle of Man"),
+                            ("GLOBAL", "Global/International"),
+                        ],
+                        db_index=True,
+                        help_text="Country where asset is primarily traded",
+                        max_length=10,
+                        verbose_name="country",
+                    ),
+                ),
+                (
+                    "market",
+                    models.CharField(
+                        choices=[
+                            ("NYSE", "New York Stock Exchange"),
+                            ("NASDAQ", "NASDAQ"),
+                            ("AMEX", "American Stock Exchange"),
+                            ("LSE", "London Stock Exchange"),
+                            ("TSE", "Toronto Stock Exchange"),
+                            ("HKEX", "Hong Kong Stock Exchange"),
+                            ("SSE", "Shanghai Stock Exchange"),
+                            ("SZSE", "Shenzhen Stock Exchange"),
+                            ("EURONEXT", "Euronext"),
+                            ("CRYPTO", "Cryptocurrency Exchange"),
+                            ("FOREX", "Foreign Exchange"),
+                            ("COMMODITY", "Commodity Market"),
+                            ("OTHER", "Other"),
+                        ],
+                        db_index=True,
+                        help_text="Primary market/exchange for trading",
+                        max_length=20,
+                        verbose_name="market",
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True,
+                        help_text="Optional description of the asset",
+                        verbose_name="description",
+                    ),
+                ),
+                (
+                    "isin",
+                    models.CharField(
+                        blank=True,
+                        db_index=True,
+                        help_text="International Securities Identification Number",
+                        max_length=12,
+                        unique=True,
+                        verbose_name="ISIN",
+                    ),
+                ),
+                (
+                    "cusip",
+                    models.CharField(
+                        blank=True,
+                        db_index=True,
+                        help_text="CUSIP identifier",
+                        max_length=9,
+                        verbose_name="CUSIP",
+                    ),
+                ),
+                (
+                    "sedol",
+                    models.CharField(
+                        blank=True,
+                        db_index=True,
+                        help_text="Stock Exchange Daily Official List identifier",
+                        max_length=7,
+                        verbose_name="SEDOL",
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="USD",
+                        help_text="Asset currency (ISO 4217 code)",
+                        max_length=3,
+                        verbose_name="currency",
+                    ),
+                ),
+                (
+                    "sector",
+                    models.CharField(
+                        blank=True,
+                        help_text="The sector or industry category of the asset",
+                        max_length=100,
+                        verbose_name="sector",
+                    ),
+                ),
+                (
+                    "industry",
+                    models.CharField(
+                        blank=True,
+                        help_text="The specific industry within the sector",
+                        max_length=100,
+                        verbose_name="industry",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        db_index=True,
+                        default=True,
+                        help_text="Whether the asset is currently active and tradable",
+                        verbose_name="is active",
+                    ),
+                ),
+                (
+                    "metadata",
+                    models.JSONField(
+                        blank=True,
+                        default=dict,
+                        help_text="Additional metadata stored as JSON",
+                        verbose_name="metadata",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="updated at")),
             ],
             options={
-                'verbose_name': 'asset',
-                'verbose_name_plural': 'assets',
-                'ordering': ['ticker', 'name'],
-                'indexes': [models.Index(fields=['ticker'], name='assets_asse_ticker_22a21f_idx'), models.Index(fields=['name'], name='assets_asse_name_e4d2fa_idx'), models.Index(fields=['asset_type', 'country'], name='assets_asse_asset_t_ad2aff_idx'), models.Index(fields=['market', 'is_active'], name='assets_asse_market_18de5c_idx'), models.Index(fields=['isin'], name='assets_asse_isin_914ac1_idx'), models.Index(fields=['cusip'], name='assets_asse_cusip_b28475_idx'), models.Index(fields=['sedol'], name='assets_asse_sedol_353aa7_idx')],
-                'constraints': [models.CheckConstraint(condition=models.Q(('ticker__regex', '^[A-Z0-9\\-_.]+$')), name='ticker_format_check')],
+                "verbose_name": "asset",
+                "verbose_name_plural": "assets",
+                "ordering": ["ticker", "name"],
+                "indexes": [
+                    models.Index(fields=["ticker"], name="assets_asse_ticker_22a21f_idx"),
+                    models.Index(fields=["name"], name="assets_asse_name_e4d2fa_idx"),
+                    models.Index(
+                        fields=["asset_type", "country"], name="assets_asse_asset_t_ad2aff_idx"
+                    ),
+                    models.Index(
+                        fields=["market", "is_active"], name="assets_asse_market_18de5c_idx"
+                    ),
+                    models.Index(fields=["isin"], name="assets_asse_isin_914ac1_idx"),
+                    models.Index(fields=["cusip"], name="assets_asse_cusip_b28475_idx"),
+                    models.Index(fields=["sedol"], name="assets_asse_sedol_353aa7_idx"),
+                ],
+                "constraints": [
+                    models.CheckConstraint(
+                        condition=models.Q(("ticker__regex", "^[A-Z0-9\\-_.]+$")),
+                        name="ticker_format_check",
+                    )
+                ],
             },
         ),
     ]
