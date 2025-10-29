@@ -35,8 +35,8 @@ COPY README.md ./
 COPY apps/ ./apps/
 COPY config/ ./config/
 
-# Install dependencies
-RUN uv sync --no-dev
+# Install dependencies (include all dependencies needed for yfinance/pandas)
+RUN uv sync
 
 # Copy rest of application
 COPY . .
