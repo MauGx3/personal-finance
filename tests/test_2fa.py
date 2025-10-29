@@ -217,8 +217,9 @@ def test_2fa_setup_url_exists(client, user):
 @pytest.mark.django_db
 def test_qr_code_generation(user):
     """Test QR code generation for TOTP setup."""
-    try:
-        import qrcode
+    import importlib.util
+
+    if importlib.util.find_spec("qrcode") and importlib.util.find_spec("django_otp"):
         from django_otp.plugins.otp_totp.models import TOTPDevice
 
         device = TOTPDevice.objects.create(user=user, name="default")
@@ -227,7 +228,7 @@ def test_qr_code_generation(user):
         url = device.config_url
         assert url is not None
         assert "otpauth://" in url
-    except ImportError:
+    else:
         pytest.skip("django-otp or qrcode not installed")
 
 

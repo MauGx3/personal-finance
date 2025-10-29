@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 
 @api_view(["GET"])
-def api_root(request):
+def api_root(_request):
     """API root endpoint."""
     return Response(
         {

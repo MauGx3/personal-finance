@@ -19,7 +19,7 @@ User = get_user_model()
 
 
 @pytest.fixture
-def user(db):
+def user(_db):
     """Create a test user."""
     return User.objects.create_user(email="user@example.com", password="testpass123")
 
@@ -78,7 +78,7 @@ class TestFeatureFlagDecorator:
         Flag.objects.create(name="beta_feature", everyone=True)
 
         @feature_flag("beta_feature")
-        def view(request):
+        def view(_request):
             return HttpResponse("Success")
 
         request = rf.get("/")
@@ -94,7 +94,7 @@ class TestFeatureFlagDecorator:
         Flag.objects.create(name="beta_feature", everyone=False)
 
         @feature_flag("beta_feature")
-        def view(request):
+        def view(_request):
             return HttpResponse("Success")
 
         request = rf.get("/")
@@ -109,7 +109,7 @@ class TestFeatureFlagDecorator:
         Flag.objects.create(name="beta_feature", everyone=False)
 
         @feature_flag("beta_feature", redirect_to="/pricing/")
-        def view(request):
+        def view(_request):
             return HttpResponse("Success")
 
         request = rf.get("/")
@@ -125,7 +125,7 @@ class TestFeatureFlagDecorator:
         Flag.objects.create(name="beta_feature", everyone=False)
 
         @feature_flag("beta_feature", ajax_response=True)
-        def view(request):
+        def view(_request):
             return HttpResponse("Success")
 
         request = rf.get("/")
@@ -146,7 +146,7 @@ class TestFeatureSwitchDecorator:
         Switch.objects.create(name="api_enabled", active=True)
 
         @feature_switch("api_enabled")
-        def view(request):
+        def view(_request):
             return HttpResponse("Success")
 
         request = rf.get("/")
@@ -161,7 +161,7 @@ class TestFeatureSwitchDecorator:
         Switch.objects.create(name="api_enabled", active=False)
 
         @feature_switch("api_enabled")
-        def view(request):
+        def view(_request):
             return HttpResponse("Success")
 
         request = rf.get("/")

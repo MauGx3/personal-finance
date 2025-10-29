@@ -195,11 +195,11 @@ async def test_websocket_error_handling():
 
         if connected:
             # Send invalid data
-            try:
+            from contextlib import suppress
+
+            with suppress(Exception):
                 await communicator.send_to(text_data="invalid")
                 # Consumer should handle gracefully
-            except Exception:
-                pass
 
             await communicator.disconnect()
     except ImportError:

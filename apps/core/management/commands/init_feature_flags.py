@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     help = "Initialize default feature flags, switches, and samples"
 
-    def handle(self, *args, **options):
+    def handle(self, *_args, **_options):
         """Run the command."""
         self.stdout.write("Initializing feature flags...")
 

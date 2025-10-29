@@ -135,7 +135,7 @@ def impersonation_context(request):
 
 
 # Admin action to impersonate from user list
-def impersonate_user_admin_action(modeladmin, request, queryset):
+def impersonate_user_admin_action(_modeladmin, request, queryset):
     """Admin action to impersonate a user."""
     if queryset.count() != 1:
         messages.error(request, _("Please select exactly one user to impersonate."))

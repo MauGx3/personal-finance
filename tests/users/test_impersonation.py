@@ -14,7 +14,7 @@ User = get_user_model()
 
 
 @pytest.fixture
-def staff_user(db):
+def staff_user(_db):
     """Create a staff user."""
     return User.objects.create_user(
         email="staff@example.com", password="testpass123", is_staff=True
@@ -22,13 +22,13 @@ def staff_user(db):
 
 
 @pytest.fixture
-def superuser(db):
+def superuser(_db):
     """Create a superuser."""
     return User.objects.create_superuser(email="admin@example.com", password="testpass123")
 
 
 @pytest.fixture
-def regular_user(db):
+def regular_user(_db):
     """Create a regular user."""
     return User.objects.create_user(email="user@example.com", password="testpass123")
 
@@ -46,7 +46,7 @@ class TestImpersonationMiddleware:
     def test_middleware_without_impersonation(self, rf, regular_user):
         """Test middleware does nothing without impersonation."""
 
-        def get_response(request):
+        def get_response(_request):
             return None
 
         middleware = ImpersonationMiddleware(get_response)
@@ -63,7 +63,7 @@ class TestImpersonationMiddleware:
     def test_middleware_with_impersonation(self, rf, staff_user, regular_user):
         """Test middleware swaps user when impersonating."""
 
-        def get_response(request):
+        def get_response(_request):
             return None
 
         middleware = ImpersonationMiddleware(get_response)
@@ -81,7 +81,7 @@ class TestImpersonationMiddleware:
     def test_middleware_with_invalid_user_id(self, rf, staff_user):
         """Test middleware clears invalid impersonate_id."""
 
-        def get_response(request):
+        def get_response(_request):
             return None
 
         middleware = ImpersonationMiddleware(get_response)
@@ -176,7 +176,7 @@ class TestPreventWhileImpersonatingDecorator:
         from django.http import HttpResponse
 
         @prevent_while_impersonating
-        def view(request):
+        def view(_request):
             return HttpResponse("Success")
 
         request = rf.get("/")
@@ -191,7 +191,7 @@ class TestPreventWhileImpersonatingDecorator:
         """Test decorator blocks access when impersonating."""
 
         @prevent_while_impersonating
-        def view(request):
+        def view(_request):
             from django.http import HttpResponse
 
             return HttpResponse("Success")

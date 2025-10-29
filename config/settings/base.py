@@ -2,6 +2,7 @@
 Base settings for Personal Finance project.
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -240,7 +241,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 # Simple JWT
-from datetime import timedelta
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env.int("JWT_ACCESS_TOKEN_LIFETIME", default=5)),

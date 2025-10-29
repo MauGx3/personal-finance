@@ -1,5 +1,6 @@
 """Tests for Asset model."""
 
+from django.db import IntegrityError
 from django.test import TestCase
 
 from apps.assets.models import Asset
@@ -89,7 +90,7 @@ class TestAsset(TestCase):
             market=Asset.MARKET_NASDAQ,
         )
 
-        with self.assertRaises(Exception):  # IntegrityError
+        with self.assertRaises(IntegrityError):
             Asset.objects.create(
                 ticker="AAPL",
                 name="Another Apple",
@@ -109,7 +110,7 @@ class TestAsset(TestCase):
             isin="US0378331005",
         )
 
-        with self.assertRaises(Exception):  # IntegrityError
+        with self.assertRaises(IntegrityError):
             Asset.objects.create(
                 ticker="MSFT",
                 name="Microsoft",

@@ -598,6 +598,12 @@ class Holding(models.Model):
         portfolio_name = f" in {self.portfolio.name}" if self.portfolio else ""
         return f"{self.user.email} - {self.asset.ticker} " f"({self.quantity}){portfolio_name}"
 
+    def save(self, *args, **kwargs) -> None:
+        """Ensure holding.user matches portfolio.user when portfolio is set."""
+        if self.portfolio and not self.user_id:
+            self.user = self.portfolio.user
+        super().save(*args, **kwargs)
+
     def __init__(self, *args, **kwargs):
         """Compatibility shim: accept legacy `cost_basis_per_unit` kwarg."""
         _sentinel = object()
@@ -634,9 +640,3 @@ class Holding(models.Model):
         """Calculate unrealized gain/loss (placeholder for future
         implementation)."""
         return self.current_value - self.total_cost_basis
-
-    def save(self, *args, **kwargs) -> None:
-        """Ensure holding.user matches portfolio.user when portfolio is set."""
-        if self.portfolio and not self.user_id:
-            self.user = self.portfolio.user
-        super().save(*args, **kwargs)

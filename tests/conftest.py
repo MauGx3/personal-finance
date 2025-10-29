@@ -1,16 +1,7 @@
 """Pytest configuration and fixtures."""
 
-import os
-
 import pytest
 from django.test import Client
-
-
-def pytest_load_initial_conftests(args, early_config, parser):
-    """Override database to use in-memory SQLite for tests."""
-    os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
-
-
 from rest_framework.test import APIClient
 
 
@@ -41,7 +32,7 @@ def admin_api_client(api_client, admin_user):
 
 
 @pytest.fixture
-def user(db):
+def user(_db):
     """Create a test user."""
     from apps.users.models import User
 
@@ -51,7 +42,7 @@ def user(db):
 
 
 @pytest.fixture
-def admin_user(db):
+def admin_user(_db):
     """Create an admin user."""
     from apps.users.models import User
 
@@ -59,7 +50,7 @@ def admin_user(db):
 
 
 @pytest.fixture
-def multiple_users(db):
+def multiple_users(_db):
     """Create multiple test users."""
     from apps.users.models import User
 
@@ -76,7 +67,7 @@ def multiple_users(db):
 
 
 @pytest.fixture
-def verified_user(db):
+def verified_user(_db):
     """Create a verified user with email confirmation."""
     from allauth.account.models import EmailAddress
 
@@ -88,7 +79,7 @@ def verified_user(db):
 
 
 @pytest.fixture
-def staff_user(db):
+def staff_user(_db):
     """Create a staff user."""
     from apps.users.models import User
 

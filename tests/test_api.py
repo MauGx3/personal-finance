@@ -77,7 +77,7 @@ def test_api_docs_endpoint(api_client):
 
 
 @pytest.mark.django_db
-def test_api_pagination(authenticated_api_client, multiple_users):
+def test_api_pagination(authenticated_api_client, _multiple_users):
     """Test that API endpoints support pagination."""
     # Adjust URL to match your actual list endpoint
     response = authenticated_api_client.get("/api/users/")
@@ -94,10 +94,10 @@ def test_api_pagination(authenticated_api_client, multiple_users):
 
 
 @pytest.mark.django_db
-def test_api_filtering(authenticated_api_client, multiple_users):
+def test_api_filtering(authenticated_api_client, _multiple_users):
     """Test that API supports filtering."""
     # Example: filter by email
-    response = authenticated_api_client.get("/api/users/", {"email": multiple_users[0].email})
+    response = authenticated_api_client.get("/api/users/", {"email": _multiple_users[0].email})
 
     # Should work or return 404 if endpoint doesn't exist
     assert response.status_code in [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND]

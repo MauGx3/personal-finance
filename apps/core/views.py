@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 
-def index(request):
+def index(_request):
     """Home page."""
     context = {
         "site_name": getattr(settings, "SITE_NAME", "Personal Finance"),
@@ -15,15 +15,15 @@ def index(request):
         "debug": settings.DEBUG,
         "django_version": "5.2+",
     }
-    return render(request, "core/index.html", context)
+    return render(_request, "core/index.html", context)
 
 
-def health_check(request):
+def health_check(_request):
     """Health check endpoint."""
     return JsonResponse({"status": "healthy"})
 
 
-def readiness_check(request):
+def readiness_check(_request):
     """Readiness check with database and cache verification."""
     checks = {"database": False, "cache": False}
 

@@ -132,17 +132,17 @@ def test_get_user_by_email(user):
 
 
 @pytest.mark.django_db
-def test_filter_active_users(multiple_users):
+def test_filter_active_users(_multiple_users):
     """Test filtering active users."""
     # Deactivate one user
-    multiple_users[0].is_active = False
-    multiple_users[0].save()
+    _multiple_users[0].is_active = False
+    _multiple_users[0].save()
 
     active_users = User.objects.filter(is_active=True)
     assert active_users.count() == 2
 
 
 @pytest.mark.django_db
-def test_user_count(multiple_users):
+def test_user_count(_multiple_users):
     """Test counting users."""
     assert User.objects.count() >= 3
