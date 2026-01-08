@@ -11,7 +11,7 @@ starlette==0.47.3
 anyio==4.10.0
 
 # HTTP
-urllib3==2.5.0
+urllib3==2.6.3
 charset-normalizer==3.4.3
 idna==3.10
 requests==2.32.5
