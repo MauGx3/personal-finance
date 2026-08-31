@@ -6,12 +6,12 @@ type safety.
 """
 
 from dataclasses import dataclass
+from datetime import date, datetime
 from decimal import Decimal
-from datetime import datetime, date
 
 # For compatibility with built-in type hints
 try:
-    from typing import Optional, List
+    from typing import List, Optional
 except ImportError:
     pass
 
@@ -48,8 +48,8 @@ class HistoricalPricePoint:
     close_price: Decimal
     volume: int = 0
     adjusted_close: Decimal | None = None
-    dividend_amount: Decimal = Decimal("0")
-    split_ratio: Decimal = Decimal("1")
+    dividend_amount: Decimal = Decimal(0)
+    split_ratio: Decimal = Decimal(1)
 
     def __post_init__(self):
         """Ensure all prices are Decimals for precision."""

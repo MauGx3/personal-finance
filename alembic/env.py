@@ -1,8 +1,9 @@
-from logging.config import fileConfig
 import os
 import sys
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from logging.config import fileConfig
+
+from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 
 # this is the Alembic Config object, which provides
@@ -29,7 +30,7 @@ if os.path.isdir(src_path) and src_path not in sys.path:
 try:  # pragma: no cover - runtime import resolution
     from personal_finance.database import Base  # type: ignore
 except Exception:  # pragma: no cover - fallback
-    from personal_finance.database import Base  # noqa: F401
+    from personal_finance.database import Base
 
 target_metadata = Base.metadata
 

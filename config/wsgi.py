@@ -17,10 +17,11 @@ framework.
 import os
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 from django.core.wsgi import get_wsgi_application
+
 from loguru import logger
-from urllib.parse import urlparse
 
 # This allows easy placement of apps within the interior
 # personal_finance directory.

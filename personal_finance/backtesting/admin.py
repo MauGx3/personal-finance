@@ -1,15 +1,15 @@
 """Django admin configuration for backtesting models."""
 
 from django.contrib import admin
-from django.utils.html import format_html
 from django.urls import reverse
+from django.utils.html import format_html
 
 from .models import (
-    Strategy,
     Backtest,
-    BacktestResult,
     BacktestPortfolioSnapshot,
+    BacktestResult,
     BacktestTrade,
+    Strategy,
 )
 
 

@@ -1,10 +1,11 @@
 """Security tests for assets API views."""
 
 import json
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
 from django.test import TestCase
-from rest_framework.test import APIRequestFactory
 from rest_framework import status
+from rest_framework.test import APIRequestFactory
 
 try:
     from personal_finance.assets.api.views import AssetViewSet

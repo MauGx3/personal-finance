@@ -1,9 +1,7 @@
 import factory
 from django.contrib.auth import get_user_model
 
-from personal_finance.assets.models import Asset
-from personal_finance.assets.models import Holding
-from personal_finance.assets.models import Portfolio
+from personal_finance.assets.models import Asset, Holding, Portfolio
 
 UserModel = get_user_model()
 

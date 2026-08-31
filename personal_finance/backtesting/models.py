@@ -5,11 +5,11 @@ including strategy definitions, backtest runs, and performance results.
 """
 
 from decimal import Decimal
-from typing import Any, Optional
+from typing import Any
 
-from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 from django.db.models import JSONField
 
 from personal_finance.assets.models import Asset
@@ -275,7 +275,7 @@ class Backtest(models.Model):
         return (self.end_date - self.start_date).days
 
     @property
-    def execution_time(self) -> Optional[float]:
+    def execution_time(self) -> float | None:
         """Calculate execution time in seconds."""
         if self.started_at and self.completed_at:
             delta = self.completed_at - self.started_at
@@ -440,13 +440,13 @@ class BacktestResult(models.Model):
         return f"Results: {self.backtest.name}"
 
     @property
-    def profit_factor(self) -> Optional[Decimal]:
+    def profit_factor(self) -> Decimal | None:
         """Calculate profit factor (gross profits / gross losses)."""
         if self.average_loss and self.losing_trades > 0:
             gross_profits = (
                 self.average_win * self.winning_trades
                 if self.average_win
-                else Decimal("0")
+                else Decimal(0)
             )
             gross_losses = abs(self.average_loss) * self.losing_trades
             if gross_losses > 0:
@@ -454,7 +454,7 @@ class BacktestResult(models.Model):
         return None
 
     @property
-    def expectancy(self) -> Optional[Decimal]:
+    def expectancy(self) -> Decimal | None:
         """Calculate trade expectancy."""
         if (
             self.win_rate is not None
@@ -545,14 +545,14 @@ class BacktestPortfolioSnapshot(models.Model):
         """Calculate cash as percentage of total portfolio."""
         if self.total_value > 0:
             return (self.cash_balance / self.total_value) * 100
-        return Decimal("0")
+        return Decimal(0)
 
     @property
     def invested_percentage(self) -> Decimal:
         """Calculate invested amount as percentage of total portfolio."""
         if self.total_value > 0:
             return (self.invested_value / self.total_value) * 100
-        return Decimal("0")
+        return Decimal(0)
 
 
 class BacktestTrade(models.Model):
