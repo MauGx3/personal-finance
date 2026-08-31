@@ -1,16 +1,17 @@
 """Tests for DataSourceService with mock adapters."""
 
-import pytest
-from decimal import Decimal
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from decimal import Decimal
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from personal_finance.data_sources.adapter import DataSourceError, MockAdapter
 from personal_finance.data_sources.services import (
     DataSourceService,
     create_mock_service,
 )
-from personal_finance.data_sources.adapter import MockAdapter, DataSourceError
-from personal_finance.data_sources.types import PricePoint, HistoricalSeries
+from personal_finance.data_sources.types import HistoricalSeries, PricePoint
 
 
 class TestDataSourceService:

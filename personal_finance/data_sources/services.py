@@ -25,14 +25,14 @@ except ImportError:
         logger.addHandler(handler)
 
 from abc import ABC, abstractmethod
-from decimal import Decimal
-from datetime import datetime, date, timedelta
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta
+from decimal import Decimal
 
 # For compatibility with built-in type hints
 try:
     # Python 3.10+ has built-in union types, but keep Optional for compatibility
-    from typing import Optional, Dict, List, Any
+    from typing import Any, Dict, List, Optional
 except ImportError:
     pass
 
@@ -53,7 +53,6 @@ except ImportError:
                 "FakeCache: Attempted to get key '%s' but caching is disabled (Django not available).",
                 key,
             )
-            return None
 
         def set(self, key, value, timeout=None):
             logger.warning(
@@ -71,13 +70,13 @@ except ImportError:
     timezone = FakeTimezone()
 
 # Import new types and adapters
-from .types import PricePoint, HistoricalSeries, CompanyInfo
 from .adapter import (
     BaseDataSourceAdapter,
-    YFinanceAdapter,
-    MockAdapter,
     DataSourceError,
+    MockAdapter,
+    YFinanceAdapter,
 )
+from .types import CompanyInfo, HistoricalSeries, PricePoint
 
 # Using logger imported above
 
@@ -92,11 +91,11 @@ class PriceData:
 
     symbol: str
     current_price: Decimal
-    previous_close: Optional[Decimal] = None
-    day_high: Optional[Decimal] = None
-    day_low: Optional[Decimal] = None
-    volume: Optional[int] = None
-    market_cap: Optional[Decimal] = None
+    previous_close: Decimal | None = None
+    day_high: Decimal | None = None
+    day_low: Decimal | None = None
+    volume: int | None = None
+    market_cap: Decimal | None = None
     currency: str = "USD"
     last_updated: datetime = None
 
@@ -115,28 +114,22 @@ class HistoricalData:
     high_price: Decimal
     low_price: Decimal
     close_price: Decimal
-    adjusted_close: Optional[Decimal] = None
+    adjusted_close: Decimal | None = None
     volume: int = 0
-    dividend_amount: Decimal = Decimal("0")
-    split_ratio: Decimal = Decimal("1")
+    dividend_amount: Decimal = Decimal(0)
+    split_ratio: Decimal = Decimal(1)
 
 
 class DataSourceError(Exception):
     """Base exception for data source errors."""
 
-    pass
-
 
 class RateLimitError(DataSourceError):
     """Exception raised when API rate limit is exceeded."""
 
-    pass
-
 
 class APIError(DataSourceError):
     """Exception raised for API-related errors."""
-
-    pass
 
 
 class DataSourceService:
@@ -373,7 +366,7 @@ class DataSourceBase(ABC):
     ensuring consistent behavior across different providers.
     """
 
-    def __init__(self, name: str, api_key: Optional[str] = None):
+    def __init__(self, name: str, api_key: str | None = None):
         self.name = name
         self.api_key = api_key
         self._circuit_breaker_failures = 0
@@ -382,7 +375,7 @@ class DataSourceBase(ABC):
         self._circuit_breaker_timeout = timedelta(minutes=15)
 
     @abstractmethod
-    def get_current_price(self, symbol: str) -> Optional[PriceData]:
+    def get_current_price(self, symbol: str) -> PriceData | None:
         """Get current price data for a symbol.
 
         Args:
@@ -394,12 +387,11 @@ class DataSourceBase(ABC):
         Raises:
             DataSourceError: If there's an error fetching data
         """
-        pass
 
     @abstractmethod
     def get_historical_data(
         self, symbol: str, start_date: date, end_date: date
-    ) -> List[HistoricalData]:
+    ) -> list[HistoricalData]:
         """Get historical price data for a symbol.
 
         Args:
@@ -413,10 +405,9 @@ class DataSourceBase(ABC):
         Raises:
             DataSourceError: If there's an error fetching data
         """
-        pass
 
     @abstractmethod
-    def search_symbol(self, query: str) -> List[Dict[str, str]]:
+    def search_symbol(self, query: str) -> list[dict[str, str]]:
         """Search for symbols matching a query.
 
         Args:
@@ -425,10 +416,9 @@ class DataSourceBase(ABC):
         Returns:
             List of dictionaries with symbol information
         """
-        pass
 
     @abstractmethod
-    def get_company_info(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_company_info(self, symbol: str) -> dict[str, Any] | None:
         """Get company/asset information.
 
         Args:
@@ -437,7 +427,6 @@ class DataSourceBase(ABC):
         Returns:
             Dictionary with company information or None
         """
-        pass
 
     def is_available(self) -> bool:
         """Check if the data source is currently available.
@@ -486,7 +475,7 @@ class YahooFinanceSource(DataSourceBase):
         super().__init__("Yahoo Finance")
         self._session = None
 
-    def get_current_price(self, symbol: str) -> Optional[PriceData]:
+    def get_current_price(self, symbol: str) -> PriceData | None:
         """Get current price from Yahoo Finance.
 
         Uses yfinance library to fetch real-time price data.
@@ -530,7 +519,7 @@ class YahooFinanceSource(DataSourceBase):
 
     def get_historical_data(
         self, symbol: str, start_date: date, end_date: date
-    ) -> List[HistoricalData]:
+    ) -> list[HistoricalData]:
         """Get historical data from Yahoo Finance."""
         if not self.is_available():
             return []
@@ -552,7 +541,7 @@ class YahooFinanceSource(DataSourceBase):
             self._record_failure()
             raise APIError(f"Yahoo Finance historical data error: {e}")
 
-    def search_symbol(self, query: str) -> List[Dict[str, str]]:
+    def search_symbol(self, query: str) -> list[dict[str, str]]:
         """Search symbols using Yahoo Finance."""
         try:
             # Placeholder implementation
@@ -561,7 +550,7 @@ class YahooFinanceSource(DataSourceBase):
             logger.error("Yahoo Finance search error: %s", e)
             return []
 
-    def get_company_info(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_company_info(self, symbol: str) -> dict[str, Any] | None:
         """Get company information from Yahoo Finance."""
         try:
             # Placeholder implementation
@@ -578,10 +567,10 @@ class StockdexSource(DataSourceBase):
     fallback capabilities when Yahoo Finance is unavailable.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         super().__init__("Stockdx", api_key)
 
-    def get_current_price(self, symbol: str) -> Optional[PriceData]:
+    def get_current_price(self, symbol: str) -> PriceData | None:
         """Get current price from Stockdx."""
         if not self.is_available():
             return None
@@ -607,7 +596,7 @@ class StockdexSource(DataSourceBase):
 
     def get_historical_data(
         self, symbol: str, start_date: date, end_date: date
-    ) -> List[HistoricalData]:
+    ) -> list[HistoricalData]:
         """Get historical data from Stockdx."""
         if not self.is_available():
             return []
@@ -620,11 +609,11 @@ class StockdexSource(DataSourceBase):
             self._record_failure()
             raise APIError(f"Stockdx historical data error: {e}")
 
-    def search_symbol(self, query: str) -> List[Dict[str, str]]:
+    def search_symbol(self, query: str) -> list[dict[str, str]]:
         """Search symbols using Stockdx."""
         return []
 
-    def get_company_info(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_company_info(self, symbol: str) -> dict[str, Any] | None:
         """Get company information from Stockdx."""
         return {}
 
@@ -636,13 +625,13 @@ class AlphaVantageSource(DataSourceBase):
     reliable service for critical data needs.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         super().__init__(
             "Alpha Vantage",
             api_key or getattr(settings, "ALPHA_VANTAGE_API_KEY", None),
         )
 
-    def get_current_price(self, symbol: str) -> Optional[PriceData]:
+    def get_current_price(self, symbol: str) -> PriceData | None:
         """Get current price from Alpha Vantage."""
         if not self.is_available() or not self.api_key:
             return None
@@ -667,7 +656,7 @@ class AlphaVantageSource(DataSourceBase):
 
     def get_historical_data(
         self, symbol: str, start_date: date, end_date: date
-    ) -> List[HistoricalData]:
+    ) -> list[HistoricalData]:
         """Get historical data from Alpha Vantage."""
         if not self.is_available() or not self.api_key:
             return []
@@ -680,11 +669,11 @@ class AlphaVantageSource(DataSourceBase):
             self._record_failure()
             raise APIError(f"Alpha Vantage historical data error: {e}")
 
-    def search_symbol(self, query: str) -> List[Dict[str, str]]:
+    def search_symbol(self, query: str) -> list[dict[str, str]]:
         """Search symbols using Alpha Vantage."""
         return []
 
-    def get_company_info(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_company_info(self, symbol: str) -> dict[str, Any] | None:
         """Get company information from Alpha Vantage."""
         return {}
 
@@ -718,7 +707,7 @@ class DataSourceManager:
         else:
             self.sources.append(source)
 
-    def get_current_price(self, symbol: str) -> Optional[PriceData]:
+    def get_current_price(self, symbol: str) -> PriceData | None:
         """Get current price with automatic fallback.
 
         Tries each data source in order until one succeeds or all fail.
@@ -754,7 +743,7 @@ class DataSourceManager:
 
     def get_historical_data(
         self, symbol: str, start_date: date, end_date: date
-    ) -> List[HistoricalData]:
+    ) -> list[HistoricalData]:
         """Get historical data with automatic fallback."""
         for source in self.sources:
             try:
@@ -781,7 +770,7 @@ class DataSourceManager:
         logger.error("All sources failed for historical data: %s", symbol)
         return []
 
-    def search_symbol(self, query: str) -> List[Dict[str, str]]:
+    def search_symbol(self, query: str) -> list[dict[str, str]]:
         """Search symbols across all available sources."""
         all_results = []
         seen_symbols = set()
@@ -803,7 +792,7 @@ class DataSourceManager:
 
         return all_results
 
-    def get_source_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_source_status(self) -> dict[str, dict[str, Any]]:
         """Get status of all data sources.
 
         Returns:

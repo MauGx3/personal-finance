@@ -19,8 +19,8 @@ from personal_finance.data_profiler.services import (
 )
 from personal_finance.data_profiler.validators import (
     ProfileDataError,
-    validate_profile_data,
     validate_and_prepare_data,
+    validate_profile_data,
 )
 
 

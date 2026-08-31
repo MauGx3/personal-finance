@@ -22,19 +22,19 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: '1.28.0'
+    rev: '1.32.0'
     hooks:
       - id: django-upgrade
         args: ['--target-version', '5.0']
 
   # Run the Ruff linter.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.2
+    rev: v0.16.5
     hooks:
       # Linter
       - id: ruff-check
@@ -43,13 +43,13 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.36.4
+    rev: v1.44.2
     hooks:
       - id: djlint-reformat-django
       - id: djlint-django
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.24.2
+    rev: v8.30.0
     hooks:
       - id: gitleaks
 

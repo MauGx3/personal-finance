@@ -10,4 +10,4 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         with contextlib.suppress(ImportError):
-            import personal_finance.users.signals  # noqa: F401, PLC0415
+            import personal_finance.users.signals  # noqa: F401

@@ -8,8 +8,8 @@ from .models import User
 # Graceful handling of allauth imports for CI/CD compatibility
 try:
     from allauth.account.decorators import secure_admin_login
-    from .forms import UserAdminChangeForm
-    from .forms import UserAdminCreationForm
+
+    from .forms import UserAdminChangeForm, UserAdminCreationForm
 
     ALLAUTH_AVAILABLE = True
 except ImportError:
