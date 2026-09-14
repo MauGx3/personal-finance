@@ -1,9 +1,9 @@
 import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 from loguru import logger as loguru_logger
+
 from .level import LOG_FORMAT, resolve_level
 
 
@@ -23,7 +23,7 @@ class PackageLogger:
         # Configure the logger with security-compliant defaults
         self._setup_logger()
 
-    def _setup_logger(self, log_file: Optional[Path] = None):
+    def _setup_logger(self, log_file: Path | None = None):
         """Setup logger with console and file handlers."""
         # Remove default handler and configure with our format
         # Configure the module-level loguru logger first, then bind for use by

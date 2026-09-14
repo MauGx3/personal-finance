@@ -1,10 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
-from django.views.generic import DeleteView
-from django.views.generic import DetailView
-from django.views.generic import ListView
-from django.views.generic import UpdateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
 from .forms import AssetForm
 from .models import Asset
