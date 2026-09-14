@@ -3,7 +3,9 @@
 This package houses connectors to external data sources (yfinance,
 stockdex, etc.)."""
 
-from . import yahoo_finance  # noqa: F401
-from . import stockdex  # noqa: F401
+from . import (
+    stockdex,
+    yahoo_finance,
+)
 
-__all__ = ["yahoo_finance", "stockdex"]
+__all__ = ["stockdex", "yahoo_finance"]

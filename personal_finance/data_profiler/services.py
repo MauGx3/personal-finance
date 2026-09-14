@@ -5,15 +5,17 @@ financial data, detecting PII/sensitive information, and generating comprehensiv
 data quality reports.
 """
 
-from loguru import logger
-from typing import Any, Dict, Optional, List
-import pandas as pd
+from typing import Any
+
 import numpy as np
+import pandas as pd
+
+from loguru import logger
 
 from .validators import (
-    validate_profile_data,
-    validate_and_prepare_data,
     ProfileDataError,
+    validate_and_prepare_data,
+    validate_profile_data,
 )
 
 # Using loguru logger imported above
@@ -59,7 +61,7 @@ class DataProfilerService:
 
     def create_profile(
         self, profile_data: Any, **kwargs
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Create a data profile with validation.
 
         This method validates the input data before passing it to DataProfiler,
@@ -114,7 +116,7 @@ class DataProfilerService:
 
     def analyze_financial_data(
         self, financial_data: pd.DataFrame
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze financial data with domain-specific insights.
 
         This method provides financial-specific analysis on top of basic profiling,
@@ -164,7 +166,7 @@ class DataProfilerService:
 
         return analysis_results
 
-    def _get_profiler_options(self, **kwargs) -> Dict[str, Any]:
+    def _get_profiler_options(self, **kwargs) -> dict[str, Any]:
         """Get DataProfiler configuration options.
 
         Args:
@@ -187,7 +189,7 @@ class DataProfilerService:
 
         return profiler_options
 
-    def _extract_profile_results(self) -> Dict[str, Any]:
+    def _extract_profile_results(self) -> dict[str, Any]:
         """Extract and format results from DataProfiler.
 
         Returns:
@@ -218,7 +220,7 @@ class DataProfilerService:
             return {"error": "Failed to extract profile results"}
 
     @staticmethod
-    def _extract_summary_stats(report: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_summary_stats(report: dict[str, Any]) -> dict[str, Any]:
         """Extract summary statistics from profile report.
 
         Args:
@@ -241,7 +243,7 @@ class DataProfilerService:
             return {}
 
     @staticmethod
-    def _extract_column_profiles(report: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_column_profiles(report: dict[str, Any]) -> dict[str, Any]:
         """Extract column-specific profiles from report.
 
         Args:
@@ -270,7 +272,7 @@ class DataProfilerService:
             return {}
 
     @staticmethod
-    def _extract_data_types(report: Dict[str, Any]) -> Dict[str, str]:
+    def _extract_data_types(report: dict[str, Any]) -> dict[str, str]:
         """Extract detected data types for each column.
 
         Args:
@@ -292,7 +294,7 @@ class DataProfilerService:
             return {}
 
     @staticmethod
-    def _extract_null_analysis(report: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_null_analysis(report: dict[str, Any]) -> dict[str, Any]:
         """Extract null value analysis from report.
 
         Args:
@@ -320,8 +322,8 @@ class DataProfilerService:
             return {}
 
     def _extract_sensitive_data(
-        self, report: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, report: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Extract sensitive data detection results.
 
         Args:
@@ -360,7 +362,7 @@ class DataProfilerService:
             logger.warning("Error extracting sensitive data findings: %s", e)
             return []
 
-    def _analyze_financial_patterns(self, df: pd.DataFrame) -> Dict[str, Any]:
+    def _analyze_financial_patterns(self, df: pd.DataFrame) -> dict[str, Any]:
         """Analyze financial-specific patterns in the data.
 
         Args:
@@ -401,7 +403,7 @@ class DataProfilerService:
         return patterns
 
     @staticmethod
-    def _analyze_data_quality(df: pd.DataFrame) -> Dict[str, Any]:
+    def _analyze_data_quality(df: pd.DataFrame) -> dict[str, Any]:
         """Analyze data quality issues in financial data.
 
         Args:
@@ -447,7 +449,7 @@ class DataProfilerService:
 
     def _detect_sensitive_financial_data(
         self, df: pd.DataFrame
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Detect potentially sensitive financial information.
 
         Args:
@@ -466,8 +468,9 @@ class DataProfilerService:
             # Check for account numbers (simplified pattern)
             if any(
                 (
-                    lambda cleaned_val: len(cleaned_val) >= 8
-                    and cleaned_val.isdigit()
+                    lambda cleaned_val: (
+                        len(cleaned_val) >= 8 and cleaned_val.isdigit()
+                    )
                 )(str(val).replace("-", "").replace(" ", ""))
                 for val in col_data.head(10)
             ):
@@ -547,7 +550,7 @@ class DataProfilerService:
     @staticmethod
     def _check_suspicious_patterns(
         col_name: str, col_data: pd.Series
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Check for suspicious patterns in the data."""
         suspicious = []
 
@@ -596,7 +599,7 @@ class DataProfilerService:
         return True
 
 
-def profile_data(data: Any, **options) -> Dict[str, Any]:
+def profile_data(data: Any, **options) -> dict[str, Any]:
     """Create a data profile with validation and return standardized results.
 
     This is the main entry point for programmatic data profiling. It provides
@@ -745,7 +748,7 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
                         "null_count": int(col_data.isnull().sum()),
                         "null_ratio": float(col_data.isnull().mean()),
                         "statistics": {
-                            "count": int(len(col_data)),
+                            "count": len(col_data),
                             "unique_count": int(col_data.nunique()),
                         },
                     }
@@ -758,9 +761,9 @@ def profile_data(data: Any, **options) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     """CLI example for data profiling."""
-    import sys
-    import json
     import argparse
+    import json
+    import sys
 
     parser = argparse.ArgumentParser(
         description="Profile data using DataProfiler"

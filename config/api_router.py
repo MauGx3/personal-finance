@@ -1,6 +1,6 @@
 from django.conf import settings
-from rest_framework.routers import DefaultRouter
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import DefaultRouter, SimpleRouter
+
 from loguru import logger
 
 # Import viewsets defensively: some optional features pull heavy deps (pandas,
@@ -8,9 +8,11 @@ from loguru import logger
 # If any import fails for any reason, log and fall back to None so URLConf can
 # be imported for light-weight operations such as the health endpoint.
 try:
-    from personal_finance.assets.api.views import AssetViewSet
     from personal_finance.assets.api.views import (
+        AssetViewSet,
         HoldingViewSet,
+    )
+    from personal_finance.assets.api.views import (
         PortfolioViewSet as LegacyPortfolioViewSet,
     )
 except Exception:  # pragma: no cover - runtime resilience
@@ -25,10 +27,10 @@ except Exception:  # pragma: no cover - optional
 
 try:
     from personal_finance.portfolios.api.views import (
+        PortfolioSnapshotViewSet,
         PortfolioViewSet,
         PositionViewSet,
         TransactionViewSet,
-        PortfolioSnapshotViewSet,
     )
 except Exception:  # pragma: no cover - optional
     logger.exception("Portfolios viewsets import failed")
@@ -50,14 +52,14 @@ except Exception:  # pragma: no cover - optional
 
 try:
     from personal_finance.tax.views import (
-        TaxYearViewSet,
-        TaxLotViewSet,
         CapitalGainLossViewSet,
         DividendIncomeViewSet,
+        TaxAnalyticsViewSet,
         TaxLossHarvestingOpportunityViewSet,
+        TaxLotViewSet,
         TaxOptimizationRecommendationViewSet,
         TaxReportViewSet,
-        TaxAnalyticsViewSet,
+        TaxYearViewSet,
     )
 except Exception:  # pragma: no cover - optional
     logger.exception("Tax viewsets import failed")
