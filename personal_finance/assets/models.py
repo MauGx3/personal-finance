@@ -102,7 +102,7 @@ class Holding(models.Model):
     quantity = models.DecimalField(
         max_digits=20,
         decimal_places=8,
-        default=Decimal("0"),
+        default=Decimal(0),
     )
     average_price = models.DecimalField(
         max_digits=20,
@@ -163,10 +163,10 @@ class Holding(models.Model):
         """
         try:
             if self.average_price is None or self.quantity is None:
-                return Decimal("0")
+                return Decimal(0)
             return self.quantity * self.average_price
         except Exception:
-            return Decimal("0")
+            return Decimal(0)
 
     def save(self, *args, **kwargs):
         """Ensure Holding.user is populated from portfolio when omitted.

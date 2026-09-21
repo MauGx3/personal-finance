@@ -7,8 +7,6 @@ applications can continue to import `personal_finance._stockdex` or
 `personal_finance.stockdex` (there is a shim) and call `get_last_close`.
 """
 
-from typing import Optional
-
 try:
     from stockdex import Ticker  # external package
 except (
@@ -17,7 +15,7 @@ except (
     Ticker = None
 
 
-def get_last_close(symbol: str) -> Optional[float]:
+def get_last_close(symbol: str) -> float | None:
     """Return the last close price for `symbol` using stockdex if available.
 
     Returns None if the `stockdex` package is not installed or if the

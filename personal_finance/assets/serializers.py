@@ -1,10 +1,12 @@
 """Serializers for asset API endpoints."""
 
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
-from .models import Asset
-from .models import Holding  # Legacy model
+from .models import (
+    Asset,
+    Holding,  # Legacy model
+)
 from .models import Portfolio as LegacyPortfolio  # Legacy model
 
 # Graceful import for PriceHistory
@@ -166,8 +168,6 @@ else:
     # Mock serializer if PriceHistory is not available
     class PriceHistorySerializer(serializers.Serializer):
         """Mock serializer for price history when model is unavailable."""
-
-        pass
 
 
 class AssetPerformanceSerializer(serializers.Serializer):

@@ -7,13 +7,13 @@ for live price feeds and portfolio value updates.
 
 import json
 import uuid
-from typing import Dict, Any
+from typing import Any
 
+from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from channels.db import database_sync_to_async
-from loguru import logger
 
+from loguru import logger
 from personal_finance.realtime.connections import (
     connection_manager,
     encode_message,
@@ -107,7 +107,7 @@ class WebSocketHandler:
         pong_msg = encode_message("pong", {"timestamp": "now"})
         await self.send({"type": "websocket.send", "text": pong_msg})
 
-    async def handle_subscribe_asset(self, payload: Dict[str, Any]):
+    async def handle_subscribe_asset(self, payload: dict[str, Any]):
         """Handle asset subscription."""
         symbol = payload.get("symbol")
         if not symbol:
@@ -121,7 +121,7 @@ class WebSocketHandler:
         )
         await self.send({"type": "websocket.send", "text": response})
 
-    async def handle_unsubscribe_asset(self, payload: Dict[str, Any]):
+    async def handle_unsubscribe_asset(self, payload: dict[str, Any]):
         """Handle asset unsubscription."""
         symbol = payload.get("symbol")
         if not symbol:
@@ -139,7 +139,7 @@ class WebSocketHandler:
         )
         await self.send({"type": "websocket.send", "text": response})
 
-    async def handle_subscribe_portfolio(self, payload: Dict[str, Any]):
+    async def handle_subscribe_portfolio(self, payload: dict[str, Any]):
         """Handle portfolio subscription."""
         if not self.is_authenticated:
             await self.send_error(
@@ -169,7 +169,7 @@ class WebSocketHandler:
         )
         await self.send({"type": "websocket.send", "text": response})
 
-    async def handle_unsubscribe_portfolio(self, payload: Dict[str, Any]):
+    async def handle_unsubscribe_portfolio(self, payload: dict[str, Any]):
         """Handle portfolio unsubscription."""
         portfolio_id = payload.get("portfolio_id")
         if not portfolio_id:
@@ -188,7 +188,7 @@ class WebSocketHandler:
         )
         await self.send({"type": "websocket.send", "text": response})
 
-    async def handle_get_portfolio_value(self, payload: Dict[str, Any]):
+    async def handle_get_portfolio_value(self, payload: dict[str, Any]):
         """Handle request for current portfolio value."""
         if not self.is_authenticated:
             await self.send_error("Authentication required")
@@ -215,7 +215,7 @@ class WebSocketHandler:
         )
         await self.send({"type": "websocket.send", "text": response})
 
-    async def handle_get_asset_price(self, payload: Dict[str, Any]):
+    async def handle_get_asset_price(self, payload: dict[str, Any]):
         """Handle request for current asset price."""
         symbol = payload.get("symbol")
         if not symbol:
