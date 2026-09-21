@@ -1,6 +1,7 @@
 """URL patterns for visualization dashboard."""
 
 from django.urls import path
+
 from . import views
 
 app_name = "visualization"

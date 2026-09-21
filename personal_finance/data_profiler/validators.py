@@ -4,18 +4,18 @@ This module provides comprehensive validation for data before it's passed to Dat
 to ensure compatibility and prevent constructor failures.
 """
 
-from loguru import logger
-from typing import Any, Union, List, Dict
-import pandas as pd
+from typing import Any
+
 import numpy as np
+import pandas as pd
+
+from loguru import logger
 
 # Using loguru logger imported above
 
 
 class ProfileDataError(Exception):
     """Exception raised when profile_data is not compatible with DataProfiler."""
-
-    pass
 
 
 def validate_profile_data(profile_data: Any) -> bool:
@@ -113,9 +113,11 @@ def _validate_dataframe(df: pd.DataFrame) -> bool:
     # Check for problematic column names
     problematic_columns = []
     for col in df.columns:
-        if not isinstance(col, (str, int, float)):
-            problematic_columns.append(col)
-        elif isinstance(col, str) and len(col.strip()) == 0:
+        if (
+            not isinstance(col, (str, int, float))
+            or isinstance(col, str)
+            and len(col.strip()) == 0
+        ):
             problematic_columns.append(col)
 
     if problematic_columns:
@@ -190,7 +192,7 @@ def _validate_numpy_array(arr: np.ndarray) -> bool:
     return True
 
 
-def _validate_list_data(data: List[Any]) -> bool:
+def _validate_list_data(data: list[Any]) -> bool:
     """Validate list data for DataProfiler compatibility.
 
     Args:
@@ -226,7 +228,7 @@ def _validate_list_data(data: List[Any]) -> bool:
     return True
 
 
-def _validate_records_format(records: List[Dict[str, Any]]) -> bool:
+def _validate_records_format(records: list[dict[str, Any]]) -> bool:
     """Validate list of dictionaries (records format).
 
     Args:
@@ -268,7 +270,7 @@ def _validate_records_format(records: List[Dict[str, Any]]) -> bool:
     return True
 
 
-def _validate_dict_data(data: Dict[str, Any]) -> bool:
+def _validate_dict_data(data: dict[str, Any]) -> bool:
     """Validate dictionary data for DataProfiler compatibility.
 
     Args:
@@ -352,7 +354,7 @@ def _validate_string_data(data: str) -> bool:
 
 def validate_and_prepare_data(
     profile_data: Any,
-) -> Union[pd.DataFrame, pd.Series, np.ndarray, str]:
+) -> pd.DataFrame | pd.Series | np.ndarray | str:
     """Validate and optionally prepare data for DataProfiler.
 
     This function not only validates the data but can also perform basic
