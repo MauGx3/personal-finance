@@ -4,28 +4,30 @@ Supports SQL backends and MongoDB. Alembic is used for SQL migrations.
 """
 
 import os
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Optional, List, Generator, Any
+from datetime import UTC, datetime
+from types import SimpleNamespace
+from typing import Any
+
 from sqlalchemy import (
-    create_engine,
-    text,
+    DateTime,
+    Float,
+    Index,
     Integer,
     String,
-    Float,
-    DateTime,
     UniqueConstraint,
-    Index,
+    create_engine,
+    text,
 )
-
 from sqlalchemy.orm import (
-    sessionmaker,
+    Mapped,
     Session,
     declarative_base,
-    Mapped,
     mapped_column,
+    sessionmaker,
 )
-from datetime import datetime, timezone
-from types import SimpleNamespace
+
 from .logs import logger
 
 # Database models
@@ -42,11 +44,11 @@ class Ticker(Base):
         String(10), unique=True, nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    price: Mapped[float | None] = mapped_column(Float, nullable=True)
     last_updated: Mapped[datetime] = mapped_column(
         DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
 
     def __repr__(self):  # pragma: no cover - simple repr
@@ -71,13 +73,11 @@ class PortfolioPosition(Base):
     quantity: Mapped[float] = mapped_column(Float, nullable=False)
     buy_price: Mapped[float] = mapped_column(Float, nullable=False)
     buy_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    current_price: Mapped[Optional[float]] = mapped_column(
-        Float, nullable=True
-    )
+    current_price: Mapped[float | None] = mapped_column(Float, nullable=True)
     last_updated: Mapped[datetime] = mapped_column(
         DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
 
     # Data integrity: enforce single row per symbol (matches update logic)
@@ -102,15 +102,15 @@ class HistoricalPrice(Base):
     date: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, index=True
     )
-    open_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    high_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    low_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    close_price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    volume: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    open_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    high_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    low_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    close_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    volume: Mapped[int | None] = mapped_column(Integer, nullable=True)
     last_updated: Mapped[datetime] = mapped_column(
         DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
 
     __table_args__ = (
@@ -142,7 +142,7 @@ def _ensure_postgres_url(url: str) -> None:
 class DatabaseManager:
     """Manager class for database operations and migrations."""
 
-    def __init__(self, database_url: Optional[str] = None, echo: bool = False):
+    def __init__(self, database_url: str | None = None, echo: bool = False):
         if database_url is None:
             database_url = os.getenv("DATABASE_URL")
         if not database_url:
@@ -200,8 +200,9 @@ class DatabaseManager:
         """
         try:
             try:
-                from alembic import command  # type: ignore
                 from alembic.config import Config  # type: ignore
+
+                from alembic import command  # type: ignore
             except ImportError as ie:  # pragma: no cover
                 raise RuntimeError(
                     "Alembic is not installed. Install with 'pip install alembic' "
@@ -292,7 +293,7 @@ class DatabaseManager:
 
     # Ticker operations
     def add_or_update_ticker(
-        self, symbol: str, name: str, price: Optional[float] = None
+        self, symbol: str, name: str, price: float | None = None
     ) -> Any:
         """Add or update a ticker."""
         if self.backend == "sql":
@@ -306,7 +307,7 @@ class DatabaseManager:
                     ticker.name = name
                     if price is not None:
                         ticker.price = price
-                        ticker.last_updated = datetime.now(timezone.utc)
+                        ticker.last_updated = datetime.now(UTC)
                 else:
                     ticker = Ticker(symbol=symbol, name=name, price=price)
                     session.add(ticker)
@@ -328,7 +329,7 @@ class DatabaseManager:
                 "symbol": symbol,
                 "name": name,
                 "price": price,
-                "last_updated": datetime.now(timezone.utc),
+                "last_updated": datetime.now(UTC),
             }
             res = self._mongo_collections["tickers"].find_one_and_update(
                 {"symbol": symbol},
@@ -339,7 +340,7 @@ class DatabaseManager:
             # convert to simple object
             return SimpleNamespace(**(res or doc))
 
-    def get_ticker(self, symbol: str) -> Optional[Any]:
+    def get_ticker(self, symbol: str) -> Any | None:
         """Get ticker by symbol."""
         if self.backend == "sql":
             with self.get_session() as session:
@@ -354,7 +355,7 @@ class DatabaseManager:
             )
             return SimpleNamespace(**doc) if doc else None
 
-    def get_all_tickers(self) -> List[Any]:
+    def get_all_tickers(self) -> list[Any]:
         """Get all tickers"""
         if self.backend == "sql":
             with self.get_session() as session:
@@ -398,7 +399,7 @@ class DatabaseManager:
                 "buy_price": buy_price,
                 "buy_date": buy_date,
                 "current_price": None,
-                "last_updated": datetime.now(timezone.utc),
+                "last_updated": datetime.now(UTC),
             }
             self._mongo_collections["portfolio_positions"].insert_one(doc)
             return SimpleNamespace(**doc)
@@ -409,7 +410,7 @@ class DatabaseManager:
         quantity: float,
         buy_price: float,
         buy_date: datetime,
-    ) -> Optional[Any]:
+    ) -> Any | None:
         """Update an existing portfolio position."""
         if self.backend == "sql":
             with self.get_session() as session:
@@ -422,7 +423,7 @@ class DatabaseManager:
                     position.quantity = quantity
                     position.buy_price = buy_price
                     position.buy_date = buy_date
-                    position.last_updated = datetime.now(timezone.utc)
+                    position.last_updated = datetime.now(UTC)
                     session.commit()
                     try:
                         session.refresh(position)
@@ -439,14 +440,14 @@ class DatabaseManager:
                         "quantity": quantity,
                         "buy_price": buy_price,
                         "buy_date": buy_date,
-                        "last_updated": datetime.now(timezone.utc),
+                        "last_updated": datetime.now(UTC),
                     }
                 },
                 return_document=True,
             )
             return SimpleNamespace(**res) if res else None
 
-    def get_portfolio_positions(self) -> List[Any]:
+    def get_portfolio_positions(self) -> list[Any]:
         """Get all portfolio positions"""
         if self.backend == "sql":
             with self.get_session() as session:
@@ -456,7 +457,7 @@ class DatabaseManager:
             docs = list(coll.find())
             return [SimpleNamespace(**d) for d in docs]
 
-    def get_portfolio_position(self, symbol: str) -> Optional[Any]:
+    def get_portfolio_position(self, symbol: str) -> Any | None:
         """Get portfolio position by symbol"""
         if self.backend == "sql":
             with self.get_session() as session:
@@ -496,11 +497,11 @@ class DatabaseManager:
         self,
         symbol: str,
         date: datetime,
-        open_price: Optional[float] = None,
-        high_price: Optional[float] = None,
-        low_price: Optional[float] = None,
-        close_price: Optional[float] = None,
-        volume: Optional[int] = None,
+        open_price: float | None = None,
+        high_price: float | None = None,
+        low_price: float | None = None,
+        close_price: float | None = None,
+        volume: int | None = None,
     ) -> Any:
         """Add historical price data."""
         if self.backend == "sql":
@@ -527,7 +528,7 @@ class DatabaseManager:
                         existing.close_price = close_price
                     if volume is not None:
                         existing.volume = volume
-                    existing.last_updated = datetime.now(timezone.utc)
+                    existing.last_updated = datetime.now(UTC)
                     price_entry = existing
                 else:
                     # Create new entry
@@ -558,7 +559,7 @@ class DatabaseManager:
                 "low_price": low_price,
                 "close_price": close_price,
                 "volume": volume,
-                "last_updated": datetime.now(timezone.utc),
+                "last_updated": datetime.now(UTC),
             }
             self._mongo_collections["historical_prices"].update_one(
                 {"symbol": symbol, "date": date},
@@ -570,9 +571,9 @@ class DatabaseManager:
     def get_historical_prices(
         self,
         symbol: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-    ) -> List[Any]:
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+    ) -> list[Any]:
         """Get historical prices for a symbol."""
         if self.backend == "sql":
             with self.get_session() as session:

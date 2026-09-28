@@ -13,4 +13,3 @@ class DataProfilerConfig(AppConfig):
     def ready(self):
         """Initialize the app when Django starts."""
         # Import any signals or perform initialization here
-        pass

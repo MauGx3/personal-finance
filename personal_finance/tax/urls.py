@@ -1,17 +1,17 @@
 """URL configuration for tax app."""
 
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    TaxYearViewSet,
-    TaxLotViewSet,
     CapitalGainLossViewSet,
     DividendIncomeViewSet,
+    TaxAnalyticsViewSet,
     TaxLossHarvestingOpportunityViewSet,
+    TaxLotViewSet,
     TaxOptimizationRecommendationViewSet,
     TaxReportViewSet,
-    TaxAnalyticsViewSet,
+    TaxYearViewSet,
 )
 
 app_name = "tax"

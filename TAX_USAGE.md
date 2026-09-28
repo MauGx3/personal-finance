@@ -205,7 +205,9 @@ tax_year = TaxYear.objects.get(year=2024)
 
 # Calculate capital gains/losses
 capital_gains = tax_service.calculate_capital_gains_losses(user, tax_year)
-print(f"Net capital gain/loss: ${capital_gains['totals']['net_capital_gain_loss']}")
+print(
+    f"Net capital gain/loss: ${capital_gains['totals']['net_capital_gain_loss']}"
+)
 
 # Calculate dividend income
 dividends = tax_service.calculate_dividend_income(user, tax_year)
@@ -222,7 +224,7 @@ loss_service = TaxLossHarvestingService()
 
 # Find opportunities
 opportunities = loss_service.identify_loss_harvesting_opportunities(
-    user, minimum_loss_threshold=Decimal('250')
+    user, minimum_loss_threshold=Decimal("250")
 )
 
 # Generate recommendations
@@ -261,7 +263,9 @@ from personal_finance.tax.services import TaxOptimizationService
 optimization_service = TaxOptimizationService()
 
 # Generate recommendations
-recommendations = optimization_service.generate_tax_optimization_recommendations(user)
+recommendations = (
+    optimization_service.generate_tax_optimization_recommendations(user)
+)
 
 for rec in recommendations:
     print(f"{rec.title}")
@@ -302,15 +306,15 @@ from personal_finance.tax.models import TaxYear
 # Create tax year with current brackets
 tax_year_2024 = TaxYear.objects.create(
     year=2024,
-    filing_deadline='2025-04-15',
+    filing_deadline="2025-04-15",
     standard_deduction_single=13850,
     standard_deduction_married=27700,
     long_term_capital_gains_thresholds={
-        '0': {'min': 0, 'max': 44625, 'rate': 0.0},
-        '15': {'min': 44626, 'max': 492300, 'rate': 0.15},
-        '20': {'min': 492301, 'max': None, 'rate': 0.20}
+        "0": {"min": 0, "max": 44625, "rate": 0.0},
+        "15": {"min": 44626, "max": 492300, "rate": 0.15},
+        "20": {"min": 492301, "max": None, "rate": 0.20},
     },
-    short_term_capital_gains_rate=0.37
+    short_term_capital_gains_rate=0.37,
 )
 ```
 
@@ -400,6 +404,7 @@ Set up automated tax processing with periodic tasks:
 # In celery tasks
 from celery import shared_task
 
+
 @shared_task
 def process_daily_tax_calculations():
     """Process tax calculations for recent transactions."""
@@ -417,6 +422,7 @@ Extend the system with custom tax strategies:
 
 ```python
 from personal_finance.tax.services import TaxOptimizationService
+
 
 class CustomTaxOptimizationService(TaxOptimizationService):
     def generate_custom_recommendations(self, user, portfolio):
