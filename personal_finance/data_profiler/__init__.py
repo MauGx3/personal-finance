@@ -1,6 +1,6 @@
 """Data profiling module for sensitive data detection and analysis."""
 
-from .validators import validate_profile_data, ProfileDataError
 from .services import DataProfilerService
+from .validators import ProfileDataError, validate_profile_data
 
-__all__ = ["validate_profile_data", "ProfileDataError", "DataProfilerService"]
+__all__ = ["DataProfilerService", "ProfileDataError", "validate_profile_data"]

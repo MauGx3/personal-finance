@@ -5,11 +5,11 @@ This file re-enables comprehensive testing for assets and portfolios
 now that proper migrations are in place.
 """
 
-import pytest
 from decimal import Decimal
+
+import pytest
 from django.contrib.auth import get_user_model
 from django.db import connection
-
 
 User = get_user_model()
 
@@ -133,8 +133,9 @@ class TestPortfolioBasicFunctionality:
 
     def test_portfolio_unique_constraint(self):
         """Test portfolio unique constraint (user + name)."""
-        from personal_finance.assets.models import Portfolio
         from django.db import IntegrityError
+
+        from personal_finance.assets.models import Portfolio
 
         user = User.objects.create_user(
             username="testuser", email="test@example.com"
@@ -155,7 +156,7 @@ class TestHoldingBasicFunctionality:
 
     def test_holding_creation(self):
         """Test holding model creation."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(
@@ -183,7 +184,7 @@ class TestHoldingBasicFunctionality:
 
     def test_holding_calculations(self):
         """Test holding financial calculations."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(
@@ -210,7 +211,7 @@ class TestHoldingBasicFunctionality:
 
     def test_holding_portfolio_relationship(self):
         """Test holding-portfolio relationship."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(
@@ -289,8 +290,9 @@ class TestDatabaseConnectivity:
 
     def test_transaction_rollback(self):
         """Test that database transactions work properly."""
-        from personal_finance.assets.models import Asset
         from django.db import transaction
+
+        from personal_finance.assets.models import Asset
 
         initial_count = Asset.objects.count()
 
@@ -325,7 +327,7 @@ class TestModelValidationAndConstraints:
 
     def test_decimal_field_precision(self):
         """Test decimal field precision handling."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(
@@ -354,7 +356,7 @@ class TestModelValidationAndConstraints:
 
     def test_foreign_key_constraints(self):
         """Test foreign key constraint enforcement."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(
@@ -394,7 +396,7 @@ class TestQueryOptimization:
 
     def test_select_related_optimization(self):
         """Test select_related query optimization."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create test data
         user = User.objects.create_user(

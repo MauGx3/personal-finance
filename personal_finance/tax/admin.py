@@ -4,13 +4,13 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import (
-    TaxYear,
-    TaxLot,
     CapitalGainLoss,
     DividendIncome,
     TaxLossHarvestingOpportunity,
+    TaxLot,
     TaxOptimizationRecommendation,
     TaxReport,
+    TaxYear,
 )
 
 
@@ -92,7 +92,7 @@ class TaxLotAdmin(admin.ModelAdmin):
             return format_html(
                 '<span style="color: red;">${:,.2f}</span>', gain_loss
             )
-        return "${:,.2f}".format(gain_loss)
+        return f"${gain_loss:,.2f}"
 
 
 @admin.register(CapitalGainLoss)
@@ -458,7 +458,7 @@ class TaxReportAdmin(admin.ModelAdmin):
                 '<span style="color: red; font-weight: bold;">${:,.2f}</span>',
                 amount,
             )
-        return "${:,.2f}".format(amount)
+        return f"${amount:,.2f}"
 
     @admin.display(
         description="Dividend Income",

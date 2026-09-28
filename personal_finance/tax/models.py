@@ -132,7 +132,7 @@ class TaxLot(models.Model):
         """
         if self.position.asset.current_price:
             return self.remaining_quantity * self.position.asset.current_price
-        return Decimal("0")
+        return Decimal(0)
 
     @property
     def unrealized_gain_loss(self) -> Decimal:
@@ -210,7 +210,7 @@ class CapitalGainLoss(models.Model):
     wash_sale_adjustment = models.DecimalField(
         max_digits=15,
         decimal_places=2,
-        default=Decimal("0"),
+        default=Decimal(0),
         help_text="Wash sale rule adjustment",
     )
 
@@ -273,7 +273,7 @@ class DividendIncome(models.Model):
     tax_withheld = models.DecimalField(
         max_digits=15,
         decimal_places=2,
-        default=Decimal("0"),
+        default=Decimal(0),
         help_text="Tax withheld from dividend",
     )
 
@@ -407,7 +407,7 @@ class TaxOptimizationRecommendation(models.Model):
     implementation_cost = models.DecimalField(
         max_digits=15,
         decimal_places=2,
-        default=Decimal("0"),
+        default=Decimal(0),
         help_text="Cost to implement recommendation",
     )
 
@@ -465,22 +465,22 @@ class TaxReport(models.Model):
 
     # Summary totals
     total_short_term_gains = models.DecimalField(
-        max_digits=15, decimal_places=2, default=Decimal("0")
+        max_digits=15, decimal_places=2, default=Decimal(0)
     )
     total_short_term_losses = models.DecimalField(
-        max_digits=15, decimal_places=2, default=Decimal("0")
+        max_digits=15, decimal_places=2, default=Decimal(0)
     )
     total_long_term_gains = models.DecimalField(
-        max_digits=15, decimal_places=2, default=Decimal("0")
+        max_digits=15, decimal_places=2, default=Decimal(0)
     )
     total_long_term_losses = models.DecimalField(
-        max_digits=15, decimal_places=2, default=Decimal("0")
+        max_digits=15, decimal_places=2, default=Decimal(0)
     )
     net_capital_gain_loss = models.DecimalField(
-        max_digits=15, decimal_places=2, default=Decimal("0")
+        max_digits=15, decimal_places=2, default=Decimal(0)
     )
     total_dividend_income = models.DecimalField(
-        max_digits=15, decimal_places=2, default=Decimal("0")
+        max_digits=15, decimal_places=2, default=Decimal(0)
     )
 
     # File storage

@@ -95,9 +95,9 @@ allocation_chart = portfolio_charts.create_asset_allocation_chart(portfolio)
 risk_chart = portfolio_charts.create_risk_metrics_chart(portfolio)
 
 # Generate asset price chart with technical indicators
-asset = Asset.objects.get(symbol='AAPL')
+asset = Asset.objects.get(symbol="AAPL")
 price_chart = asset_charts.create_price_chart_with_indicators(
-    asset, days=252, indicators=['sma_20', 'rsi']
+    asset, days=252, indicators=["sma_20", "rsi"]
 )
 ```
 
@@ -106,9 +106,9 @@ price_chart = asset_charts.create_price_chart_with_indicators(
 All chart methods return a dictionary with the following structure:
 ```python
 {
-    'figure': '{"data": [...], "layout": {...}}',  # Plotly JSON
-    'title': 'Chart Title',
-    'type': 'performance|allocation|risk|technical|empty'
+    "figure": '{"data": [...], "layout": {...}}',  # Plotly JSON
+    "title": "Chart Title",
+    "type": "performance|allocation|risk|technical|empty",
 }
 ```
 
@@ -152,7 +152,7 @@ if not portfolio.positions.exists():
 {
     "error": "Failed to generate chart",
     "message": "Insufficient data for analysis",
-    "type": "empty"
+    "type": "empty",
 }
 ```
 
@@ -184,9 +184,9 @@ if not portfolio.positions.exists():
 # Modify chart colors and styling
 chart_generator = PortfolioCharts()
 chart_generator.performance_colors = {
-    'positive': '#00C851',  # Green for gains
-    'negative': '#ff4444',  # Red for losses
-    'neutral': '#33b5e5'    # Blue for neutral
+    "positive": "#00C851",  # Green for gains
+    "negative": "#ff4444",  # Red for losses
+    "neutral": "#33b5e5",  # Blue for neutral
 }
 ```
 
@@ -206,10 +206,10 @@ class CustomPortfolioCharts(PortfolioCharts):
 ```python
 # Export chart data for external analysis
 chart_data = portfolio_charts.create_performance_chart(portfolio, start, end)
-figure_json = chart_data['figure']
+figure_json = chart_data["figure"]
 
 # Save to file or send to external API
-with open('portfolio_chart.json', 'w') as f:
+with open("portfolio_chart.json", "w") as f:
     f.write(figure_json)
 ```
 
@@ -228,16 +228,16 @@ Enable Django debug mode to see detailed error messages:
 # In settings/local.py
 DEBUG = True
 LOGGING = {
-    'version': 1,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        'personal_finance.visualization': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+    "loggers": {
+        "personal_finance.visualization": {
+            "handlers": ["console"],
+            "level": "DEBUG",
         },
     },
 }
