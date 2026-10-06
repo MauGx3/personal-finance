@@ -2,12 +2,13 @@
 Re-exports functions from personal_finance.assets.yahoo_finance
 """
 
-from .assets.yahoo_finance import *  # noqa: F401,F403
-import yfinance
-import requests
 import json
 from datetime import datetime
-from typing import Optional, Dict, List
+
+import requests
+import yfinance
+
+from .assets.yahoo_finance import *
 from .database import DatabaseManager
 from .logs import logger
 
@@ -27,7 +28,7 @@ def verify_yfinance():
 
 
 def get_ticker_price(
-    symbol: str, db_manager: Optional[DatabaseManager] = None
+    symbol: str, db_manager: DatabaseManager | None = None
 ) -> float:
     """Helper method to get current price for a single ticker"""
     try:
@@ -55,8 +56,8 @@ def get_ticker_price(
 def fetch_and_store_historical_data(
     symbol: str,
     period: str = "1y",
-    db_manager: Optional[DatabaseManager] = None,
-) -> Optional[Dict]:
+    db_manager: DatabaseManager | None = None,
+) -> dict | None:
     """Fetch historical data and store in database"""
     try:
         ticker = yfinance.Ticker(symbol)
@@ -94,10 +95,10 @@ def fetch_and_store_historical_data(
 
 def get_stored_historical_data(
     symbol: str,
-    start_date: Optional[datetime] = None,
-    end_date: Optional[datetime] = None,
-    db_manager: Optional[DatabaseManager] = None,
-) -> List[Dict]:
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    db_manager: DatabaseManager | None = None,
+) -> list[dict]:
     """Get historical data from database"""
     if not db_manager:
         return []

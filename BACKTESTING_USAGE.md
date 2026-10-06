@@ -25,7 +25,7 @@ strategy = create_strategy(
     parameters={},
     asset_symbols=["SPY"],
     initial_capital=100000.0,
-    max_position_size=1.0  # 100% allocation allowed
+    max_position_size=1.0,  # 100% allocation allowed
 )
 
 # Create and run backtest
@@ -35,7 +35,7 @@ backtest = Backtest.objects.create(
     name="2-Year Buy & Hold Test",
     start_date=date(2022, 1, 1),
     end_date=date(2024, 1, 1),
-    benchmark_asset=benchmark
+    benchmark_asset=benchmark,
 )
 
 # Execute backtest
@@ -57,11 +57,11 @@ ma_strategy = create_strategy(
     strategy_type="moving_average",
     parameters={
         "short_window": 20,  # 20-day moving average
-        "long_window": 50,   # 50-day moving average
+        "long_window": 50,  # 50-day moving average
     },
     asset_symbols=["AAPL"],
     initial_capital=50000.0,
-    max_position_size=0.5  # Maximum 50% in any position
+    max_position_size=0.5,  # Maximum 50% in any position
 )
 
 # Create backtest with transaction costs
@@ -71,7 +71,7 @@ backtest = Backtest.objects.create(
     start_date=date(2023, 1, 1),
     end_date=date(2024, 1, 1),
     transaction_costs=0.001,  # 0.1% transaction cost
-    slippage=0.0005          # 0.05% slippage
+    slippage=0.0005,  # 0.05% slippage
 )
 
 result = engine.run_backtest(backtest)
@@ -88,13 +88,13 @@ rsi_strategy = create_strategy(
     parameters={
         "rsi_period": 14,
         "oversold_threshold": 30,
-        "overbought_threshold": 70
+        "overbought_threshold": 70,
     },
     asset_symbols=["AAPL", "MSFT", "GOOGL", "AMZN"],
     initial_capital=100000.0,
     max_position_size=0.25,  # Max 25% per position
     stop_loss_percentage=0.05,  # 5% stop loss
-    take_profit_percentage=0.15  # 15% take profit
+    take_profit_percentage=0.15,  # 15% take profit
 )
 ```
 
@@ -158,19 +158,16 @@ strategy_data = {
     "name": "Tech Stock Momentum",
     "strategy_type": "moving_average",
     "description": "Momentum strategy for tech stocks",
-    "parameters": {
-        "short_window": 15,
-        "long_window": 45
-    },
+    "parameters": {"short_window": 15, "long_window": 45},
     "initial_capital": "75000.00",
     "max_position_size": "0.3000",
-    "asset_symbols": ["AAPL", "MSFT", "GOOGL", "NVDA"]
+    "asset_symbols": ["AAPL", "MSFT", "GOOGL", "NVDA"],
 }
 
 response = requests.post(
     "http://localhost:8000/api/backtesting/strategies/",
     json=strategy_data,
-    headers={"Authorization": "Token your-token-here"}
+    headers={"Authorization": "Token your-token-here"},
 )
 strategy = response.json()
 ```
@@ -186,20 +183,20 @@ backtest_data = {
     "end_date": "2024-03-31",
     "benchmark_symbol": "QQQ",
     "transaction_costs": "0.0005",
-    "slippage": "0.0003"
+    "slippage": "0.0003",
 }
 
 response = requests.post(
     "http://localhost:8000/api/backtesting/backtests/",
     json=backtest_data,
-    headers={"Authorization": "Token your-token-here"}
+    headers={"Authorization": "Token your-token-here"},
 )
 backtest = response.json()
 
 # Run the backtest
 response = requests.post(
     f"http://localhost:8000/api/backtesting/backtests/{backtest['id']}/run/",
-    headers={"Authorization": "Token your-token-here"}
+    headers={"Authorization": "Token your-token-here"},
 )
 result = response.json()
 ```
@@ -215,13 +212,13 @@ quick_data = {
     "end_date": "2024-01-01",
     "benchmark_symbol": "SPY",
     "initial_capital": 100000,
-    "max_position_size": 0.4
+    "max_position_size": 0.4,
 }
 
 response = requests.post(
     "http://localhost:8000/api/backtesting/quick-backtest/",
     json=quick_data,
-    headers={"Authorization": "Token your-token-here"}
+    headers={"Authorization": "Token your-token-here"},
 )
 ```
 
@@ -234,6 +231,7 @@ from personal_finance.backtesting.services import BaseStrategy
 from personal_finance.backtesting.models import Trade
 from decimal import Decimal
 
+
 class MeanReversionStrategy(BaseStrategy):
     """Custom mean reversion strategy based on price deviations."""
 
@@ -241,8 +239,8 @@ class MeanReversionStrategy(BaseStrategy):
         """Generate trading signals based on price deviations."""
         trades = []
 
-        lookback_period = self.get_parameter('lookback_period', 20)
-        deviation_threshold = self.get_parameter('deviation_threshold', 2.0)
+        lookback_period = self.get_parameter("lookback_period", 20)
+        deviation_threshold = self.get_parameter("deviation_threshold", 2.0)
 
         for asset in self.strategy.asset_universe.all():
             if asset.symbol not in self.price_data.columns:
@@ -264,38 +262,48 @@ class MeanReversionStrategy(BaseStrategy):
             deviation = (current_price - mean_price) / std_price
 
             current_position = portfolio.get_position(asset.symbol)
-            max_position_value = portfolio.total_value * self.strategy.max_position_size
+            max_position_value = (
+                portfolio.total_value * self.strategy.max_position_size
+            )
 
             # Buy signal: price significantly below mean
-            if (deviation < -deviation_threshold and
-                current_position.quantity == 0):
-
+            if (
+                deviation < -deviation_threshold
+                and current_position.quantity == 0
+            ):
                 quantity = max_position_value / Decimal(str(current_price))
-                trades.append(Trade(
-                    asset=asset,
-                    quantity=quantity,
-                    trade_type='buy',
-                    signal_strength=abs(Decimal(str(deviation))),
-                    reason=f'Mean reversion buy: {deviation:.2f} std below mean'
-                ))
+                trades.append(
+                    Trade(
+                        asset=asset,
+                        quantity=quantity,
+                        trade_type="buy",
+                        signal_strength=abs(Decimal(str(deviation))),
+                        reason=f"Mean reversion buy: {deviation:.2f} std below mean",
+                    )
+                )
 
             # Sell signal: price significantly above mean
-            elif (deviation > deviation_threshold and
-                  current_position.quantity > 0):
-
-                trades.append(Trade(
-                    asset=asset,
-                    quantity=current_position.quantity,
-                    trade_type='sell',
-                    signal_strength=Decimal(str(deviation)),
-                    reason=f'Mean reversion sell: {deviation:.2f} std above mean'
-                ))
+            elif (
+                deviation > deviation_threshold
+                and current_position.quantity > 0
+            ):
+                trades.append(
+                    Trade(
+                        asset=asset,
+                        quantity=current_position.quantity,
+                        trade_type="sell",
+                        signal_strength=Decimal(str(deviation)),
+                        reason=f"Mean reversion sell: {deviation:.2f} std above mean",
+                    )
+                )
 
         return trades
 
+
 # Register custom strategy
 from personal_finance.backtesting.services import STRATEGY_REGISTRY
-STRATEGY_REGISTRY['mean_reversion'] = MeanReversionStrategy
+
+STRATEGY_REGISTRY["mean_reversion"] = MeanReversionStrategy
 ```
 
 ### Portfolio Analysis
@@ -318,22 +326,46 @@ def analyze_backtest(backtest_id):
     print(f"Total Return: {result.total_return:.2f}%")
     print(f"Annualized Return: {result.annualized_return:.2f}%")
     print(f"Volatility: {result.volatility:.2f}%")
-    print(f"Sharpe Ratio: {result.sharpe_ratio:.2f}" if result.sharpe_ratio else "Sharpe Ratio: N/A")
+    print(
+        f"Sharpe Ratio: {result.sharpe_ratio:.2f}"
+        if result.sharpe_ratio
+        else "Sharpe Ratio: N/A"
+    )
     print(f"Max Drawdown: {result.max_drawdown:.2f}%")
 
     print(f"\n--- Trading Statistics ---")
     print(f"Total Trades: {result.total_trades}")
-    print(f"Win Rate: {result.win_rate*100:.1f}%" if result.win_rate else "Win Rate: N/A")
-    print(f"Average Win: {result.average_win:.2f}%" if result.average_win else "Average Win: N/A")
-    print(f"Average Loss: {result.average_loss:.2f}%" if result.average_loss else "Average Loss: N/A")
-    print(f"Profit Factor: {result.profit_factor:.2f}" if result.profit_factor else "Profit Factor: N/A")
+    print(
+        f"Win Rate: {result.win_rate * 100:.1f}%"
+        if result.win_rate
+        else "Win Rate: N/A"
+    )
+    print(
+        f"Average Win: {result.average_win:.2f}%"
+        if result.average_win
+        else "Average Win: N/A"
+    )
+    print(
+        f"Average Loss: {result.average_loss:.2f}%"
+        if result.average_loss
+        else "Average Loss: N/A"
+    )
+    print(
+        f"Profit Factor: {result.profit_factor:.2f}"
+        if result.profit_factor
+        else "Profit Factor: N/A"
+    )
 
     if result.benchmark_return:
         print(f"\n--- Benchmark Comparison ---")
         print(f"Benchmark Return: {result.benchmark_return:.2f}%")
         print(f"Alpha: {result.alpha:.2f}%" if result.alpha else "Alpha: N/A")
         print(f"Beta: {result.beta:.2f}" if result.beta else "Beta: N/A")
-        print(f"Information Ratio: {result.information_ratio:.2f}" if result.information_ratio else "Info Ratio: N/A")
+        print(
+            f"Information Ratio: {result.information_ratio:.2f}"
+            if result.information_ratio
+            else "Info Ratio: N/A"
+        )
 
     print(f"\n--- Portfolio Statistics ---")
     print(f"Final Value: ${result.final_portfolio_value:,.2f}")
@@ -354,7 +386,9 @@ def run_parameter_sweep():
 
     results = []
 
-    for short_window, long_window, assets in product(short_windows, long_windows, assets_groups):
+    for short_window, long_window, assets in product(
+        short_windows, long_windows, assets_groups
+    ):
         if short_window >= long_window:
             continue
 
@@ -365,10 +399,10 @@ def run_parameter_sweep():
             strategy_type="moving_average",
             parameters={
                 "short_window": short_window,
-                "long_window": long_window
+                "long_window": long_window,
             },
             asset_symbols=assets,
-            initial_capital=100000.0
+            initial_capital=100000.0,
         )
 
         # Create and run backtest
@@ -376,25 +410,33 @@ def run_parameter_sweep():
             strategy=strategy,
             name=f"Parameter Sweep {short_window}/{long_window}",
             start_date=date(2022, 1, 1),
-            end_date=date(2024, 1, 1)
+            end_date=date(2024, 1, 1),
         )
 
         try:
             result = engine.run_backtest(backtest)
-            results.append({
-                'short_window': short_window,
-                'long_window': long_window,
-                'assets': assets,
-                'total_return': float(result.total_return),
-                'sharpe_ratio': float(result.sharpe_ratio) if result.sharpe_ratio else None,
-                'max_drawdown': float(result.max_drawdown)
-            })
+            results.append(
+                {
+                    "short_window": short_window,
+                    "long_window": long_window,
+                    "assets": assets,
+                    "total_return": float(result.total_return),
+                    "sharpe_ratio": float(result.sharpe_ratio)
+                    if result.sharpe_ratio
+                    else None,
+                    "max_drawdown": float(result.max_drawdown),
+                }
+            )
         except Exception as e:
             print(f"Failed: {short_window}/{long_window} - {str(e)}")
 
     # Analyze results
-    best_result = max(results, key=lambda x: x['sharpe_ratio'] if x['sharpe_ratio'] else -999)
-    print(f"Best Strategy: MA {best_result['short_window']}/{best_result['long_window']}")
+    best_result = max(
+        results, key=lambda x: x["sharpe_ratio"] if x["sharpe_ratio"] else -999
+    )
+    print(
+        f"Best Strategy: MA {best_result['short_window']}/{best_result['long_window']}"
+    )
     print(f"Assets: {best_result['assets']}")
     print(f"Sharpe Ratio: {best_result['sharpe_ratio']:.2f}")
 ```
@@ -414,7 +456,7 @@ def validate_backtest_data(backtest):
         price_count = PriceHistory.objects.filter(
             asset=asset,
             date__gte=backtest.start_date,
-            date__lte=backtest.end_date
+            date__lte=backtest.end_date,
         ).count()
 
         expected_days = (backtest.end_date - backtest.start_date).days
@@ -425,6 +467,7 @@ def validate_backtest_data(backtest):
         print(f"Warning: Insufficient data for: {missing_data}")
 
     return len(missing_data) == 0
+
 
 # Debug failed backtest
 def debug_backtest_failure(backtest_id):
@@ -439,7 +482,9 @@ def debug_backtest_failure(backtest_id):
     strategy = backtest.strategy
     print(f"\nStrategy: {strategy.name}")
     print(f"Type: {strategy.strategy_type}")
-    print(f"Assets: {list(strategy.asset_universe.values_list('symbol', flat=True))}")
+    print(
+        f"Assets: {list(strategy.asset_universe.values_list('symbol', flat=True))}"
+    )
     print(f"Parameters: {strategy.parameters}")
 
     # Validate data availability
@@ -457,10 +502,8 @@ def optimize_backtest_performance():
 
     # 1. Use select_related and prefetch_related
     backtests = Backtest.objects.select_related(
-        'strategy', 'benchmark_asset'
-    ).prefetch_related(
-        'strategy__asset_universe'
-    )
+        "strategy", "benchmark_asset"
+    ).prefetch_related("strategy__asset_universe")
 
     # 2. Batch create snapshots and trades
     from django.db import transaction
@@ -469,13 +512,12 @@ def optimize_backtest_performance():
     def batch_create_snapshots(snapshots_data):
         """Batch create portfolio snapshots."""
         snapshots = [
-            BacktestPortfolioSnapshot(**data)
-            for data in snapshots_data
+            BacktestPortfolioSnapshot(**data) for data in snapshots_data
         ]
         BacktestPortfolioSnapshot.objects.bulk_create(snapshots)
 
     # 3. Use iterator for large querysets
-    for backtest in Backtest.objects.filter(status='pending').iterator():
+    for backtest in Backtest.objects.filter(status="pending").iterator():
         process_backtest(backtest)
 
     # 4. Limit backtest date ranges for initial testing
@@ -483,7 +525,7 @@ def optimize_backtest_performance():
         strategy=strategy,
         name="Quick Test",
         start_date=date(2024, 1, 1),
-        end_date=date(2024, 2, 1)  # One month for quick testing
+        end_date=date(2024, 2, 1),  # One month for quick testing
     )
 ```
 

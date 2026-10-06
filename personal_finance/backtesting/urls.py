@@ -1,6 +1,6 @@
 """URL configuration for backtesting app."""
 
-from django.urls import path, include
+from django.urls import include, path
 
 app_name = "backtesting"
 

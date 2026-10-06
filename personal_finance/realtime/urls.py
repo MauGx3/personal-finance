@@ -2,8 +2,9 @@
 URL patterns for real-time API endpoints and views.
 """
 
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
 from . import api, views
 
 app_name = "realtime"

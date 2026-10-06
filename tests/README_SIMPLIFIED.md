@@ -103,9 +103,7 @@ def test_asset_creation():
     from personal_finance.assets.models import Asset
 
     asset = Asset.objects.create(
-        symbol="AAPL",
-        name="Apple Inc.",
-        asset_type="STOCK"
+        symbol="AAPL", name="Apple Inc.", asset_type="STOCK"
     )
     assert asset.symbol == "AAPL"
 ```
