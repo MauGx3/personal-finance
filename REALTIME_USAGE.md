@@ -448,11 +448,13 @@ WantedBy=multi-user.target
 # views.py - Health check endpoint
 @login_required
 def health_check(request):
-    return JsonResponse({
-        'price_feed_running': price_feed_service.is_running,
-        'active_connections': connection_manager.get_connection_count(),
-        'timestamp': timezone.now().isoformat()
-    })
+    return JsonResponse(
+        {
+            "price_feed_running": price_feed_service.is_running,
+            "active_connections": connection_manager.get_connection_count(),
+            "timestamp": timezone.now().isoformat(),
+        }
+    )
 ```
 
 ### Logging Configuration
@@ -460,27 +462,27 @@ def health_check(request):
 ```python
 # settings.py
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'realtime_file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/realtime.log',
-            'formatter': 'verbose',
+    "handlers": {
+        "realtime_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "/var/log/realtime.log",
+            "formatter": "verbose",
         },
     },
-    'loggers': {
-        'personal_finance.realtime': {
-            'handlers': ['realtime_file'],
-            'level': 'INFO',
-            'propagate': True,
+    "loggers": {
+        "personal_finance.realtime": {
+            "handlers": ["realtime_file"],
+            "level": "INFO",
+            "propagate": True,
         },
     },
 }
@@ -525,12 +527,12 @@ python manage.py update_asset_prices --symbols AAPL --dry-run
 ```python
 # Implement Redis caching for price data
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 ```
@@ -540,15 +542,17 @@ CACHES = {
 ```python
 # Optimize queries for real-time updates
 # Use select_related and prefetch_related
-positions = Position.objects.select_related('asset', 'portfolio').filter(
-    portfolio__user=user,
-    quantity__gt=0
+positions = Position.objects.select_related("asset", "portfolio").filter(
+    portfolio__user=user, quantity__gt=0
 )
+
 
 # Index optimization
 class Asset(models.Model):
     symbol = models.CharField(max_length=20, db_index=True)
-    current_price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True)
+    current_price = models.DecimalField(
+        max_digits=10, decimal_places=2, db_index=True
+    )
     last_updated = models.DateTimeField(auto_now=True, db_index=True)
 ```
 

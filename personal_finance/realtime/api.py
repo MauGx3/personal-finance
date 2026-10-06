@@ -5,16 +5,17 @@ Provides REST API endpoints for WebSocket status, connection management,
 and real-time data retrieval.
 """
 
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.utils import timezone
 from datetime import timedelta
 
+from django.utils import timezone
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from personal_finance.assets.models import Asset
 from personal_finance.realtime.connections import connection_manager
 from personal_finance.realtime.services import price_feed_service
-from personal_finance.assets.models import Asset
 
 # Graceful import handling for missing models
 try:

@@ -6,10 +6,11 @@ and message broadcasting for live market data updates.
 """
 
 import json
-from loguru import logger
-from typing import Dict, Set, Optional, Any
 from datetime import datetime
 from decimal import Decimal
+from typing import Any
+
+from loguru import logger
 
 # Using loguru logger imported above
 
@@ -24,12 +25,12 @@ class ConnectionManager:
 
     def __init__(self):
         """Initialize the connection manager."""
-        self.connections: Dict[str, Dict[str, Any]] = {}
-        self.user_connections: Dict[int, Set[str]] = {}
-        self.portfolio_subscriptions: Dict[int, Set[str]] = {}
-        self.asset_subscriptions: Dict[str, Set[str]] = {}
+        self.connections: dict[str, dict[str, Any]] = {}
+        self.user_connections: dict[int, set[str]] = {}
+        self.portfolio_subscriptions: dict[int, set[str]] = {}
+        self.asset_subscriptions: dict[str, set[str]] = {}
 
-    async def connect(self, connection_id: str, user_id: Optional[int] = None):
+    async def connect(self, connection_id: str, user_id: int | None = None):
         """
         Register a new WebSocket connection.
 
@@ -175,7 +176,7 @@ class ConnectionManager:
             if not self.asset_subscriptions[asset_symbol]:
                 del self.asset_subscriptions[asset_symbol]
 
-    def get_portfolio_subscribers(self, portfolio_id: int) -> Set[str]:
+    def get_portfolio_subscribers(self, portfolio_id: int) -> set[str]:
         """
         Get all connection IDs subscribed to a portfolio.
 
@@ -187,7 +188,7 @@ class ConnectionManager:
         """
         return self.portfolio_subscriptions.get(portfolio_id, set())
 
-    def get_asset_subscribers(self, asset_symbol: str) -> Set[str]:
+    def get_asset_subscribers(self, asset_symbol: str) -> set[str]:
         """
         Get all connection IDs subscribed to an asset.
 
@@ -199,7 +200,7 @@ class ConnectionManager:
         """
         return self.asset_subscriptions.get(asset_symbol, set())
 
-    def get_user_connections(self, user_id: int) -> Set[str]:
+    def get_user_connections(self, user_id: int) -> set[str]:
         """
         Get all connection IDs for a user.
 
@@ -215,7 +216,7 @@ class ConnectionManager:
         """Get the total number of active connections."""
         return len(self.connections)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Get connection statistics.
 
@@ -255,7 +256,7 @@ class MessageEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def encode_message(message_type: str, data: Dict[str, Any]) -> str:
+def encode_message(message_type: str, data: dict[str, Any]) -> str:
     """
     Encode a message for WebSocket transmission.
 
