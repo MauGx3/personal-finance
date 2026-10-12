@@ -5,15 +5,16 @@ These tests validate the publish/subscribe semantics, subscription/notification
 behavior, and graceful shutdown using mock data source adapters.
 """
 
-import pytest
 import asyncio
-from unittest.mock import Mock, patch
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
+from unittest.mock import Mock, patch
+
+import pytest
 
 from personal_finance.realtime.services import (
-    RealtimeService,
     PricePoint,
+    RealtimeService,
     realtime_service,
     start_realtime_service,
     stop_realtime_service,

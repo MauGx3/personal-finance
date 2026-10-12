@@ -12,4 +12,3 @@ class BacktestingConfig(AppConfig):
 
     def ready(self):
         """Initialize app when Django starts."""
-        pass

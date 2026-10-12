@@ -437,7 +437,7 @@ holding = HoldingFactory(portfolio=portfolio)
 
 # Mock external services
 mock_service = MockDataService()
-mock_service.set_mock_price('AAPL', '150.00')
+mock_service.set_mock_price("AAPL", "150.00")
 
 # Financial test utilities
 portfolio_value = FinancialTestUtils.calculate_portfolio_value(holdings)

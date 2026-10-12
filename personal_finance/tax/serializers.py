@@ -1,16 +1,16 @@
 """API serializers for tax models."""
 
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
 from .models import (
-    TaxYear,
-    TaxLot,
     CapitalGainLoss,
     DividendIncome,
     TaxLossHarvestingOpportunity,
+    TaxLot,
     TaxOptimizationRecommendation,
     TaxReport,
+    TaxYear,
 )
 
 User = get_user_model()

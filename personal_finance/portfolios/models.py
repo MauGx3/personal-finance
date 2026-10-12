@@ -1,7 +1,6 @@
 """Portfolio management models."""
 
 from decimal import Decimal
-from typing import Optional
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -85,7 +84,7 @@ class Portfolio(TimestampedModel):
         return self.total_value - self.total_cost_basis
 
     @property
-    def total_return_percentage(self) -> Optional[Decimal]:
+    def total_return_percentage(self) -> Decimal | None:
         """Calculate percentage return of portfolio.
 
         Returns:
@@ -118,13 +117,13 @@ class Position(TimestampedModel):
     quantity = models.DecimalField(
         max_digits=20,
         decimal_places=8,
-        validators=[MinValueValidator(Decimal("0"))],
+        validators=[MinValueValidator(Decimal(0))],
         help_text="Number of shares/units held",
     )
     average_cost = models.DecimalField(
         max_digits=20,
         decimal_places=8,
-        validators=[MinValueValidator(Decimal("0"))],
+        validators=[MinValueValidator(Decimal(0))],
         help_text="Average cost per share/unit",
     )
     first_purchase_date = models.DateField(
@@ -160,7 +159,7 @@ class Position(TimestampedModel):
         Returns:
             Current market value based on latest price.
         """
-        current_price = self.asset.current_price or Decimal("0")
+        current_price = self.asset.current_price or Decimal(0)
         return self.quantity * current_price
 
     @property
@@ -173,7 +172,7 @@ class Position(TimestampedModel):
         return self.current_value - self.total_cost_basis
 
     @property
-    def unrealized_return_percentage(self) -> Optional[Decimal]:
+    def unrealized_return_percentage(self) -> Decimal | None:
         """Calculate unrealized return percentage.
 
         Returns:
@@ -193,8 +192,8 @@ class Position(TimestampedModel):
             "transaction_date", "created"
         )
 
-        total_quantity = Decimal("0")
-        total_cost = Decimal("0")
+        total_quantity = Decimal(0)
+        total_cost = Decimal(0)
 
         for transaction in transactions:
             if transaction.transaction_type == Transaction.TransactionType.BUY:
@@ -217,8 +216,8 @@ class Position(TimestampedModel):
             self.quantity = total_quantity
             self.average_cost = total_cost / total_quantity
         else:
-            self.quantity = Decimal("0")
-            self.average_cost = Decimal("0")
+            self.quantity = Decimal(0)
+            self.average_cost = Decimal(0)
 
         self.save(update_fields=["quantity", "average_cost"])
 
@@ -256,14 +255,14 @@ class Transaction(TimestampedModel):
     price = models.DecimalField(
         max_digits=20,
         decimal_places=8,
-        validators=[MinValueValidator(Decimal("0"))],
+        validators=[MinValueValidator(Decimal(0))],
         help_text="Price per share/unit",
     )
     fees = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=Decimal("0"),
-        validators=[MinValueValidator(Decimal("0"))],
+        default=Decimal(0),
+        validators=[MinValueValidator(Decimal(0))],
         help_text="Transaction fees and commissions",
     )
     transaction_date = models.DateField(
@@ -326,7 +325,7 @@ class PortfolioSnapshot(TimestampedModel):
     cash_balance = models.DecimalField(
         max_digits=20,
         decimal_places=2,
-        default=Decimal("0"),
+        default=Decimal(0),
         help_text="Cash balance in portfolio",
     )
 
@@ -347,7 +346,7 @@ class PortfolioSnapshot(TimestampedModel):
         return self.total_value - self.total_cost_basis
 
     @property
-    def return_percentage(self) -> Optional[Decimal]:
+    def return_percentage(self) -> Decimal | None:
         """Calculate return percentage for this snapshot.
 
         Returns:

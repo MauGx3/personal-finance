@@ -7,8 +7,8 @@ or to change data providers without affecting business logic.
 
 import re
 from abc import ABC, abstractmethod
+from datetime import date, datetime, timedelta
 from decimal import Decimal
-from datetime import datetime, date, timedelta
 
 # Handle optional dependencies gracefully
 try:
@@ -19,29 +19,23 @@ except ImportError:
     logger = logging.getLogger(__name__)
 
 from .types import (
-    PricePoint,
-    HistoricalSeries,
-    HistoricalPricePoint,
     CompanyInfo,
+    HistoricalPricePoint,
+    HistoricalSeries,
+    PricePoint,
 )
 
 
 class DataSourceError(Exception):
     """Base exception for data source errors."""
 
-    pass
-
 
 class RateLimitError(DataSourceError):
     """Exception raised when API rate limit is exceeded."""
 
-    pass
-
 
 class InvalidSymbolError(DataSourceError):
     """Exception raised for invalid stock symbols."""
-
-    pass
 
 
 class BaseDataSourceAdapter(ABC):
@@ -68,7 +62,6 @@ class BaseDataSourceAdapter(ABC):
             DataSourceError: If there's an error fetching data
             InvalidSymbolError: If the symbol is invalid
         """
-        pass
 
     @abstractmethod
     def fetch_historical(
@@ -88,7 +81,6 @@ class BaseDataSourceAdapter(ABC):
             DataSourceError: If there's an error fetching data
             InvalidSymbolError: If the symbol is invalid
         """
-        pass
 
     @abstractmethod
     def bulk_get_current(
@@ -105,7 +97,6 @@ class BaseDataSourceAdapter(ABC):
         Raises:
             DataSourceError: If there's an error fetching data
         """
-        pass
 
     @abstractmethod
     def get_company_info(self, symbol: str) -> CompanyInfo | None:
@@ -120,7 +111,6 @@ class BaseDataSourceAdapter(ABC):
         Raises:
             DataSourceError: If there's an error fetching data
         """
-        pass
 
     def _validate_symbol(self, symbol: str) -> str:
         """Validate and normalize symbol format.
@@ -458,7 +448,7 @@ class MockAdapter(BaseDataSourceAdapter):
                 name="Apple Inc.",
                 sector="Technology",
                 industry="Consumer Electronics",
-                market_cap=Decimal("2500000000000"),
+                market_cap=Decimal(2500000000000),
                 exchange="NASDAQ",
             ),
             "MSFT": CompanyInfo(
@@ -466,7 +456,7 @@ class MockAdapter(BaseDataSourceAdapter):
                 name="Microsoft Corporation",
                 sector="Technology",
                 industry="Software",
-                market_cap=Decimal("2300000000000"),
+                market_cap=Decimal(2300000000000),
                 exchange="NASDAQ",
             ),
         }
