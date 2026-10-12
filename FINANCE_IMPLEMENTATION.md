@@ -616,7 +616,7 @@ from personal_finance.assets.models import Asset
 portfolio = Portfolio.objects.create(
     user=user,
     name="Growth Portfolio",
-    description="Long-term growth focused investments"
+    description="Long-term growth focused investments",
 )
 
 # Add a position
@@ -626,7 +626,7 @@ position = Position.objects.create(
     asset=apple,
     quantity=100,
     average_cost=150.00,
-    first_purchase_date="2024-01-15"
+    first_purchase_date="2024-01-15",
 )
 ```
 
@@ -636,9 +636,7 @@ from personal_finance.analytics.services import PerformanceAnalytics
 
 analytics = PerformanceAnalytics()
 metrics = analytics.calculate_portfolio_metrics(
-    portfolio,
-    start_date=date(2024, 1, 1),
-    end_date=date(2024, 12, 31)
+    portfolio, start_date=date(2024, 1, 1), end_date=date(2024, 12, 31)
 )
 
 print(f"Annual Return: {metrics['annualized_return']:.2f}%")

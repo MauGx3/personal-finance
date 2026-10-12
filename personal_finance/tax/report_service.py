@@ -1,19 +1,19 @@
 """Tax report generation service."""
 
-from loguru import logger
 from datetime import date
 from decimal import Decimal
-from typing import Dict
 
 from django.contrib.auth import get_user_model
 
+from loguru import logger
+
 from .models import (
-    TaxYear,
     CapitalGainLoss,
     DividendIncome,
-    TaxReport,
     TaxLossHarvestingOpportunity,
     TaxOptimizationRecommendation,
+    TaxReport,
+    TaxYear,
 )
 from .services import TaxCalculationService
 
@@ -163,11 +163,11 @@ class TaxReportService:
             if symbol not in dividends_by_asset:
                 dividends_by_asset[symbol] = {
                     "asset_name": dividend.position.asset.name,
-                    "qualified_dividends": Decimal("0"),
-                    "ordinary_dividends": Decimal("0"),
-                    "capital_gain_distributions": Decimal("0"),
-                    "return_of_capital": Decimal("0"),
-                    "total_dividends": Decimal("0"),
+                    "qualified_dividends": Decimal(0),
+                    "ordinary_dividends": Decimal(0),
+                    "capital_gain_distributions": Decimal(0),
+                    "return_of_capital": Decimal(0),
+                    "total_dividends": Decimal(0),
                     "payments": [],
                 }
 
@@ -357,7 +357,7 @@ class TaxReportService:
 
         # Simplified tax calculation (would be more complex in reality)
         estimated_tax_on_gains = max(
-            net_capital_gains * Decimal("0.15"), Decimal("0")
+            net_capital_gains * Decimal("0.15"), Decimal(0)
         )
         estimated_tax_on_dividends = total_dividends * Decimal(
             "0.15"
@@ -387,16 +387,16 @@ class TaxReportService:
                 ),
                 "recommendations_count": optimization_recommendations.count(),
                 "total_potential_savings": sum(
-                    rec.estimated_tax_savings or Decimal("0")
+                    rec.estimated_tax_savings or Decimal(0)
                     for rec in optimization_recommendations
                 ),
             },
             "summary_metrics": {
                 "total_investment_income": net_capital_gains + total_dividends,
                 "net_investment_income_tax": max(
-                    (net_capital_gains + total_dividends - Decimal("200000"))
+                    (net_capital_gains + total_dividends - Decimal(200000))
                     * Decimal("0.038"),
-                    Decimal("0"),
+                    Decimal(0),
                 ),  # Simplified NIIT calculation
             },
         }
@@ -460,7 +460,7 @@ class TaxReportService:
                 if prev_report and prev_report.net_capital_gain_loss < 0:
                     # Calculate unused losses (simplified - would track actual usage)
                     net_loss = abs(prev_report.net_capital_gain_loss)
-                    ordinary_income_offset = min(net_loss, Decimal("3000"))
+                    ordinary_income_offset = min(net_loss, Decimal(3000))
                     carryforward = net_loss - ordinary_income_offset
 
                     if carryforward > 0:
@@ -492,7 +492,7 @@ class TaxReportService:
 
         if current_net_loss < 0:
             total_carryforward += abs(current_net_loss) - min(
-                abs(current_net_loss), Decimal("3000")
+                abs(current_net_loss), Decimal(3000)
             )
 
         report_data = {
@@ -505,15 +505,15 @@ class TaxReportService:
             "current_year": {
                 "net_capital_gain_loss": current_net_loss,
                 "ordinary_income_offset": min(
-                    abs(current_net_loss), Decimal("3000")
+                    abs(current_net_loss), Decimal(3000)
                 )
                 if current_net_loss < 0
-                else Decimal("0"),
+                else Decimal(0),
                 "new_carryforward": max(
-                    abs(current_net_loss) - Decimal("3000"), Decimal("0")
+                    abs(current_net_loss) - Decimal(3000), Decimal(0)
                 )
                 if current_net_loss < 0
-                else Decimal("0"),
+                else Decimal(0),
             },
             "previous_years_losses": previous_years_losses,
             "total_carryforward_available": total_carryforward,
@@ -544,7 +544,7 @@ class TaxReportService:
 
     def generate_all_tax_reports(
         self, user: User, tax_year: TaxYear
-    ) -> Dict[str, TaxReport]:
+    ) -> dict[str, TaxReport]:
         """Generate all available tax reports for a user and tax year.
 
         Args:

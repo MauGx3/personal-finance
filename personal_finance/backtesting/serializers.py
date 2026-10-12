@@ -3,12 +3,13 @@
 from rest_framework import serializers
 
 from personal_finance.assets.serializers import AssetSerializer
+
 from ..models import (
-    Strategy,
     Backtest,
-    BacktestResult,
     BacktestPortfolioSnapshot,
+    BacktestResult,
     BacktestTrade,
+    Strategy,
 )
 
 

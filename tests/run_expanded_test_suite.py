@@ -7,8 +7,8 @@ easy access to different test categories with comprehensive reporting.
 """
 
 import os
-import sys
 import subprocess
+import sys
 import time
 from pathlib import Path
 
