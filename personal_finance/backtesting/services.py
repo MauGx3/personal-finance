@@ -4,17 +4,18 @@ This module provides comprehensive backtesting functionality including
 strategy execution, portfolio simulation, and performance analysis.
 """
 
-from loguru import logger
 from abc import ABC, abstractmethod
-from decimal import Decimal, ROUND_HALF_UP
-from typing import Dict, List, Optional, Tuple, Any
-from datetime import date
 from dataclasses import dataclass, field
+from datetime import date
+from decimal import ROUND_HALF_UP, Decimal
+from typing import Any
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from django.db import transaction
 from django.utils import timezone
+
+from loguru import logger
 
 try:
     from personal_finance.assets.models import Asset
@@ -33,12 +34,13 @@ from personal_finance.analytics.services import (
     PerformanceAnalytics,
     TechnicalIndicators,
 )
+
 from .models import (
-    Strategy,
     Backtest,
-    BacktestResult,
     BacktestPortfolioSnapshot,
+    BacktestResult,
     BacktestTrade,
+    Strategy,
 )
 
 # Using loguru logger imported above
@@ -49,9 +51,9 @@ class Position:
     """Represents a position in the backtesting portfolio."""
 
     asset: Asset
-    quantity: Decimal = field(default_factory=lambda: Decimal("0"))
-    average_cost: Decimal = field(default_factory=lambda: Decimal("0"))
-    current_price: Decimal = field(default_factory=lambda: Decimal("0"))
+    quantity: Decimal = field(default_factory=lambda: Decimal(0))
+    average_cost: Decimal = field(default_factory=lambda: Decimal(0))
+    current_price: Decimal = field(default_factory=lambda: Decimal(0))
 
     @property
     def market_value(self) -> Decimal:
@@ -73,7 +75,7 @@ class Position:
         """Calculate unrealized P&L as percentage."""
         if self.cost_basis > 0:
             return (self.unrealized_pnl / self.cost_basis) * 100
-        return Decimal("0")
+        return Decimal(0)
 
 
 @dataclass
@@ -83,7 +85,7 @@ class Trade:
     asset: Asset
     quantity: Decimal
     trade_type: str  # 'buy', 'sell', 'short', 'cover'
-    signal_strength: Optional[Decimal] = None
+    signal_strength: Decimal | None = None
     reason: str = ""
 
 
@@ -92,8 +94,8 @@ class PortfolioState:
     """Represents the current state of the backtesting portfolio."""
 
     cash: Decimal
-    positions: Dict[str, Position] = field(default_factory=dict)
-    date: Optional[date] = None
+    positions: dict[str, Position] = field(default_factory=dict)
+    date: date | None = None
 
     @property
     def total_value(self) -> Decimal:
@@ -139,7 +141,7 @@ class BaseStrategy(ABC):
     @abstractmethod
     def generate_signals(
         self, current_date: date, portfolio: PortfolioState
-    ) -> List[Trade]:
+    ) -> list[Trade]:
         """Generate trading signals for current date.
 
         Args:
@@ -149,14 +151,13 @@ class BaseStrategy(ABC):
         Returns:
             List of trades to execute
         """
-        pass
 
     def get_parameter(self, key: str, default: Any = None) -> Any:
         """Get strategy parameter value."""
         return self.parameters.get(key, default)
 
     def should_rebalance(
-        self, current_date: date, last_rebalance: Optional[date]
+        self, current_date: date, last_rebalance: date | None
     ) -> bool:
         """Check if portfolio should be rebalanced."""
         if last_rebalance is None:
@@ -184,7 +185,7 @@ class BuyAndHoldStrategy(BaseStrategy):
 
     def generate_signals(
         self, current_date: date, portfolio: PortfolioState
-    ) -> List[Trade]:
+    ) -> list[Trade]:
         """Generate buy signals for equal-weight portfolio on first day."""
         trades = []
 
@@ -229,7 +230,7 @@ class MovingAverageCrossoverStrategy(BaseStrategy):
 
     def generate_signals(
         self, current_date: date, portfolio: PortfolioState
-    ) -> List[Trade]:
+    ) -> list[Trade]:
         """Generate signals based on moving average crossovers."""
         trades = []
 
@@ -329,7 +330,7 @@ class RSIStrategy(BaseStrategy):
 
     def generate_signals(
         self, current_date: date, portfolio: PortfolioState
-    ) -> List[Trade]:
+    ) -> list[Trade]:
         """Generate signals based on RSI levels."""
         trades = []
 
@@ -488,7 +489,7 @@ class BacktestEngine:
             backtest.error_message = str(e)
             backtest.completed_at = timezone.now()
             backtest.save()
-            raise RuntimeError(f"Backtest execution failed: {str(e)}")
+            raise RuntimeError(f"Backtest execution failed: {e!s}")
 
     @staticmethod
     def _load_price_data(backtest: Backtest) -> pd.DataFrame:
@@ -552,7 +553,7 @@ class BacktestEngine:
         strategy: BaseStrategy,
         portfolio: PortfolioState,
         price_data: pd.DataFrame,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run the main simulation loop."""
 
         simulation_results = {
@@ -663,7 +664,7 @@ class BacktestEngine:
         trade: Trade,
         portfolio: PortfolioState,
         trade_date: date,
-    ) -> Optional[BacktestTrade]:
+    ) -> BacktestTrade | None:
         """Execute a trade with realistic constraints and costs."""
 
         position = portfolio.get_position(trade.asset.symbol)
@@ -687,7 +688,7 @@ class BacktestEngine:
                 position.average_cost = (
                     total_cost_basis / total_quantity
                     if total_quantity > 0
-                    else Decimal("0")
+                    else Decimal(0)
                 )
                 position.quantity = total_quantity
 
@@ -715,7 +716,7 @@ class BacktestEngine:
                     )
                     * 100
                     if portfolio_value_before > 0
-                    else Decimal("0"),
+                    else Decimal(0),
                 )
 
                 return trade_record
@@ -725,7 +726,7 @@ class BacktestEngine:
                 # Update position
                 position.quantity -= trade.quantity
                 if position.quantity == 0:
-                    position.average_cost = Decimal("0")
+                    position.average_cost = Decimal(0)
 
                 # Update cash (subtract costs from proceeds)
                 proceeds = trade_value - total_cost
@@ -752,7 +753,7 @@ class BacktestEngine:
                     )
                     * 100
                     if portfolio_value_before > 0
-                    else Decimal("0"),
+                    else Decimal(0),
                 )
 
                 return trade_record
@@ -764,7 +765,7 @@ class BacktestEngine:
         backtest: Backtest,
         portfolio: PortfolioState,
         current_date: date,
-        simulation_results: Dict[str, Any],
+        simulation_results: dict[str, Any],
     ) -> None:
         """Apply stop loss and take profit rules."""
 
@@ -907,7 +908,7 @@ class BacktestEngine:
     def _calculate_results(
         self,
         backtest: Backtest,
-        simulation_results: Dict[str, Any],
+        simulation_results: dict[str, Any],
         price_data: pd.DataFrame,
     ) -> BacktestResult:
         """Calculate comprehensive backtest performance results."""
@@ -1071,7 +1072,7 @@ class BacktestEngine:
             final_portfolio_value=Decimal(str(final_value)),
             cash_balance=simulation_results["snapshots"][-1].cash_balance
             if simulation_results["snapshots"]
-            else Decimal("0"),
+            else Decimal(0),
             total_transaction_costs=Decimal(str(total_transaction_costs)),
             daily_returns=daily_returns,
             portfolio_values=daily_values,
@@ -1083,7 +1084,7 @@ class BacktestEngine:
 
     @staticmethod
     def _calculate_trade_pnl(
-        sell_trade: BacktestTrade, all_trades: List[BacktestTrade]
+        sell_trade: BacktestTrade, all_trades: list[BacktestTrade]
     ) -> float:
         """Calculate profit/loss for a completed trade."""
         # This is a simplified calculation - in reality you'd match specific buy/sell pairs
@@ -1094,7 +1095,7 @@ class BacktestEngine:
         )
 
     @staticmethod
-    def _serialize_trade(trade: BacktestTrade) -> Dict[str, Any]:
+    def _serialize_trade(trade: BacktestTrade) -> dict[str, Any]:
         """Serialize trade for JSON storage."""
         return {
             "date": trade.date.isoformat(),
@@ -1119,7 +1120,7 @@ STRATEGY_REGISTRY = {
 }
 
 
-def get_available_strategies() -> List[Tuple[str, str]]:
+def get_available_strategies() -> list[tuple[str, str]]:
     """Get list of available strategy types."""
     return [
         ("buy_hold", "Buy and Hold"),
@@ -1133,8 +1134,8 @@ def create_strategy(
     user,
     name: str,
     strategy_type: str,
-    parameters: Dict[str, Any],
-    asset_symbols: List[str],
+    parameters: dict[str, Any],
+    asset_symbols: list[str],
     **kwargs,
 ) -> Strategy:
     """Create a new strategy with specified parameters."""
@@ -1158,7 +1159,7 @@ def run_quick_backtest(
     strategy: Strategy,
     start_date: date,
     end_date: date,
-    benchmark_symbol: Optional[str] = None,
+    benchmark_symbol: str | None = None,
 ) -> BacktestResult:
     """Run a quick backtest with default parameters."""
 

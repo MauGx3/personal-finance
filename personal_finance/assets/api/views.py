@@ -5,14 +5,15 @@ from decimal import Decimal
 
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework import status, viewsets, permissions
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.request import Request
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 
-from ..models import Asset, Holding, Portfolio as LegacyPortfolio
+from ..models import Asset, Holding
+from ..models import Portfolio as LegacyPortfolio
 
 # Graceful import handling for missing models and serializers
 try:
@@ -22,16 +23,16 @@ except ImportError:
 
 try:
     from ..serializers import (
-        AssetListSerializer,
-        AssetDetailSerializer,
         AssetCreateUpdateSerializer,
-        PriceHistorySerializer,
+        AssetDetailSerializer,
+        AssetListSerializer,
         AssetPerformanceSerializer,
-        TechnicalIndicatorsSerializer,
         AssetSearchSerializer,
         AssetSerializer,
-        PortfolioSerializer,
         HoldingSerializer,
+        PortfolioSerializer,
+        PriceHistorySerializer,
+        TechnicalIndicatorsSerializer,
     )
 except ImportError:
     # Create minimal serializers if imports fail
@@ -183,8 +184,8 @@ class AssetViewSet(viewsets.ModelViewSet):
                     "asset_type": asset.asset_type,
                     "exchange": asset.exchange or "",
                     "currency": asset.currency,
-                    "current_price": asset.current_price or Decimal("0"),
-                    "market_cap": asset.market_cap or Decimal("0"),
+                    "current_price": asset.current_price or Decimal(0),
+                    "market_cap": asset.market_cap or Decimal(0),
                     "sector": asset.sector or "",
                 }
             )

@@ -10,8 +10,7 @@ debug-level logging when an invalid/malformed environment variable is set.
 
 from __future__ import annotations
 
-from typing import Iterable
-
+from collections.abc import Iterable
 
 ALLOWED_LEVELS = frozenset(
     {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
