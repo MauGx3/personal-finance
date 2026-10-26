@@ -1,21 +1,22 @@
 """Tests for data source adapters interface compliance."""
 
-import pytest
+from datetime import date, datetime
 from decimal import Decimal
-from datetime import datetime, date
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from personal_finance.data_sources.adapter import (
     BaseDataSourceAdapter,
-    YFinanceAdapter,
-    MockAdapter,
     DataSourceError,
     InvalidSymbolError,
+    MockAdapter,
+    YFinanceAdapter,
 )
 from personal_finance.data_sources.types import (
-    PricePoint,
-    HistoricalSeries,
     CompanyInfo,
+    HistoricalSeries,
+    PricePoint,
 )
 
 
@@ -279,4 +280,4 @@ class TestYFinanceAdapter:
         assert info.symbol == "AAPL"
         assert info.name == "Apple Inc."
         assert info.sector == "Technology"
-        assert info.market_cap == Decimal("2500000000000")
+        assert info.market_cap == Decimal(2500000000000)

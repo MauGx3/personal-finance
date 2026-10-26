@@ -2,4 +2,4 @@
 Re-exports from personal_finance.assets.stockdex
 """
 
-from .assets.stockdex import *  # noqa: F401,F403
+from .assets.stockdex import *

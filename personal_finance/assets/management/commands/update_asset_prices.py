@@ -1,13 +1,12 @@
 """Management command to update asset prices from external data sources."""
 
-from loguru import logger
-from typing import List, Optional
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
+from loguru import logger
 from personal_finance.assets.models import Asset
 
 # Graceful import for PriceHistory
@@ -119,9 +118,7 @@ class Command(BaseCommand):
             )
         )
 
-    def _get_assets_to_update(
-        self, symbols: Optional[List[str]]
-    ) -> List[Asset]:
+    def _get_assets_to_update(self, symbols: list[str] | None) -> list[Asset]:
         """Get list of assets to update.
 
         Args:
@@ -148,7 +145,7 @@ class Command(BaseCommand):
         return list(assets)
 
     def _update_current_prices(
-        self, assets: List[Asset], force_update: bool, batch_size: int
+        self, assets: list[Asset], force_update: bool, batch_size: int
     ) -> int:
         """Update current prices for assets.
 
@@ -251,7 +248,7 @@ class Command(BaseCommand):
             return False
 
     def _update_historical_data(
-        self, assets: List[Asset], days: int, batch_size: int
+        self, assets: list[Asset], days: int, batch_size: int
     ) -> int:
         """Update historical price data for assets.
 

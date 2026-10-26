@@ -1,18 +1,19 @@
 """Tests for DataProfiler validation functionality."""
 
-import pytest
-import pandas as pd
-import numpy as np
 from unittest.mock import patch
 
+import numpy as np
+import pandas as pd
+import pytest
+
 from personal_finance.data_profiler.validators import (
-    validate_profile_data,
-    validate_and_prepare_data,
     ProfileDataError,
     _validate_dataframe,
+    _validate_records_format,
     _validate_series,
     _validate_string_data,
-    _validate_records_format,
+    validate_and_prepare_data,
+    validate_profile_data,
 )
 
 
