@@ -5,10 +5,10 @@ This test file expands coverage for the assets app which has proper migrations.
 It provides comprehensive testing of asset models, validation, and business logic.
 """
 
-import pytest
 from decimal import Decimal
-from django.contrib.auth import get_user_model
 
+import pytest
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -240,7 +240,7 @@ class TestHoldingModel:
 
     def test_holding_creation(self):
         """Test holding model creation."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(
@@ -275,7 +275,7 @@ class TestHoldingModel:
 
     def test_holding_calculations(self):
         """Test holding financial calculations."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(
@@ -310,14 +310,14 @@ class TestHoldingModel:
         else:
             # Calculate manually for testing
             total_cost = holding.quantity * (
-                holding.average_price or Decimal("0")
+                holding.average_price or Decimal(0)
             )
             expected_cost_basis = Decimal("100.00") * Decimal("150.00")
             assert total_cost == expected_cost_basis
 
     def test_holding_str_representation(self):
         """Test holding string representation."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create dependencies
         user = User.objects.create_user(

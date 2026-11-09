@@ -8,10 +8,10 @@ from unittest.mock import Mock, patch
 from django.test import TestCase
 
 from personal_finance.visualization.charts import (
-    PortfolioCharts,
     AssetCharts,
-    get_currency_symbol,
+    PortfolioCharts,
     format_currency_value,
+    get_currency_symbol,
 )
 
 

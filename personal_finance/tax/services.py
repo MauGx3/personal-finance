@@ -1,13 +1,14 @@
 """Tax calculation and optimization services."""
 
-from loguru import logger
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import Dict, List, Optional, Any
+from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.utils import timezone
+
+from loguru import logger
 
 # Graceful import handling for missing models
 try:
@@ -20,12 +21,12 @@ except ImportError:
     Portfolio = Position = Transaction = None
 
 from .models import (
-    TaxYear,
-    TaxLot,
     CapitalGainLoss,
     DividendIncome,
     TaxLossHarvestingOpportunity,
+    TaxLot,
     TaxOptimizationRecommendation,
+    TaxYear,
 )
 
 User = get_user_model()
@@ -47,8 +48,8 @@ class TaxCalculationService:
     def calculate_capital_gains_losses(
         user: User,
         tax_year: TaxYear,
-        portfolio: Optional[Portfolio] = None,
-    ) -> Dict[str, Any]:
+        portfolio: Portfolio | None = None,
+    ) -> dict[str, Any]:
         """Calculate all capital gains and losses for a tax year.
 
         Args:
@@ -74,19 +75,19 @@ class TaxCalculationService:
         # Aggregate by term
         short_term_gains = gains_losses.filter(
             term="short", gain_loss_amount__gt=0
-        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal(0)
 
         short_term_losses = gains_losses.filter(
             term="short", gain_loss_amount__lt=0
-        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal(0)
 
         long_term_gains = gains_losses.filter(
             term="long", gain_loss_amount__gt=0
-        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal(0)
 
         long_term_losses = gains_losses.filter(
             term="long", gain_loss_amount__lt=0
-        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("gain_loss_amount"))["total"] or Decimal(0)
 
         # Calculate net amounts
         net_short_term = (
@@ -120,8 +121,8 @@ class TaxCalculationService:
     def calculate_dividend_income(
         user: User,
         tax_year: TaxYear,
-        portfolio: Optional[Portfolio] = None,
-    ) -> Dict[str, Any]:
+        portfolio: Portfolio | None = None,
+    ) -> dict[str, Any]:
         """Calculate dividend income for tax reporting.
 
         Args:
@@ -144,19 +145,19 @@ class TaxCalculationService:
         # Calculate by dividend type
         qualified_dividends = dividends.filter(
             dividend_type="qualified"
-        ).aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("total_amount"))["total"] or Decimal(0)
 
         ordinary_dividends = dividends.filter(
             dividend_type="ordinary"
-        ).aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("total_amount"))["total"] or Decimal(0)
 
         capital_gain_distributions = dividends.filter(
             dividend_type="capital_gain"
-        ).aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("total_amount"))["total"] or Decimal(0)
 
         return_of_capital = dividends.filter(
             dividend_type="return_of_capital"
-        ).aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
+        ).aggregate(total=Sum("total_amount"))["total"] or Decimal(0)
 
         total_dividends = qualified_dividends + ordinary_dividends
         total_distributions = capital_gain_distributions + return_of_capital
@@ -221,7 +222,7 @@ class TaxCalculationService:
     @staticmethod
     def _process_sale_transaction(
         transaction: Transaction,
-    ) -> List[CapitalGainLoss]:
+    ) -> list[CapitalGainLoss]:
         """Process a sale transaction and create capital gains/losses.
 
         Args:
@@ -250,7 +251,7 @@ class TaxCalculationService:
             cost_basis = shares_to_sell * tax_lot.cost_basis_per_share
 
             # Allocate fees proportionally
-            fee_allocation = Decimal("0")
+            fee_allocation = Decimal(0)
             if transaction.fees:
                 fee_proportion = shares_to_sell / transaction.quantity
                 fee_allocation = transaction.fees * fee_proportion
@@ -267,8 +268,8 @@ class TaxCalculationService:
                 year=transaction.date.year,
                 defaults={
                     "filing_deadline": date(transaction.date.year + 1, 4, 15),
-                    "standard_deduction_single": Decimal("13850"),
-                    "standard_deduction_married": Decimal("27700"),
+                    "standard_deduction_single": Decimal(13850),
+                    "standard_deduction_married": Decimal(27700),
                     "long_term_capital_gains_thresholds": {
                         "0": {"min": 0, "max": 44625, "rate": 0.0},
                         "15": {"min": 44626, "max": 492300, "rate": 0.15},
@@ -313,7 +314,7 @@ class TaxCalculationService:
     @staticmethod
     def _process_dividend_transaction(
         transaction: Transaction,
-    ) -> Optional[DividendIncome]:
+    ) -> DividendIncome | None:
         """Process a dividend transaction.
 
         Args:
@@ -330,8 +331,8 @@ class TaxCalculationService:
             year=transaction.date.year,
             defaults={
                 "filing_deadline": date(transaction.date.year + 1, 4, 15),
-                "standard_deduction_single": Decimal("13850"),
-                "standard_deduction_married": Decimal("27700"),
+                "standard_deduction_single": Decimal(13850),
+                "standard_deduction_married": Decimal(27700),
                 "long_term_capital_gains_thresholds": {},
             },
         )
@@ -349,7 +350,7 @@ class TaxCalculationService:
             amount_per_share=transaction.price,  # Price field used for dividend amount
             shares_held=transaction.quantity,
             total_amount=transaction.quantity * transaction.price,
-            tax_withheld=Decimal("0"),
+            tax_withheld=Decimal(0),
         )
 
         logger.info(
@@ -366,8 +367,8 @@ class TaxLossHarvestingService:
         self.current_date = timezone.now().date()
 
     def identify_loss_harvesting_opportunities(
-        self, user: User, minimum_loss_threshold: Decimal = Decimal("100")
-    ) -> List[TaxLossHarvestingOpportunity]:
+        self, user: User, minimum_loss_threshold: Decimal = Decimal(100)
+    ) -> list[TaxLossHarvestingOpportunity]:
         """Identify tax loss harvesting opportunities.
 
         Args:
@@ -390,8 +391,8 @@ class TaxLossHarvestingService:
             year=current_year,
             defaults={
                 "filing_deadline": date(current_year + 1, 4, 15),
-                "standard_deduction_single": Decimal("13850"),
-                "standard_deduction_married": Decimal("27700"),
+                "standard_deduction_single": Decimal(13850),
+                "standard_deduction_married": Decimal(27700),
                 "long_term_capital_gains_thresholds": {},
             },
         )
@@ -451,7 +452,7 @@ class TaxLossHarvestingService:
 
         return opportunities
 
-    def _check_wash_sale_risk(self, position: Position) -> Optional[date]:
+    def _check_wash_sale_risk(self, position: Position) -> date | None:
         """Check if selling a position would trigger wash sale rules.
 
         Args:
@@ -479,7 +480,7 @@ class TaxLossHarvestingService:
         return None
 
     def generate_loss_harvesting_recommendations(
-        self, opportunities: List[TaxLossHarvestingOpportunity]
+        self, opportunities: list[TaxLossHarvestingOpportunity]
     ) -> None:
         """Generate specific recommendations for loss harvesting opportunities.
 
@@ -510,7 +511,7 @@ class TaxLossHarvestingService:
             opportunity.save()
 
     @staticmethod
-    def _suggest_alternative_investments(asset) -> List[str]:
+    def _suggest_alternative_investments(asset) -> list[str]:
         """Suggest alternative investments to avoid wash sale rules.
 
         Args:
@@ -565,8 +566,8 @@ class TaxOptimizationService:
         self.current_date = timezone.now().date()
 
     def generate_tax_optimization_recommendations(
-        self, user: User, tax_year: Optional[TaxYear] = None
-    ) -> List[TaxOptimizationRecommendation]:
+        self, user: User, tax_year: TaxYear | None = None
+    ) -> list[TaxOptimizationRecommendation]:
         """Generate comprehensive tax optimization recommendations.
 
         Args:
@@ -581,8 +582,8 @@ class TaxOptimizationService:
                 year=self.current_date.year,
                 defaults={
                     "filing_deadline": date(self.current_date.year + 1, 4, 15),
-                    "standard_deduction_single": Decimal("13850"),
-                    "standard_deduction_married": Decimal("27700"),
+                    "standard_deduction_single": Decimal(13850),
+                    "standard_deduction_married": Decimal(27700),
                     "long_term_capital_gains_thresholds": {},
                 },
             )
@@ -615,7 +616,7 @@ class TaxOptimizationService:
     @staticmethod
     def _analyze_asset_location(
         user: User, portfolio: Portfolio, tax_year: TaxYear
-    ) -> List[TaxOptimizationRecommendation]:
+    ) -> list[TaxOptimizationRecommendation]:
         """Analyze asset location optimization opportunities.
 
         Args:
@@ -645,7 +646,7 @@ class TaxOptimizationService:
                     "better suited for IRAs or 401(k)s, while tax-efficient index funds can "
                     "remain in taxable accounts."
                 ),
-                estimated_tax_savings=Decimal("500"),
+                estimated_tax_savings=Decimal(500),
                 action_required=(
                     "1. Review high-dividend positions in taxable account\n"
                     "2. Consider moving to IRA/401(k) if contribution room available\n"
@@ -660,7 +661,7 @@ class TaxOptimizationService:
     @staticmethod
     def _analyze_rebalancing_opportunities(
         user: User, portfolio: Portfolio, tax_year: TaxYear
-    ) -> List[TaxOptimizationRecommendation]:
+    ) -> list[TaxOptimizationRecommendation]:
         """Analyze tax-efficient rebalancing opportunities.
 
         Args:
@@ -693,7 +694,7 @@ class TaxOptimizationService:
                     "then consider tax-loss harvesting to offset any necessary sales of "
                     "appreciated assets. This minimizes the tax impact of rebalancing."
                 ),
-                estimated_tax_savings=Decimal("200"),
+                estimated_tax_savings=Decimal(200),
                 action_required=(
                     "1. Use new contributions to buy underweight assets\n"
                     "2. Reinvest dividends in underweight positions\n"
@@ -708,7 +709,7 @@ class TaxOptimizationService:
 
     def _analyze_holding_periods(
         self, user: User, portfolio: Portfolio, tax_year: TaxYear
-    ) -> List[TaxOptimizationRecommendation]:
+    ) -> list[TaxOptimizationRecommendation]:
         """Analyze holding period optimization opportunities.
 
         Args:
@@ -771,7 +772,7 @@ class TaxOptimizationService:
 
     def _generate_general_tax_recommendations(
         self, user: User, tax_year: TaxYear
-    ) -> List[TaxOptimizationRecommendation]:
+    ) -> list[TaxOptimizationRecommendation]:
         """Generate general tax optimization recommendations.
 
         Args:
@@ -796,7 +797,7 @@ class TaxOptimizationService:
                     "year-end. Realizing losses can offset capital gains and up to $3,000 "
                     "of ordinary income, with additional losses carried forward to future years."
                 ),
-                estimated_tax_savings=Decimal("750"),
+                estimated_tax_savings=Decimal(750),
                 action_required=(
                     "1. Identify positions with unrealized losses\n"
                     "2. Check for wash sale rule violations\n"

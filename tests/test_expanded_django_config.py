@@ -5,13 +5,13 @@ This test file expands coverage for Django settings, configurations,
 and utility functions that support the application infrastructure.
 """
 
-import pytest
-from django.test import override_settings
-from django.core.exceptions import ValidationError
-from django.contrib.auth import get_user_model
-from django.conf import settings
 from decimal import Decimal
 
+import pytest
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.test import override_settings
 
 User = get_user_model()
 
@@ -207,7 +207,7 @@ class TestModelValidation:
     @pytest.mark.django_db
     def test_decimal_precision_validation(self):
         """Test decimal field precision validation."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create test data
         user = User.objects.create_user(
@@ -238,7 +238,7 @@ class TestDatabaseOperations:
     @pytest.mark.django_db
     def test_cascade_deletion(self):
         """Test cascade deletion behavior."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create test data
         user = User.objects.create_user(
@@ -350,7 +350,7 @@ class TestApplicationUtilities:
     @pytest.mark.django_db
     def test_model_relationships(self):
         """Test model relationship functionality."""
-        from personal_finance.assets.models import Asset, Portfolio, Holding
+        from personal_finance.assets.models import Asset, Holding, Portfolio
 
         # Create test data
         user = User.objects.create_user(

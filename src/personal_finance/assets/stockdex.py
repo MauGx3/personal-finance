@@ -1,7 +1,7 @@
 # stockdex shim moved from top-level _stockdx.py
 # Provide wrapper functions used by the codebase
 
-from typing import Optional
+
 from ..logs import logger
 
 
@@ -18,6 +18,6 @@ class Ticker:
         return 0
 
 
-def get_last_close(symbol: str) -> Optional[float]:
+def get_last_close(symbol: str) -> float | None:
     t = Ticker(symbol)
     return t.get_last_close()

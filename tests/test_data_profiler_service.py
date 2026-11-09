@@ -1,8 +1,9 @@
 """Tests for DataProfiler service functionality."""
 
-import pytest
+from unittest.mock import MagicMock, patch
+
 import pandas as pd
-from unittest.mock import patch, MagicMock
+import pytest
 
 from personal_finance.data_profiler.services import DataProfilerService
 from personal_finance.data_profiler.validators import ProfileDataError

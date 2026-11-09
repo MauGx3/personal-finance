@@ -5,9 +5,10 @@ This test file expands coverage for financial calculations, utility functions,
 and data processing that don't require complex model migrations.
 """
 
-import pytest
-from decimal import Decimal, ROUND_HALF_UP
 from datetime import date, timedelta
+from decimal import ROUND_HALF_UP, Decimal
+
+import pytest
 
 pytest.skip(
     "Legacy expanded calculation tests replaced by test_analytics_metrics.py.",
@@ -35,8 +36,8 @@ class TestFinancialCalculations:
 
         # Test standard CAGR calculation
         cagr = calculate_cagr(
-            beginning_value=Decimal("100000"),
-            ending_value=Decimal("150000"),
+            beginning_value=Decimal(100000),
+            ending_value=Decimal(150000),
             years=5,
         )
         expected = (1.5) ** (1 / 5) - 1  # About 8.45%

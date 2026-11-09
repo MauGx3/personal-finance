@@ -2,15 +2,16 @@
 Tests for the WebSocket price streaming functionality.
 """
 
-import pytest
 import json
-from unittest.mock import Mock, AsyncMock
 from decimal import Decimal
+from unittest.mock import AsyncMock, Mock
+
+import pytest
 
 from personal_finance.realtime.services import PricePoint
 from personal_finance.realtime.ws import (
-    WebSocketPriceEndpoint,
     ASGIWebSocketApp,
+    WebSocketPriceEndpoint,
 )
 
 
@@ -178,10 +179,10 @@ class TestWebSocketIntegration:
         """Test that WebSocket modules can be imported."""
         # Test that the module imports work even if websockets is not available
         from personal_finance.realtime.ws import (
-            WebSocketPriceEndpoint,
             ASGIWebSocketApp,
-            websocket_endpoint,
+            WebSocketPriceEndpoint,
             asgi_app,
+            websocket_endpoint,
         )
 
         assert WebSocketPriceEndpoint is not None

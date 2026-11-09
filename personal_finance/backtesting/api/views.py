@@ -1,27 +1,27 @@
 """API views for backtesting functionality."""
 
-from loguru import logger
-
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
-from django.db.models import Q, Avg, Count
+from django.db.models import Avg, Count, Q
 from django.utils import timezone
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 
+from loguru import logger
 from personal_finance.assets.models import Asset
-from ..models import Strategy, Backtest, BacktestResult
-from ..services import BacktestEngine, get_available_strategies
+
+from ..models import Backtest, BacktestResult, Strategy
 from ..serializers import (
-    StrategySerializer,
-    BacktestSerializer,
     BacktestCreateSerializer,
-    BacktestResultSerializer,
-    BacktestPortfolioSnapshotSerializer,
-    BacktestTradeSerializer,
     BacktestPerformanceChartSerializer,
+    BacktestPortfolioSnapshotSerializer,
+    BacktestResultSerializer,
+    BacktestSerializer,
     BacktestSummarySerializer,
+    BacktestTradeSerializer,
+    StrategySerializer,
 )
+from ..services import BacktestEngine, get_available_strategies
 
 # Using loguru logger imported above
 
@@ -244,8 +244,7 @@ class BacktestViewSet(viewsets.ModelViewSet):
         current_max = portfolio_series[0]
 
         for value in portfolio_series:
-            if value > current_max:
-                current_max = value
+            current_max = max(current_max, value)
             running_max.append(current_max)
 
         drawdowns = [
@@ -480,15 +479,19 @@ class BacktestComparisonView(viewsets.GenericViewSet):
                     "average": sum(values) / len(values),
                     "best_backtest": max(
                         comparison_data["backtests"],
-                        key=lambda x: x["metrics"][metric]
-                        if x["metrics"][metric] is not None
-                        else float("-inf"),
+                        key=lambda x: (
+                            x["metrics"][metric]
+                            if x["metrics"][metric] is not None
+                            else float("-inf")
+                        ),
                     )["name"],
                     "worst_backtest": min(
                         comparison_data["backtests"],
-                        key=lambda x: x["metrics"][metric]
-                        if x["metrics"][metric] is not None
-                        else float("inf"),
+                        key=lambda x: (
+                            x["metrics"][metric]
+                            if x["metrics"][metric] is not None
+                            else float("inf")
+                        ),
                     )["name"],
                 }
 

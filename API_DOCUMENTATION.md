@@ -299,22 +299,22 @@ The API will support webhooks for real-time updates:
 import requests
 
 # Authentication
-response = requests.post('/api/auth-token/', {
-    'username': 'your_username',
-    'password': 'your_password'
-})
-token = response.json()['token']
+response = requests.post(
+    "/api/auth-token/",
+    {"username": "your_username", "password": "your_password"},
+)
+token = response.json()["token"]
 
-headers = {'Authorization': f'Token {token}'}
+headers = {"Authorization": f"Token {token}"}
 
 # Get portfolios
-portfolios = requests.get('/api/portfolios/', headers=headers)
+portfolios = requests.get("/api/portfolios/", headers=headers)
 
 # Get performance metrics
 metrics = requests.get(
-    '/api/portfolios/1/performance_metrics/',
-    params={'start_date': '2024-01-01', 'benchmark': 'SPY'},
-    headers=headers
+    "/api/portfolios/1/performance_metrics/",
+    params={"start_date": "2024-01-01", "benchmark": "SPY"},
+    headers=headers,
 )
 ```
 

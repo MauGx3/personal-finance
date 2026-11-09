@@ -52,7 +52,7 @@ class TestUserAdmin:
     def _force_allauth(self, settings):
         settings.DJANGO_ADMIN_FORCE_ALLAUTH = True
         # Reload the admin module to apply the setting change
-        import personal_finance.users.admin as users_admin  # noqa: PLC0415
+        import personal_finance.users.admin as users_admin
 
         with contextlib.suppress(admin.sites.AlreadyRegistered):  # type: ignore[attr-defined]
             reload(users_admin)
