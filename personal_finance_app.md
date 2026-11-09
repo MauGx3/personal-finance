@@ -160,9 +160,9 @@ celery>=5.3.0           # Background tasks
 
 ### Junior Developer Support
 ```python
-def calculate_portfolio_return(positions: List[Position],
-                             start_date: datetime,
-                             end_date: datetime) -> Decimal:
+def calculate_portfolio_return(
+    positions: List[Position], start_date: datetime, end_date: datetime
+) -> Decimal:
     """Calculate portfolio return over a specified period.
 
     This function computes the total return of a portfolio by:

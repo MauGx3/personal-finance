@@ -116,11 +116,11 @@ class LoggingSecurityTestCase(TestCase):
     def test_loguru_compatibility_layer(self):
         """Test that the loguru compatibility layer works correctly."""
         from personal_finance.logs.loguru_compat import (
-            getLogger,
             DEBUG,
+            ERROR,
             INFO,
             WARNING,
-            ERROR,
+            getLogger,
         )
 
         # Test that we can get a logger

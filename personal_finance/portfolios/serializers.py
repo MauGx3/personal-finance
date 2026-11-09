@@ -1,10 +1,11 @@
 """Serializers for portfolio API endpoints."""
 
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
-from .models import Portfolio, Position, Transaction, PortfolioSnapshot
 from personal_finance.assets.models import Asset
+
+from .models import Portfolio, PortfolioSnapshot, Position, Transaction
 
 User = get_user_model()
 

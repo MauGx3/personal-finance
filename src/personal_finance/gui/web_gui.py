@@ -5,20 +5,20 @@ This file is deliberately minimal and avoids complex templates that can
 confuse parsing when edited programmatically.
 """
 
-from typing import Any, Dict
+import html
 from datetime import datetime
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from personal_finance.gui.gui_service import GUIService
-import html
 
 app = FastAPI()
 service = GUIService()
 
 
-def _pos_to_dict(p) -> Dict[str, Any]:
+def _pos_to_dict(p) -> dict[str, Any]:
     return {
         "symbol": getattr(p, "symbol", None),
         "name": getattr(p, "name", None),
@@ -42,7 +42,7 @@ def list_positions():
 
 
 @app.post("/positions")
-def create_position(payload: Dict[str, Any]):
+def create_position(payload: dict[str, Any]):
     sym = payload.get("symbol")
     if not sym:
         raise HTTPException(status_code=400, detail="symbol required")

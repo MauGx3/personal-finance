@@ -4,22 +4,23 @@ This module provides comprehensive charting capabilities for portfolio analysis,
 performance tracking, and asset visualization using Plotly for interactive charts.
 """
 
-from loguru import logger
-from decimal import Decimal
-from typing import Dict, List, Optional, Any
 from datetime import date, timedelta
+from decimal import Decimal
+from typing import Any
 
 import pandas as pd
-import plotly.graph_objects as go
 import plotly.express as px
-from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 from django.utils import timezone
+from plotly.subplots import make_subplots
+
+from loguru import logger
 
 try:
     from personal_finance.portfolios.models import (
         Portfolio,
-        Position,
         PortfolioSnapshot,
+        Position,
     )
 except ImportError:
     Portfolio = Position = PortfolioSnapshot = None
@@ -165,7 +166,7 @@ class PortfolioCharts:
         start_date: date,
         end_date: date,
         currency_code: str = "USD",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create portfolio performance chart over time.
 
         Args:
@@ -290,7 +291,7 @@ class PortfolioCharts:
 
     def create_asset_allocation_chart(
         self, portfolio: Portfolio, currency_code: str = "USD"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create pie chart showing portfolio asset allocation.
 
         Args:
@@ -314,7 +315,7 @@ class PortfolioCharts:
 
             # Calculate allocation data
             allocation_data = []
-            total_value = Decimal("0")
+            total_value = Decimal(0)
 
             for position in positions:
                 current_value = position.current_value
@@ -389,7 +390,7 @@ class PortfolioCharts:
 
     def create_risk_metrics_chart(
         self, portfolio: Portfolio, currency_code: str = "USD"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create risk metrics visualization chart.
 
         Args:
@@ -602,7 +603,7 @@ class PortfolioCharts:
         return "blue"  # Default color
 
     @staticmethod
-    def _create_empty_chart(message: str) -> Dict[str, Any]:
+    def _create_empty_chart(message: str) -> dict[str, Any]:
         """Create empty chart with message.
 
         Args:
@@ -647,9 +648,9 @@ class AssetCharts:
         self,
         asset: Asset,
         days: int = 252,
-        indicators: Optional[List[str]] = None,
+        indicators: list[str] | None = None,
         currency_code: str = "USD",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create price chart with technical indicators.
 
         Args:
@@ -769,7 +770,7 @@ class AssetCharts:
         fig: go.Figure,
         df: pd.DataFrame,
         asset: Asset,
-        indicators: List[str],
+        indicators: list[str],
     ) -> None:
         """Add technical indicators to price chart.
 
@@ -835,7 +836,7 @@ class AssetCharts:
                 logger.warning("Failed to add indicator %s: %s", indicator, e)
 
     @staticmethod
-    def _create_empty_chart(message: str) -> Dict[str, Any]:
+    def _create_empty_chart(message: str) -> dict[str, Any]:
         """Create empty chart with message."""
         fig = go.Figure()
         fig.add_annotation(

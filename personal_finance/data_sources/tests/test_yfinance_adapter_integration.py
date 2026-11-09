@@ -4,19 +4,19 @@ These tests can be run with real network calls but by default use
 recorded fixtures to avoid external dependencies in CI/CD.
 """
 
-import pytest
+from datetime import date, datetime
 from decimal import Decimal
-from datetime import datetime, date
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from personal_finance.data_sources.adapter import (
-    YFinanceAdapter,
     DataSourceError,
+    YFinanceAdapter,
 )
 from personal_finance.data_sources.services import create_yfinance_service
-from personal_finance.data_sources.types import PricePoint, HistoricalSeries
-
+from personal_finance.data_sources.types import HistoricalSeries, PricePoint
 
 # Skip these tests by default in CI - can be enabled with --external-api flag
 pytestmark = pytest.mark.external_api
@@ -247,7 +247,7 @@ class TestYFinanceAdapterIntegration:
         assert info.name == "Apple Inc."
         assert info.sector == "Technology"
         assert info.industry == "Consumer Electronics"
-        assert info.market_cap == Decimal("2500000000000")
+        assert info.market_cap == Decimal(2500000000000)
         assert info.currency == "USD"
         assert info.exchange == "NASDAQ"
 
@@ -338,7 +338,7 @@ class TestRealYFinanceIntegration:
         if price_point is not None:  # May be None if markets are closed
             assert isinstance(price_point, PricePoint)
             assert price_point.symbol == "AAPL"
-            assert price_point.price > Decimal("0")
+            assert price_point.price > Decimal(0)
             assert price_point.currency == "USD"
 
     @pytest.mark.skip(reason="Requires network access - enable manually")

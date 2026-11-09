@@ -5,7 +5,7 @@ Run with: PYTHONPATH=src python -m personal_finance.desktop_gui
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
 from .gui_service import GUIService
 

@@ -1,11 +1,13 @@
 from django.urls import path
 
-from .views import AssetCreateView
-from .views import AssetDeleteView
-from .views import AssetDetailView
-from .views import AssetListView
-from .views import AssetsView
-from .views import AssetUpdateView
+from .views import (
+    AssetCreateView,
+    AssetDeleteView,
+    AssetDetailView,
+    AssetListView,
+    AssetsView,
+    AssetUpdateView,
+)
 
 app_name = "assets"
 
