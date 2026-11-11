@@ -69,7 +69,7 @@ class Transaction(models.Model):
 
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="transactions")
     asset = models.ForeignKey(Asset, on_delete=models.PROTECT, related_name="transactions")
-    kind = models.CharField(max_length=10, choices=TransactionKind.choices)
+    kind = models.CharField(max_length=10, choices=TransactionKind)
     trade_date = models.DateField()
     quantity = models.DecimalField(
         max_digits=20,

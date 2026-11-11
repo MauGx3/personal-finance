@@ -74,11 +74,9 @@ class Asset(models.Model):
         max_length=20,
         validators=[RegexValidator(r"^[A-Z0-9\-_.=^]+$", "Use upper-case letters and digits.")],
     )
-    exchange = models.CharField(max_length=10, choices=Exchange.choices, default=Exchange.B3)
+    exchange = models.CharField(max_length=10, choices=Exchange, default=Exchange.B3)
     name = models.CharField(max_length=200, blank=True)
-    asset_class = models.CharField(
-        max_length=20, choices=AssetClass.choices, default=AssetClass.STOCK
-    )
+    asset_class = models.CharField(max_length=20, choices=AssetClass, default=AssetClass.STOCK)
     currency = models.CharField(max_length=3, default="BRL")
     isin = models.CharField("ISIN", max_length=12, blank=True)
     sector = models.CharField(max_length=100, blank=True)
