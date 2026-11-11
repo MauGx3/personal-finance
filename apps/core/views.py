@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from apps.analytics.reports import value_history
@@ -47,4 +48,10 @@ def sync_prices(request: HttpRequest) -> HttpResponse:
         messages.warning(request, f"Prices updated, but these symbols failed: {failed}.")
     else:
         messages.success(request, f"Prices updated ({report.total} daily closes stored).")
-    return redirect(request.POST.get("next") or "core:dashboard")
+    # Only follow "next" back to this site; anything else falls back to the dashboard.
+    next_url = request.POST.get("next", "")
+    if url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(next_url)
+    return redirect("core:dashboard")

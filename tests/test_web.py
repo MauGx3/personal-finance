@@ -129,6 +129,21 @@ def test_sync_prices_button(web, portfolio, petr4, trade):
     assert petr4.quotes.exists()
 
 
+@pytest.mark.parametrize(
+    ("next_url", "expected"),
+    [
+        ("/?portfolio=1", "/?portfolio=1"),
+        ("https://evil.example/", "/"),
+        ("//evil.example/", "/"),
+        ("", "/"),
+    ],
+)
+def test_sync_prices_only_redirects_within_the_site(web, next_url, expected):
+    response = web.post(reverse("core:sync-prices"), {"next": next_url})
+    assert response.status_code == 302
+    assert response.url == expected
+
+
 def test_create_portfolio(web, user):
     web.post(reverse("portfolios:portfolio-create"), {"name": "Retirement", "description": ""})
     assert Portfolio.objects.get(user=user).name == "Retirement"
