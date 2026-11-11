@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -94,9 +93,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="transaction",
             constraint=models.CheckConstraint(
-                condition=models.Q(
-                    ("quantity__gte", 0), ("price__gte", 0), ("fees__gte", 0)
-                ),
+                condition=models.Q(("quantity__gte", 0), ("price__gte", 0), ("fees__gte", 0)),
                 name="transaction_values_not_negative",
             ),
         ),
