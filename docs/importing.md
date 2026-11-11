@@ -52,8 +52,12 @@ class MyBrokerParser(StatementParser):
     required_headers = frozenset({"data", "ativo", "quantidade"})  # normalized
 
     def parse_row(self, cell, result):
-        return ParsedRow(trade_date=parse_date(cell("data")), kind="BUY",
-                         ticker=str(cell("ativo")), quantity=parse_decimal(cell("quantidade")))
+        return ParsedRow(
+            trade_date=parse_date(cell("data")),
+            kind="BUY",
+            ticker=str(cell("ativo")),
+            quantity=parse_decimal(cell("quantidade")),
+        )
 ```
 
 Add its dotted path to `IMPORT_PARSERS`. Headers are matched lower-case with
