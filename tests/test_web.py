@@ -2,6 +2,7 @@ import pytest
 from django.urls import reverse
 
 from apps.portfolios.models import Holding, Portfolio, Transaction
+from tests.conftest import TEST_PASSWORD
 from tests.test_importers import NEGOCIACAO, xlsx
 
 pytestmark = pytest.mark.django_db
@@ -28,7 +29,7 @@ def test_health_is_public(client):
 
 def test_login_page_and_sign_in(client, user):
     assert client.get("/login/").status_code == 200
-    response = client.post("/login/", {"username": "me@example.com", "password": "pw-for-tests"})
+    response = client.post("/login/", {"username": "me@example.com", "password": TEST_PASSWORD})
     assert response.status_code == 302 and response.url == "/"
 
 

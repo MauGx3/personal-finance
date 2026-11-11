@@ -18,7 +18,9 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --extra postgres
 
 COPY . .
-RUN DJANGO_SECRET_KEY=build-only-not-used-at-runtime python manage.py collectstatic --noinput
+# collectstatic needs a key to load settings; a throwaway one is generated for this step only.
+RUN DJANGO_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(50))')" \
+    python manage.py collectstatic --noinput
 
 RUN useradd --system --uid 1000 app && mkdir -p /data && chown app /data
 USER app
