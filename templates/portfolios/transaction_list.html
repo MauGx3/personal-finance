@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load finance %}
+{% block content %}
+<div class="page-head">
+  <h1>Transactions</h1>
+  <div class="actions">
+    <a class="button" href="{% url 'importers:import' %}">Import</a>
+    <a class="button primary" href="{% url 'portfolios:transaction-create' %}">Add transaction</a>
+  </div>
+</div>
+<form method="get" class="filters">
+  <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Ticker" aria-label="Ticker">
+  <select name="kind" aria-label="Type"><option value="">All types</option>
+    {% for value, label in kinds %}<option value="{{ value }}" {% if request.GET.kind == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  {% if portfolios|length > 1 %}
+  <select name="portfolio" aria-label="Portfolio"><option value="">All portfolios</option>
+    {% for portfolio in portfolios %}<option value="{{ portfolio.pk }}" {% if request.GET.portfolio == portfolio.pk|stringformat:"s" %}selected{% endif %}>{{ portfolio.name }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <button>Filter</button>
+</form>
+<section class="card table-wrap">
+  <table>
+    <thead><tr><th>Date</th><th>Type</th><th>Asset</th><th class="num">Quantity</th><th class="num">Price</th><th class="num">Total</th><th>Broker</th><th></th></tr></thead>
+    <tbody>
+    {% for t in object_list %}
+    <tr>
+      <td>{{ t.trade_date|date:"d/m/Y" }}</td>
+      <td>{{ t.get_kind_display }}</td>
+      <td><a href="{% url 'assets:detail' t.asset_id %}">{{ t.asset.ticker }}</a></td>
+      <td class="num">{{ t.quantity|quantity }}</td>
+      <td class="num">{% if t.price %}{{ t.price|money:t.currency }}{% else %}–{% endif %}</td>
+      <td class="num">{{ t.total|money:t.currency }}</td>
+      <td>{{ t.broker|truncatechars:28 }}</td>
+      <td><a href="{% url 'portfolios:transaction-update' t.pk %}">Edit</a></td>
+    </tr>
+    {% empty %}<tr><td colspan="8" class="empty">No transactions match.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% if is_paginated %}
+<nav class="actions" aria-label="Pages">
+  {% if page_obj.has_previous %}<a href="?{{ querystring }}&page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}
+  <span class="muted">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?{{ querystring }}&page={{ page_obj.next_page_number }}">Next</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

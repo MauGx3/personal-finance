@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load finance %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{% if selected %}{{ selected.name }}{% else %}All portfolios{% endif %}</h1>
+    <span class="muted">{% if snapshot.as_of %}Prices as of {{ snapshot.as_of|date:"d/m/Y" }}{% else %}No prices stored yet{% endif %} · totals in {{ snapshot.base_currency }}</span>
+  </div>
+  <div class="actions">
+    {% include "_portfolio_filter.html" %}
+    <form method="post" action="{% url 'core:sync-prices' %}">{% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button>Update prices</button>
+    </form>
+    <a class="button primary" href="{% url 'portfolios:transaction-create' %}">Add transaction</a>
+  </div>
+</div>
+
+{% if not snapshot.rows and not history %}
+<section class="card">
+  <h2>Start by adding your trades</h2>
+  <p class="muted">Import the Negociação spreadsheet from B3's investor portal, or add transactions by hand.</p>
+  <div class="actions">
+    <a class="button primary" href="{% url 'importers:import' %}">Import a statement</a>
+    <a class="button" href="{% url 'portfolios:transaction-create' %}">Add a transaction</a>
+  </div>
+</section>
+{% else %}
+
+{% if snapshot.ledger_errors or snapshot.unpriced or snapshot.missing_fx %}
+<div class="notice" role="status">
+  <strong>Some figures are incomplete.</strong>
+  <ul>
+    {% for holding in snapshot.ledger_errors %}
+    <li><a href="{% url 'assets:detail' holding.asset_id %}">{{ holding.asset.ticker }}</a>: {{ holding.ledger_error }} Import the older statements or add the missing buy.</li>
+    {% endfor %}
+    {% if snapshot.unpriced %}<li>No price yet for {{ snapshot.unpriced|join:", " }}; shown at cost. Use “Update prices”.</li>{% endif %}
+    {% if snapshot.missing_fx %}<li>No exchange rate for {{ snapshot.missing_fx|join:", " }}; left out of the totals. Use “Update prices”.</li>{% endif %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="tiles" aria-label="Summary">
+  <div class="card tile"><div class="label">Market value</div><div class="value">{{ snapshot.total_value|money:snapshot.base_currency }}</div><div class="sub muted">Cost {{ snapshot.total_cost|money:snapshot.base_currency }}</div></div>
+  <div class="card tile"><div class="label">Unrealized gain</div><div class="value {{ snapshot.unrealized_gain|tone }}">{{ snapshot.unrealized_gain|signed_money:snapshot.base_currency }}</div><div class="sub {{ snapshot.unrealized_pct|tone }}">{{ snapshot.unrealized_pct|percent }}</div></div>
+  <div class="card tile"><div class="label">Realized gain</div><div class="value {{ snapshot.realized_gain|tone }}">{{ snapshot.realized_gain|signed_money:snapshot.base_currency }}</div><div class="sub muted"><a href="{% url 'analytics:reports' %}">By month</a></div></div>
+  <div class="card tile"><div class="label">Income received</div><div class="value">{{ snapshot.income|money:snapshot.base_currency }}</div><div class="sub muted">Dividends, JCP, fund income</div></div>
+</section>
+
+<section class="card">
+  <h2>Value of holdings over time</h2>
+  {% line_chart history snapshot.base_currency %}
+</section>
+
+<div class="split">
+  <section class="card">
+    <h2>By asset class</h2>
+    <ul class="bars">
+      {% for slice in snapshot.by_class %}
+      <li><div class="row"><span>{{ slice.label }}</span><span class="num">{{ slice.weight|share }} · {{ slice.value|money:snapshot.base_currency }}</span></div>
+        <div class="track"><div class="fill" style="width: {{ slice.weight|floatformat:'1u' }}%"></div></div></li>
+      {% empty %}<li class="empty">Nothing held.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <h2>By currency</h2>
+    <ul class="bars">
+      {% for slice in snapshot.by_currency %}
+      <li><div class="row"><span>{{ slice.label }}</span><span class="num">{{ slice.weight|share }} · {{ slice.value|money:snapshot.base_currency }}</span></div>
+        <div class="track"><div class="fill" style="width: {{ slice.weight|floatformat:'1u' }}%"></div></div></li>
+      {% empty %}<li class="empty">Nothing held.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Positions</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Asset</th><th class="num">Quantity</th><th class="num">Avg. price</th><th class="num">Price</th><th class="num">Value</th><th class="num">Gain</th><th class="num">Weight</th></tr></thead>
+    <tbody>
+    {% for row in snapshot.rows %}
+    <tr>
+      <td><a href="{% url 'assets:detail' row.asset.pk %}">{{ row.asset.ticker }}</a><small>{{ row.asset.get_asset_class_display }}{% if not selected and all_portfolios|length > 1 %} · {{ row.holding.portfolio.name }}{% endif %}</small></td>
+      <td class="num">{{ row.quantity|quantity }}</td>
+      <td class="num">{{ row.average_price|money:row.asset.currency }}</td>
+      <td class="num">{% if row.priced %}{{ row.price|money:row.asset.currency }}<small>{{ row.price_day|date:"d/m" }}</small>{% else %}<span class="muted">at cost</span>{% endif %}</td>
+      <td class="num">{{ row.value|money:row.asset.currency }}</td>
+      <td class="num {{ row.gain|tone }}">{{ row.gain|signed_money:row.asset.currency }}<small class="{{ row.gain|tone }}">{{ row.gain_pct|percent }}</small></td>
+      <td class="num">{{ row.weight|share }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="7" class="empty">No open positions.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endif %}
+<p class="muted"><a href="{% url 'portfolios:portfolio-create' %}">New portfolio</a></p>
+{% endblock %}

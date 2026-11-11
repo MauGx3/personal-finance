@@ -1,150 +1,39 @@
 name: CI
-permissions:
-  contents: read
 
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
-    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11"]
-
+        python-version: ["3.12", "3.13"]
     steps:
       - uses: actions/checkout@v5
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          # include python version in the key to avoid restoring wheels built for a different CPython
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt', '**/constraints*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-            ${{ runner.os }}-pip-
-
-      - name: Select constraints file
-        # pick a per-python constraints file if present, else fall back to constraints.txt
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: Lint
         run: |
-          if [ -f "constraints-${{ matrix.python-version }}.txt" ]; then
-            echo "CONSTRAINTS=constraints-${{ matrix.python-version }}.txt" >> $GITHUB_ENV
-          else
-            echo "CONSTRAINTS=constraints.txt" >> $GITHUB_ENV
-          fi
-
-      - name: Install dependencies
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Django checks
         run: |
-          python -m pip install --upgrade pip
-          # Use the chosen constraints file for this python version
-          C="$CONSTRAINTS"
-          echo "Using constraints file: $C"
-          # prefer binary wheels where available and use fast-deps for faster resolution
-          PIP_OPTS="--prefer-binary --use-feature=fast-deps -c $C"
-
-          # small retry helper to handle transient network issues
-          retry() {
-            n=0
-            until [ $n -ge 3 ]; do
-              "$@" && break
-              n=$((n+1))
-              echo "Command failed -- retrying ($n)"
-              sleep $((n * 3))
-            done
-            if [ $n -ge 3 ]; then
-              echo "Command failed after retries: $@"
-              exit 1
-            fi
-          }
-
-          retry pip install $PIP_OPTS -r requirements.txt
-          # Install Django requirements for proper test environment
-          retry pip install $PIP_OPTS -r requirements/base.txt
-          # Install development and expanded finance extras used by tests
-          if [ -f requirements-dev.txt ]; then retry pip install $PIP_OPTS -r requirements-dev.txt; fi
-          # Ensure testing dependencies are available in CI for test collection
-          retry pip install pytest-django celery django-celery-beat coverage
-          # Ensure loguru is available in CI (required by logging modules)
-          retry pip install $PIP_OPTS loguru
-
-      - name: Lint (flake8)
-        run: |
-          flake8 src tests --max-line-length=88 --select=E9,F63,F7,F82
-
-      - name: Run tests
-        env:
-          PYTHONPATH: src
-          DATABASE_URL: sqlite:///test.db
-          DJANGO_SETTINGS_MODULE: config.settings.test
-          DJANGO_SECRET_KEY: test-secret-key-for-ci
-          DJANGO_DEBUG: False
-        run: |
-          # Run Django system checks first (fast fail for obvious config issues)
-          python -m django check
-          pytest -q || [ $? -eq 5 ]
-
-  security-audit:
-    permissions:
-      contents: read
-    name: Security audit (pip-audit)
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-3.11-${{ hashFiles('**/requirements.txt', '**/constraints*.txt') }}-audit
-          restore-keys: |
-            ${{ runner.os }}-pip-3.11-
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies and pip-audit
-        run: |
-          python -m pip install --upgrade pip
-          # pick a constraints file (prefer per-python file if present)
-          if [ -f "constraints-3.11.txt" ]; then
-            C=constraints-3.11.txt
-          else
-            C=constraints.txt
-          fi
-          echo "Using constraints file: $C"
-          python -m pip install -r requirements.txt -c $C
-          # Ensure loguru is present for security scanning and testing
-          python -m pip install loguru -c $C
-
-      - name: Run pip-audit
-        run: |
-          pip-audit --progress-spinner off
-
-  # autofix:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v5
-
-  #     # Use uv to ensure we have the same ruff version in CI and locally.
-  #     - uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
-  #       with:
-  #         version: "0.4.20"
-  #     # lint errors
-  #     - run: uv run ruff check --fix-only .
-  #     # Format code
-  #     - run: uv run ruff format .
-
-  #     - uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27
+          uv run python manage.py check
+          uv run python manage.py makemigrations --check --dry-run
+      - name: Tests
+        run: uv run pytest --cov=apps --cov-report=term-missing
+      - name: Dependency audit
+        run: uv run pip-audit

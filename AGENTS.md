@@ -1,222 +1,88 @@
 # AGENTS.md
 
-Comprehensive instructions for autonomous coding agents working on this repository. This file complements `README.md` by providing actionable, machine-focused guidance.
+Instructions for coding agents working on this repository. `README.md` is the
+human overview; this file is the working contract.
 
-## 1. Project Overview
+## What this is
 
-- **Purpose**: Personal finance web platform built on Django, offering analytics, portfolio tooling, ETL jobs, and automation scripts.
-- **Runtime**: Python 3.10/3.11 (validated in CI against both versions).
-- **Primary stack**: Django, Celery, Channels/WebSockets, PostgreSQL (optional), Redis (for async tasks), Polars/finance utilities, pytest.
-- **Security posture**: Django 4.2.24 (patched for CVE-2025-57833), CodeQL scanning enabled, CI enforces dependency audits via `pip-audit`.
+A single-user, self-hosted investment tracker for a Brazilian investor (B3 and
+US assets, totals in BRL), deployed as a small Docker stack on a NAS.
+Optimise for correctness of the numbers and low maintenance, not for scale or
+multi-tenancy.
 
-### Architecture Snapshot
+## Stack
 
-| Component          | Location                                                               | Notes                                                                                                                    |
-| ------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Django project     | `config/` + `personal_finance/`                                    | Settings split under `config/settings/`; apps live under `personal_finance/` (analytics, assets, backtesting, etc.). |
-| Celery workers     | `config/celery_app.py`                                               | Requires Redis; start separately.                                                                                        |
-| Background scripts | `run_finance.py`, `setup_database.py`, `alembic/`                | ETL + DB bootstrap.                                                                                                      |
-| Infrastructure     | `docker-compose*.yml`, `Dockerfile`, `render.yaml`, `Procfile` | Local/production orchestrations.                                                                                         |
-| Documentation      | `/spec/`, `/docs/`, `/memory-bank/`                              | Specifications, Sphinx docs, running context.                                                                            |
+- Python 3.12+ (CI runs 3.12 and 3.13), Django 5.2 LTS, Django REST Framework.
+- `uv` for dependencies (`pyproject.toml` + `uv.lock`). No `requirements*.txt`.
+- SQLite by default; PostgreSQL through `DATABASE_URL`.
+- `ruff` for linting and formatting (line length 100). `pytest` + `pytest-django`.
+- No Redis, Celery, Channels or front-end build. Do not add them without the
+  owner asking: a NAS-friendly footprint is a requirement.
 
-### Repository Layout Highlights
+## Layout
 
-- `manage.py` — Django entry point for admin tasks, migrations, and dev server.
-- `personal_finance/` — Main app modules, including API views, serializers, services, and tests.
-- `tests/` — Pytest-based integration/unit suites.
-- `config/` — Django settings, ASGI/WSGI endpoints, routers, Celery configuration.
-- `alembic/` — Database migration scripts for non-Django schema changes.
-- `spec/` — Process specs (CI/CD, PR checks). Update these before altering workflows.
-- `memory-bank/` — Project intelligence used by agents after environment resets.
+| Path | Purpose |
+| --- | --- |
+| `config/` | settings (`base`, `dev`, `prod`, `test`), root URLs |
+| `apps/core/` | `money.py` (Decimal and parsing), dashboard, template filters |
+| `apps/assets/` | asset catalog |
+| `apps/portfolios/` | Portfolio, Transaction, Holding; `services/positions.py`, `holdings.py`, `valuation.py` |
+| `apps/data_sources/` | `PriceProvider` interface, yfinance provider, PriceQuote, FxRate, `sync_prices` |
+| `apps/importers/` | readers, `StatementParser`, B3 and generic CSV parsers, `import_statement` |
+| `apps/analytics/` | reports, value history, `metrics.py` formulas |
+| `apps/api/` | REST API |
+| `templates/`, `static/` | server-rendered UI, one CSS file, one small JS file |
+| `tests/` | all tests; `tests/fakes.py` holds the fake price provider |
+| `docs/`, `memory-bank/`, `spec/` | documentation, agent context, process specs |
+| `notebooks/` | the owner's exploratory notebooks; leave them alone |
 
-## 2. Environment Setup (fish shell)
+## Commands
 
-### Prerequisites
-
-- Python 3.10 or 3.11
-- Redis (for Celery + websockets) — optional for basic dev but required for async features
-- PostgreSQL optional (SQLite default if `DATABASE_URL` absent)
-
-### Create and Activate Virtual Environment
-
-```fish
-python -m venv .venv
-source .venv/bin/activate.fish
+```bash
+uv sync                                   # install
+uv run python manage.py migrate
+uv run python manage.py runserver
+uv run pytest                             # all tests, no network needed
+uv run pytest tests/test_positions.py -q  # one file
+uv run ruff check . && uv run ruff format --check .
+uv run python manage.py makemigrations --check --dry-run
 ```
 
-### Install Dependencies
+All four checks (ruff check, ruff format, pytest, migration check) must pass
+before a commit. CI runs the same, plus `pip-audit`.
 
-```fish
-python -m pip install --upgrade pip setuptools
-python -m pip install -r requirements.txt
-# Development extras (linters, formatters, docs)
-python -m pip install -r requirements-dev.txt
-```
+## Rules for changes
 
-### Configure Environment Variables
+1. **Money is `Decimal`.** Never `float` for prices, quantities or amounts.
+   Parse outside values with `apps.core.money`.
+2. **The ledger is the source of truth.** Never write `Holding` directly;
+   change transactions and let `rebuild_holding` run.
+3. **Keep rules out of views.** Put logic in a service function and call it
+   from the view, the API and the command.
+4. **Tests never touch the network.** Use `tests.fakes.FakeProvider` (already
+   the provider in `config.settings.test`).
+5. **Every query is scoped to the owner** (`portfolio__user=request.user`).
+6. **Do not encode tax rates or exemptions** unless the owner supplies the rule;
+   reports give the inputs, not the tax.
+7. New behaviour comes with tests for the normal case and the edge cases
+   (empty input, wrong owner, malformed file).
+8. Changing a model means a migration in the same commit.
+9. No secrets in the repository; configuration comes from environment
+   variables (`.env.example` lists them).
+10. Use the available MCP servers when they fit the task: GitHub operations
+    through the GitHub MCP server, library documentation through context7.
 
-1. Copy template if needed:
+## Commits and pull requests
 
-   ```fish
-   cp .env.example .env
-   ```
-2. Populate `.env` with local secrets (never commit secrets):
+- Conventional commits: `<type>[scope]: <imperative description>`, 72 characters
+  or fewer. Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `build`,
+  `ci`, `chore`.
+- Update `spec/` before changing CI, and `memory-bank/` when the direction or
+  state of the project changes.
+- Mention migrations in the PR body.
 
-   - `DATABASE_URL` (falls back to SQLite if unset)
-   - `REDIS_URL` (for Celery/WebSockets)
-   - `DJANGO_SECRET_KEY`, `DJANGO_SETTINGS_MODULE` (see `config/settings/`)
-   - API keys for external data sources (if required by analytics tasks)
+## Where to look first
 
-### Database Bootstrap
-
-```fish
-python manage.py migrate
-# Optional convenience bootstrap (seeds demo data, syncs fixtures)
-python setup_database.py
-```
-
-Alembic migrations (if modifying non-Django-managed schemas):
-
-```fish
-alembic upgrade head
-```
-
-## 3. Daily Development Workflow
-
-- One of the most important things when doing absolutely any task is to leverage the available MCP server tools. Before doing anything, see if there is a configured server that specializes in the task you want to do and choose the appropriate tools.
-- MCP tools most certainly knows better than you.
-- For example, all GitHub actions must be carried using the github-mcp-server, while documentation must be obtained via context7 to improve knowledge about an external dependency.
-
-### Run Services
-
-```fish
-# Django development server
-python manage.py runserver
-
-# Celery worker
-celery -A config worker -l info
-
-# Optional: start redis + postgres locally
-docker compose up -d redis postgres
-```
-
-### Helpful Django Commands
-
-- `python manage.py shell` — interactive shell with project context.
-- `python manage.py check` — fast config validation (mirrors CI pre-test check).
-- `python manage.py createsuperuser` — create admin login for local testing.
-- `python manage.py makemigrations` then `python manage.py migrate` when modifying models.
-
-### Additional Scripts
-
-- `python run_finance.py` — orchestrates analytics/backtesting routines.
-- `python personal_finance/scripts/<name>.py` — bespoke ETL utilities (inspect script headers for usage).
-
-## 4. Testing Instructions
-
-Default framework: **pytest** with Django + Celery fixtures configured in `personal_finance/conftest.py`.
-
-| Scenario       | Command |
-| -------------- | ------- |
-| Run full suite | ```fish |
-| pytest -q      |         |
-
-```|
-| Single file | ```fish
-pytest tests/test_file.py -q
-``` |
-| Single test | ```fish
-pytest tests/test_file.py::test_case -q
-``` |
-| Keyword match | ```fish
-pytest -k "portfolio" -q
-``` |
-| Measure coverage (optional) | ```fish
-pytest --cov=personal_finance --cov-report=term-missing
-``` |
-
-Testing tips:
-
-- Initialize Redis (`docker compose up -d redis`) before running async tests.
-- New features must include tests covering success and edge cases (empty datasets, permissions, rate limits).
-- When tests need PII/financial data, scrub fixtures and assert logging omits sensitive fields.
-
-## 5. Code Style & Quality Gates
-
-- **Formatter**: `black` targeting 88 columns.
-- **Linting**: `ruff` (broad rules) + targeted `flake8` checks in CI (E9, F63, F7, F82).
-- **Typing**: No enforced mypy config yet; prefer adding type hints on new modules.
-
-Run locally before committing:
-
-```fish
-ruff check .
-black .
-flake8 src tests --max-line-length=88 --select=E9,F63,F7,F82
-```
-
-If adding dependencies, update `requirements.txt`, any relevant `requirements-*.txt`, and verify constraints in `constraints*.txt`.
-
-## 6. Build & Deployment
-
-- **Docker (local)**:
-
-  ```fish
-  docker compose -f docker-compose.local.yml up --build
-  ```
-
-  Spins up Django, Redis, Postgres, Celery worker, and ancillary services.
-- **Production artifacts**:
-
-  - `docker-compose.production.yml` for multi-service deploys.
-  - `render.yaml` / `Procfile` for platform-specific hosting.
-  - Static files handled via Django’s `collectstatic` (configure storage backend per environment).
-- **Environment promotion**: ensure migrations and `pip-audit` are green before deploying.
-
-## 7. CI/CD Summary
-
-- Workflow: `.github/workflows/ci.yml` (matrix Python 3.10 & 3.11).
-- Steps: dependency install → flake8 lint → `python -m django check` → pytest (exit 5 tolerated) → `pip-audit` security scan.
-- Token permissions: `contents: read` (least privilege in place to satisfy CodeQL security guidance).
-- Reference spec: `spec/spec-process-cicd-ci.md` (update spec first when adjusting pipelines).
-
-## 8. Security Considerations
-
-- **Secrets**: never commit; rely on environment variables or secret managers (GitHub Actions secrets, Render env vars, etc.).
-- **CVE tracking**: keep Django ≥ 4.2.24; monitor Dependabot alerts and CodeQL issues.
-- **Logging**: avoid printing account numbers, personally identifiable data, or API tokens. Use structured logging and redact sensitive fields.
-- **Outbound requests**: validate user-provided URLs to prevent SSRF; prefer allow-lists.
-- **Data access**: enforce Django permissions/context checks before exposing analytics endpoints.
-
-## 9. Pull Requests & Conventional Commits
-
-- Commit message format: `<type>[optional scope]: <imperative description>` (≤72 chars).
-- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `build`, `ci`, `chore`.
-- PR checklist before requesting review:
-  1. All tests (`pytest -q`) pass locally.
-  2. Lint/format (`ruff check`, `black`, `flake8`) clean.
-  3. No secrets in diff; `.env` and credential files ignored.
-  4. Update relevant `/spec/` documents when changing workflows/policies.
-  5. Mention migrations or data backfills explicitly in PR body.
-  6. Add screenshots or sample responses for UI/API changes when applicable.
-
-## 10. Debugging & Troubleshooting
-
-- **Migrations stuck**: run `python manage.py showmigrations` to inspect; fake migrations with `--fake` only after validating manually.
-- **Redis/Celery issues**: check `docker compose logs redis` and worker logs; ensure Redis URL matches running instance.
-- **WebSocket problems**: confirm Channels layer configured via `config/websocket.py` and ASGI settings.
-- **Test flakiness**: re-run with `pytest -k <target> --maxfail=1 -vv`; check Celery tasks using `CELERY_TASK_ALWAYS_EAGER=true` for deterministic runs.
-- **Static files**: run `python manage.py collectstatic --noinput` locally to reproduce pipeline errors.
-- General advice: compare environment packages using `pip freeze`, ensure `.venv` activated.
-
-## 11. Additional Resources
-
-- `README.md` — high-level project narrative and onboarding.
-- `docs/` — Sphinx documentation, developer guides.
-- `memory-bank/` — persistent context for AI agents (review before major work sessions).
-- `spec/` — authoritative workflow/process specs (must stay in sync with automation).
-- `BACKTESTING_USAGE.md`, `REALTIME_USAGE.md`, `VISUALIZATION_USAGE.md` — domain-specific run books.
-
----
-
-Treat this file as living documentation. Update it whenever tooling, workflows, or security posture changes so future agents remain productive and safe.
+- A number looks wrong: `apps/portfolios/services/positions.py`, then `valuation.py`.
+- An import misreads a file: the parser in `apps/importers/parsers/`, then `apps/core/money.py`.
+- Prices are missing: `apps/data_sources/services.py`; check `Asset.quote_symbol`.

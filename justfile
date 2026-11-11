@@ -1,38 +1,33 @@
-export COMPOSE_FILE := "docker-compose.local.yml"
-
-## Just does not yet manage signals for subprocesses reliably, which can lead to unexpected behavior.
-## Exercise caution before expanding its usage in production environments.
-## For more information, see https://github.com/casey/just/issues/2473 .
-
-
-# Default command to list all available commands.
+# Common tasks. Run `just` to list them.
 default:
     @just --list
 
-# build: Build python image.
-build:
-    @echo "Building python image..."
-    @docker compose build
+install:
+    uv sync
 
-# up: Start up containers.
+dev:
+    uv run python manage.py migrate
+    uv run python manage.py runserver
+
+test *args:
+    uv run pytest {{args}}
+
+lint:
+    uv run ruff check .
+    uv run ruff format --check .
+
+format:
+    uv run ruff check --fix .
+    uv run ruff format .
+
+check: lint test
+    uv run python manage.py makemigrations --check --dry-run
+
+prices:
+    uv run python manage.py sync_prices
+
 up:
-    @echo "Starting up containers..."
-    @docker compose up -d --remove-orphans
+    docker compose up -d --build
 
-# down: Stop containers.
 down:
-    @echo "Stopping containers..."
-    @docker compose down
-
-# prune: Remove containers and their volumes.
-prune *args:
-    @echo "Killing containers and removing volumes..."
-    @docker compose down -v {{args}}
-
-# logs: View container logs
-logs *args:
-    @docker compose logs -f {{args}}
-
-# manage: Executes `manage.py` command.
-manage +args:
-    @docker compose run --rm django python ./manage.py {{args}}
+    docker compose down

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{% if object %}Edit transaction{% else %}Add transaction{% endif %}</h1>
+<form method="post" class="card stack">{% csrf_token %}{{ form.as_p }}
+  <p class="muted">Buys and sells use quantity, price and fees. Dividends, JCP and fund income use amount. For a split, quantity is the ratio of new to old shares.</p>
+  <div class="actions">
+    <button class="primary">Save</button><a href="{% url 'portfolios:transactions' %}">Cancel</a>
+    {% if object %}<a href="{% url 'portfolios:transaction-delete' object.pk %}" style="margin-left:auto">Delete</a>{% endif %}
+  </div>
+</form>
+{% endblock %}

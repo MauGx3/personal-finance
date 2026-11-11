@@ -1,0 +1,11 @@
+{% if all_portfolios|length > 1 %}
+<form method="get" class="filters">
+  <label for="portfolio-filter" class="muted">Portfolio</label>
+  <select id="portfolio-filter" name="portfolio" onchange="this.form.submit()">
+    <option value="">All portfolios</option>
+    {% for portfolio in all_portfolios %}
+    <option value="{{ portfolio.pk }}" {% if selected.pk == portfolio.pk %}selected{% endif %}>{{ portfolio.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+{% endif %}

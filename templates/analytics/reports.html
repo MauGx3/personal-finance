@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load finance %}
+{% block content %}
+<div class="page-head"><h1>Reports</h1>{% include "_portfolio_filter.html" %}</div>
+<section class="card table-wrap">
+  <h2>Sales and realized gain by month</h2>
+  <p class="muted">Gross sales and the gain at average cost, per asset class: the two monthly figures needed to work out tax on sales. No tax is calculated here.</p>
+  <table>
+    <thead><tr><th>Month</th><th>Asset class</th><th class="num">Sales</th><th class="num">Realized gain</th></tr></thead>
+    <tbody>
+    {% for row in realized %}
+    <tr><td>{{ row.month|date:"m/Y" }}</td><td>{{ row.asset_class_label }}</td><td class="num">{{ row.sales|money:row.currency }}</td><td class="num {{ row.gain|tone }}">{{ row.gain|signed_money:row.currency }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">No sales recorded.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+<section class="card table-wrap">
+  <h2>Income by month</h2>
+  <table>
+    <thead><tr><th>Month</th><th>Type</th><th class="num">Amount</th></tr></thead>
+    <tbody>
+    {% for row in income %}
+    <tr><td>{{ row.month|date:"m/Y" }}</td><td>{{ row.kind_label }}</td><td class="num">{{ row.amount|money:row.currency }}</td></tr>
+    {% empty %}<tr><td colspan="3" class="empty">No income recorded.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

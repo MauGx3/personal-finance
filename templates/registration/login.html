@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Personal Finance{% endblock %}
+{% block content %}
+<section class="card login">
+  <h1>Sign in</h1>
+  <form method="post" class="stack" style="margin-top:16px">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="primary">Sign in</button>
+  </form>
+</section>
+{% endblock %}

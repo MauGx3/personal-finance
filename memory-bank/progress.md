@@ -1,34 +1,28 @@
 # Progress
 
-Last updated: 2025-09-28
+Last updated: 2026-11-11
 
-## What works
+## Works (covered by tests)
 
-- Repository structure stable with Django entrypoints (ASGI/WSGI) and Celery stub.
-- Docs scaffold (Sphinx) and multiple usage guides present.
-- Docker/Compose definitions for local and production.
-- Memory Bank initialized with core context and tasks.
+- Asset catalog with B3 ticker normalization and class guessing.
+- Portfolios, transactions (buy, sell, dividend, JCP, income, split, bonus), derived holdings.
+- Valuation in base currency, allocation by class and currency.
+- Price and FX sync through a provider interface; yfinance provider.
+- Imports: B3 Negociação, B3 Movimentação, generic CSV; dedupe, preview, undo.
+- Dashboard, transactions, import, asset and reports pages; REST API with OpenAPI.
+- Monthly sales/realized gain and income reports; value history.
 
-## What's left to build
+## Not verified
 
-- Data source service (yfinance adapter) with tests (TASK003)
-- Realtime streaming/polling service (TASK004)
-- DataProfiler services & validators (TASK005)
-- Finalize Portainer PR metadata (labels/reviewers) (TASK002)
+- Live yfinance calls (blocked in the development sandbox; the provider is
+  exercised only through a fake in tests).
+- Docker image build.
+- B3 parsers against real exports (built from the documented column headers).
 
-## Current status
+## Next
 
-- Active focus on deployment readiness and core data services.
-- Portainer PR created (per task log) and awaiting labels/reviewers.
-
-## Known issues
-
-- Network-dependent tests must be avoided; need fixture strategy for market data.
-- Ensure Decimal usage for monetary fields across services to avoid float drift.
-
-## Next steps
-
-1) Land TASK002 by adding reviewers/labels and merging after CI.
-2) Implement TASK003 adapter/service with tests and fixtures.
-3) Build TASK004 realtime polling with mock adapter; add websocket endpoint if feasible.
-4) Finish TASK005 validation/profile flow.
+1. Verify the items above on real data.
+2. Banco Inter parser (issue #66), brokerage-note PDFs (#48).
+3. Cost in BRL at purchase-date exchange rate for foreign assets.
+4. Benchmarks (IBOV, CDI, S&P 500) on the value chart; use `analytics/metrics.py`.
+5. Asset study page with fundamentals (issues #90, #107, #126).
