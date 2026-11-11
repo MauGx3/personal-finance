@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -84,9 +83,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "fees",
-                    models.DecimalField(
-                        decimal_places=2, default=Decimal("0"), max_digits=20
-                    ),
+                    models.DecimalField(decimal_places=2, default=Decimal("0"), max_digits=20),
                 ),
                 (
                     "amount",
@@ -130,27 +127,19 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "quantity",
-                    models.DecimalField(
-                        decimal_places=8, default=Decimal("0"), max_digits=20
-                    ),
+                    models.DecimalField(decimal_places=8, default=Decimal("0"), max_digits=20),
                 ),
                 (
                     "average_price",
-                    models.DecimalField(
-                        decimal_places=8, default=Decimal("0"), max_digits=20
-                    ),
+                    models.DecimalField(decimal_places=8, default=Decimal("0"), max_digits=20),
                 ),
                 (
                     "realized_gain",
-                    models.DecimalField(
-                        decimal_places=2, default=Decimal("0"), max_digits=20
-                    ),
+                    models.DecimalField(decimal_places=2, default=Decimal("0"), max_digits=20),
                 ),
                 (
                     "income",
-                    models.DecimalField(
-                        decimal_places=2, default=Decimal("0"), max_digits=20
-                    ),
+                    models.DecimalField(decimal_places=2, default=Decimal("0"), max_digits=20),
                 ),
                 ("first_trade", models.DateField(blank=True, null=True)),
                 ("last_trade", models.DateField(blank=True, null=True)),
