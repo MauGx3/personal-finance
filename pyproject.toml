@@ -1,87 +1,57 @@
-[build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "personal-finance"
-version = "0.1.0"
-description = "A personal finance management tool"
+version = "0.2.0"
+description = "Self-hosted portfolio tracker for B3 and US investments"
+authors = [{ name = "Mauricio Gioachini" }]
 readme = "README.md"
-authors = [
-    {name = "Mauricio Silva", email = "maugx3@gmail.com"}
-]
-license = "CC0-1.0"
-keywords = ["finance", "personal finance", "investment", "stocks", "bonds", "etfs"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
-]
-requires-python = ">=3.10,<4"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
 dependencies = [
-    "django>=5.1.0,<5.2",
-    "django-environ>=0.12.0",
-    "pandas>=2.0.0",
-    "matplotlib>=3.6.0",
-    "numpy>=1.24.0",
-    "seaborn>=0.13.0",
-    "yfinance>=0.2.18",
-    "stockdex>=1.2.0",
-    "requests>=2.32.0",
-    "beautifulsoup4>=4.12.0",
-    "yahoofinancials>=1.20",
-    "alpha_vantage>=3.0.0",
-    "plotly>=5.17.0",
-    "dash>=2.9.0",
-    "pandas-datareader>=0.10.0",
-    "fredapi>=0.5.0",
-    "quantstats>=0.0.62",
-    "scikit-learn>=1.2.0",
-    "statsmodels>=0.14.0",
-    "psycopg2-binary>=2.9.0",
-    "sqlalchemy>=2.0.0",
-    "alembic>=1.11.0",
-    "pymongo>=4.0.0",
-    "django-model-utils>=5.0.0",
-    "django-allauth[mfa]>=65.0.0",
-    "django-crispy-forms>=2.4",
-    "crispy-bootstrap5>=2025.6",
-    "django-compressor>=4.5.0",
-    "django-redis>=6.0.0",
-    "djangorestframework>=3.16.0",
-    "django-cors-headers>=4.8.0",
-    "drf-spectacular>=0.28.0",
-    "uvicorn[standard]>=0.35.0",
-    "celery>=5.5.0,<6.0",
-    "django-celery-beat>=2.8.0",
-    "redis>=6.0.0",
-    "whitenoise>=6.9.0",
-    "pillow>=10.3.0",
-    "python-slugify>=8.0.0",
-    "argon2-cffi>=25.0.0",
-    "rcssmin==1.1.2",
-    "pytest>=8.4.2",
+    "django>=5.2,<5.3",
+    "django-environ>=0.12",
+    "djangorestframework>=3.16",
+    "drf-spectacular>=0.28",
+    "django-filter>=25.1",
+    "whitenoise>=6.9",
+    "gunicorn>=23.0",
+    "openpyxl>=3.1",
+    "yfinance>=0.2.65",
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=6.0",
-    "ruff>=0.12.11",
-    "alembic>=1.10"
-]
-
-[tool.setuptools]
-package-dir = {"" = "src"}
-packages = ["personal_finance"]
-
-
-[tool.ruff]
-line-length = 79
-target-version = "py311"
-
-[tool.ruff.lint]
-extend-select = []
+postgres = ["psycopg[binary]>=3.2"]
 
 [dependency-groups]
 dev = [
-    "pylint>=3.3.8",
+    "pytest>=8.4",
+    "pytest-django>=4.11",
+    "pytest-cov>=6.0",
+    "ruff>=0.13",
+    "pip-audit>=2.9",
+    "pre-commit>=4.3",
 ]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["notebooks", "*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "SIM", "DJ"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"config/settings/*.py" = ["F403", "F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra -q --strict-markers"

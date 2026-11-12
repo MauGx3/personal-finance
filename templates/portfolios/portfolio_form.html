@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>New portfolio</h1>
+<form method="post" class="card stack">{% csrf_token %}{{ form.as_p }}
+  <div class="actions"><button class="primary">Save</button><a href="{% url 'core:dashboard' %}">Cancel</a></div>
+</form>
+{% endblock %}

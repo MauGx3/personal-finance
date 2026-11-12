@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load finance %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ object.ticker }}</h1><span class="muted">{{ object.name|default:"No name" }} · {{ object.get_exchange_display }} · price symbol {{ object.quote_symbol }}</span></div>
+  {% if latest %}<div class="tile"><div class="value">{{ latest.close|money:object.currency }}</div><div class="sub muted num">{{ latest.day|date:"d/m/Y" }}</div></div>{% endif %}
+</div>
+<section class="card"><h2>Price, last year</h2>{% line_chart price_history object.currency %}</section>
+<div class="split">
+  <section class="card">
+    <h2>Your position</h2>
+    {% for holding in holdings %}
+    {% if holding.ledger_error %}<p class="notice">{{ holding.ledger_error }}</p>{% endif %}
+    <p>{{ holding.portfolio.name }}: <strong>{{ holding.quantity|quantity }}</strong> at {{ holding.average_price|money:object.currency }} average.<br>
+      <span class="muted">Realized {{ holding.realized_gain|signed_money:object.currency }} · income {{ holding.income|money:object.currency }}</span></p>
+    {% empty %}<p class="empty">Not held.</p>{% endfor %}
+  </section>
+  <form method="post" class="card stack"><h2>Details</h2>{% csrf_token %}{{ form.as_p }}
+    <div class="actions"><button class="primary">Save</button></div>
+  </form>
+</div>
+<section class="card table-wrap">
+  <h2>Transactions</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Type</th><th class="num">Quantity</th><th class="num">Price</th><th class="num">Total</th><th>Portfolio</th><th></th></tr></thead>
+    <tbody>
+    {% for t in transactions %}
+    <tr><td>{{ t.trade_date|date:"d/m/Y" }}</td><td>{{ t.get_kind_display }}</td><td class="num">{{ t.quantity|quantity }}</td>
+      <td class="num">{% if t.price %}{{ t.price|money:t.currency }}{% else %}–{% endif %}</td><td class="num">{{ t.total|money:t.currency }}</td>
+      <td>{{ t.portfolio.name }}</td><td><a href="{% url 'portfolios:transaction-update' t.pk %}">Edit</a></td></tr>
+    {% empty %}<tr><td colspan="7" class="empty">No transactions.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

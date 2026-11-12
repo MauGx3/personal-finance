@@ -1,27 +1,15 @@
-# Project Brief
+# Project brief
 
-Project: Personal Finance (personal-finance)
+A self-hosted, single-user investment tracker for the repository owner: B3 and
+US assets, totals in BRL, Decimal precision, running as a Docker stack on a
+QNAP NAS (Portainer).
 
-Created: 2025-09-23
+Goals, in order:
 
-Purpose:
+1. Correct positions, average price, realized gains and income from a ledger.
+2. Get data in with little effort: B3 statement imports, generic CSV, manual entry.
+3. Current prices and exchange rates stored locally.
+4. A clear dashboard and a monthly sales/gain report.
+5. A REST API for scripts and notebooks.
 
-- Provide a single-source-of-truth summary for the Personal Finance repository to help future work continue after memory resets.
-
-- Capture goals, stakeholders, and high-level constraints so work can proceed reliably.
-
-Core goals:
-
-- Make the repository deployable as a Portainer stack and resilient to PaaS (Leapcell) deployments.
-
-- Maintain a secure and reproducible build pipeline with clear runtime configuration.
-
-- Keep developer experience smooth for local development (dev compose, useful defaults) while ensuring production safety.
-
-Primary contacts:
-
-- Repository owner: mauGx3 (GitHub: MauGx3)
-
-Scope:
-
-- This memory bank stores high-level product context, active decisions, system patterns, tech choices, progress logs, and a task tracker to coordinate ongoing and future work.
+Not goals: multi-tenant features, trading, financial advice, tax filing.

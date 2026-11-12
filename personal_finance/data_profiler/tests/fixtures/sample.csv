@@ -1,7 +1,0 @@
-amount,transaction_type,account,date,description
-100.50,credit,123456789,2023-01-15,Direct deposit
--25.00,debit,123456789,2023-01-16,ATM withdrawal
-1500.00,credit,123456789,2023-01-17,Transfer from savings
--450.75,debit,123456789,2023-01-18,Rent payment
--85.20,debit,123456789,2023-01-19,Grocery store
-2000.00,credit,123456789,2023-01-20,Salary deposit

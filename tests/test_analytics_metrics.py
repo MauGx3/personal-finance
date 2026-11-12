@@ -7,8 +7,8 @@ from decimal import Decimal
 
 import pytest
 
-from personal_finance.analytics import metrics
-from personal_finance.analytics.metrics import RebalanceInstruction
+from apps.analytics import metrics
+from apps.analytics.metrics import RebalanceInstruction
 
 
 def test_compound_annual_growth_rate_basics() -> None:
@@ -58,7 +58,7 @@ def test_weighted_return_validation() -> None:
     returns = [0.10, 0.15, 0.08, 0.20]
 
     portfolio_return = metrics.weighted_return(weights, returns)
-    expected = sum(w * r for w, r in zip(weights, returns))
+    expected = sum(w * r for w, r in zip(weights, returns, strict=False))
     assert portfolio_return == pytest.approx(expected)
 
     assert metrics.weighted_return([0.5, 0.5], [0.1]) is None
@@ -70,9 +70,7 @@ def test_rebalancing_trades_helper() -> None:
     target_weights = [0.5, 0.3, 0.2]
     total_value = 100_000
 
-    trades = metrics.rebalancing_trades(
-        current_values, target_weights, total_value
-    )
+    trades = metrics.rebalancing_trades(current_values, target_weights, total_value)
     assert trades == {
         "asset_0": pytest.approx(10_000),
         "asset_1": pytest.approx(-5_000),

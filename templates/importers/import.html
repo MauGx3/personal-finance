@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Import a statement</h1>
+{% if outcome %}
+<div class="notice" role="status">
+  <strong>{{ outcome.parser.label }}:</strong>
+  {% if outcome.dry_run %}would create{% else %}created{% endif %} {{ outcome.created }} transaction{{ outcome.created|pluralize }},
+  skipped {{ outcome.skipped }} already imported.
+  {% if outcome.warnings %}<ul>{% for warning in outcome.warnings %}<li>{{ warning }}</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endif %}
+<div class="split">
+  <form method="post" enctype="multipart/form-data" class="card stack">{% csrf_token %}{{ form.as_p }}
+    <div class="actions"><button class="primary">Import</button></div>
+  </form>
+  <section class="card">
+    <h2>Supported files</h2>
+    <p><strong>B3 – Negociação.</strong> Your buys and sells. Download the Negociação statement as Excel from B3's investor portal.</p>
+    <p><strong>B3 – Movimentação.</strong> Dividends, JCP and fund income. Download the Movimentação statement as Excel. Other movements in this file are ignored.</p>
+    <p><strong>Generic CSV.</strong> Columns: <code>date, type, ticker, quantity, price, fees, amount, currency, exchange, broker, notes</code>. Use it for US trades or any other broker.</p>
+  </section>
+</div>
+<section class="card table-wrap">
+  <h2>Recent imports</h2>
+  <table>
+    <thead><tr><th>When</th><th>File</th><th>Portfolio</th><th class="num">Created</th><th class="num">Skipped</th><th></th></tr></thead>
+    <tbody>
+    {% for batch in batches %}
+    <tr>
+      <td>{{ batch.created_at|date:"d/m/Y H:i" }}</td><td>{{ batch.filename }}</td><td>{{ batch.portfolio.name }}</td>
+      <td class="num">{{ batch.created_count }}</td><td class="num">{{ batch.skipped_count }}</td>
+      <td><form method="post" action="{% url 'importers:undo' batch.pk %}" onsubmit="return confirm('Remove the transactions created by this import?')">{% csrf_token %}<button class="link">Undo</button></form></td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="empty">Nothing imported yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

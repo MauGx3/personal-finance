@@ -1,17 +1,26 @@
-# Active Context
+# Active context
 
-Current focus (2025-09-28):
+Last updated: 2026-11-11
 
-- Finalize Portainer deployment workflow and align docs for PaaS (Leapcell). Ensure healthchecks and env merges are documented.
-- Kick off core feature implementation for data sources (yfinance adapter/service) and realtime polling service.
+## Current state
 
-Recent changes:
+Version 0.2 replaced the previous code on `main` (a cookiecutter-django project
+that no longer started) with a lean rewrite. It follows the `apps/` + `config/`
+layout, uv, ruff, Django 5.2 and Decimal rules from the owner's
+`new-codebase-structure` branch, without that template's enterprise parts
+(OpenSearch, OpenTelemetry, Sentry, Kubernetes, 2FA, Celery, Channels).
 
-- Added Memory Bank core files (`systemPatterns.md`, `techContext.md`, `progress.md`) and reconciled tasks index.
-- Portainer PR previously created; now tracking reviewers/labels.
+## Decisions
 
-Next steps:
+- Ledger is the source of truth; holdings are derived.
+- Weighted average cost, the Brazilian convention.
+- SQLite default, no Redis/Celery; a loop container syncs prices.
+- Built-in Django auth with email login instead of allauth.
+- Reports give tax inputs (monthly sales and gain); no tax rates are encoded.
+- Carried over from old `main`: `analytics/metrics.py` and its tests.
 
-- Add reviewers/labels to Portainer PR and monitor CI.
-- Implement `DataSourceService` with adapter pattern (TASK003) and tests using fixtures.
-- Implement `RealtimeService` polling MVP (TASK004) leveraging the data source adapter.
+## Open questions for the owner
+
+- Banco Inter and PDF brokerage notes: need real sample files to build parsers.
+- Should foreign assets track cost in BRL at the purchase-date rate?
+- Which of the old open PRs and branches should be closed.
