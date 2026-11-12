@@ -1,6 +1,6 @@
 """Local development settings."""
 
-from .base import *
+from .base import *  # skipcq: PYL-W0614 - settings modules extend base on purpose
 
 DEBUG = True
 ALLOWED_HOSTS = ["*"]

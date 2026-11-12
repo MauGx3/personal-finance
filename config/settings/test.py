@@ -1,6 +1,6 @@
 """Test settings: in-memory database, fast hashing, no network."""
 
-from .base import *
+from .base import *  # skipcq: PYL-W0614 - settings modules extend base on purpose
 
 DEBUG = False
 SECRET_KEY = "test-secret-key"

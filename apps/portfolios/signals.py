@@ -13,21 +13,21 @@ from .services.holdings import rebuild_holding
 
 @receiver(pre_save, sender=Transaction)
 def _remember_previous_asset(instance: Transaction, **kwargs) -> None:
-    instance._previous_key = None
+    instance.ledger_key_before_save = None
     if instance.pk:
         previous = (
             Transaction.objects.filter(pk=instance.pk)
             .values_list("portfolio_id", "asset_id")
             .first()
         )
-        instance._previous_key = previous
+        instance.ledger_key_before_save = previous
 
 
 @receiver(post_save, sender=Transaction)
 def _rebuild_after_save(instance: Transaction, **kwargs) -> None:
     key = (instance.portfolio_id, instance.asset_id)
     rebuild_holding(*key)
-    previous = getattr(instance, "_previous_key", None)
+    previous = getattr(instance, "ledger_key_before_save", None)
     if previous and previous != key:
         rebuild_holding(*previous)
 

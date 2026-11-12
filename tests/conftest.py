@@ -13,12 +13,12 @@ TEST_PASSWORD = secrets.token_urlsafe(12)
 
 
 @pytest.fixture
-def user(db):
+def user():
     return User.objects.create_user(email="me@example.com", password=TEST_PASSWORD)
 
 
 @pytest.fixture
-def other_user(db):
+def other_user():
     return User.objects.create_user(email="other@example.com", password=TEST_PASSWORD)
 
 
@@ -28,12 +28,12 @@ def portfolio(user):
 
 
 @pytest.fixture
-def petr4(db):
+def petr4():
     return Asset.objects.create(ticker="PETR4", exchange=Exchange.B3, currency="BRL")
 
 
 @pytest.fixture
-def aapl(db):
+def aapl():
     return Asset.objects.create(ticker="AAPL", exchange=Exchange.NASDAQ, currency="USD")
 
 

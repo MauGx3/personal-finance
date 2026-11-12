@@ -42,10 +42,10 @@ class PriceProvider(ABC):
     def daily_closes(self, symbol: str, start: date, end: date) -> list[DailyClose]:
         """Return closes for ``start <= day <= end``, oldest first."""
 
-    def fx_symbol(self, base: str, quote: str) -> str:
+    def fx_symbol(self, base: str, quote: str) -> str:  # skipcq: PYL-R0201 - overridable hook
         """Symbol for the price of one ``base`` in ``quote`` (Yahoo convention)."""
         return f"{base}{quote}=X"
 
-    def info(self, symbol: str) -> SymbolInfo:
+    def info(self, symbol: str) -> SymbolInfo:  # skipcq: PYL-R0201 - overridable hook
         """Descriptive data for a symbol. Optional; empty by default."""
         return SymbolInfo()

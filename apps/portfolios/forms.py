@@ -38,7 +38,7 @@ class TransactionForm(forms.ModelForm):
 
     def clean_ticker(self) -> str:
         ticker = self.cleaned_data["ticker"].strip().upper()
-        Asset._meta.get_field("ticker").run_validators(ticker)
+        Asset.ticker.field.run_validators(ticker)
         return ticker
 
     def clean(self):

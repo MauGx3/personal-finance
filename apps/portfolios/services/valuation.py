@@ -93,6 +93,38 @@ def _slices(totals: dict[str, Decimal], grand_total: Decimal) -> list[Slice]:
     ]
 
 
+class _Totals:
+    """Running totals in the base currency, overall and per group."""
+
+    def __init__(self) -> None:
+        self.value = ZERO
+        self.cost = ZERO
+        self.by_class: dict[str, Decimal] = defaultdict(lambda: ZERO)
+        self.by_currency: dict[str, Decimal] = defaultdict(lambda: ZERO)
+
+    def add(self, row: PositionRow, rate: Decimal | None) -> None:
+        if row.value_base is None or rate is None:
+            return
+        self.value += row.value_base
+        self.cost += row.cost * rate
+        self.by_class[row.asset.get_asset_class_display()] += row.value_base
+        self.by_currency[row.asset.currency] += row.value_base
+
+
+def _finish(result: Snapshot, totals: _Totals) -> Snapshot:
+    """Fill in the figures that need every row: totals, weights, order."""
+    result.total_value, result.total_cost = totals.value, totals.cost
+    result.unpriced = [row.asset.ticker for row in result.rows if not row.priced]
+    result.as_of = max((row.price_day for row in result.rows if row.price_day), default=None)
+    for row in result.rows:
+        if row.value_base is not None and totals.value:
+            row.weight = row.value_base / totals.value * HUNDRED
+    result.rows.sort(key=lambda r: -(r.value_base or ZERO))
+    result.by_class = _slices(totals.by_class, totals.value)
+    result.by_currency = _slices(totals.by_currency, totals.value)
+    return result
+
+
 def _position_row(holding: Holding, quote, rate: Decimal | None) -> PositionRow:
     """Value one holding at ``quote`` (or at cost when there is none)."""
     cost = holding.cost_basis
@@ -124,33 +156,16 @@ def snapshot(portfolios: Iterable[Portfolio], base_currency: str | None = None) 
     result = Snapshot(base_currency=base_currency)
     result.missing_fx = [currency for currency, rate in rates.items() if rate is None]
     result.ledger_errors = [h for h in holdings if h.ledger_error]
-    class_totals: dict[str, Decimal] = defaultdict(lambda: ZERO)
-    currency_totals: dict[str, Decimal] = defaultdict(lambda: ZERO)
+    totals = _Totals()
 
     for holding in holdings:
-        asset = holding.asset
-        rate = rates[asset.currency]
+        rate = rates[holding.asset.currency]
         if rate is not None:
             result.realized_gain += holding.realized_gain * rate
             result.income += holding.income * rate
-        if holding.quantity <= 0:
-            continue
+        if holding.quantity > 0:
+            row = _position_row(holding, quotes.get(holding.asset_id), rate)
+            result.rows.append(row)
+            totals.add(row, rate)
 
-        row = _position_row(holding, quotes.get(asset.pk), rate)
-        result.rows.append(row)
-        if not row.priced:
-            result.unpriced.append(asset.ticker)
-        if row.value_base is not None:
-            result.total_value += row.value_base
-            result.total_cost += row.cost * rate
-            class_totals[asset.get_asset_class_display()] += row.value_base
-            currency_totals[asset.currency] += row.value_base
-
-    result.as_of = max((row.price_day for row in result.rows if row.price_day), default=None)
-    for row in result.rows:
-        if row.value_base is not None and result.total_value:
-            row.weight = row.value_base / result.total_value * HUNDRED
-    result.rows.sort(key=lambda r: -(r.value_base or ZERO))
-    result.by_class = _slices(class_totals, result.total_value)
-    result.by_currency = _slices(currency_totals, result.total_value)
-    return result
+    return _finish(result, totals)

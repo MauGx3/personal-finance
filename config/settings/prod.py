@@ -2,7 +2,7 @@
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .base import *
+from .base import *  # skipcq: PYL-W0614 - settings modules extend base on purpose
 
 DEBUG = False
 
