@@ -1,6 +1,10 @@
 # CI specification
 
-Workflow: `.github/workflows/ci.yml`. Triggers: pushes to `main`, all pull requests.
+Status: **deactivated**. `.github/workflows/ci.yml` was removed, so no CI jobs run on
+pushes or pull requests. The steps below are kept as the reference to restore from
+git history (`git show 77b32e7:.github/workflows/ci.yml`) when CI is wanted again.
+
+When it was active, the workflow ran on pushes to `main` and all pull requests.
 
 | Step | Command | Fails the build when |
 | --- | --- | --- |
