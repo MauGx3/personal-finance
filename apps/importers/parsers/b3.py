@@ -65,8 +65,11 @@ class B3MovimentacaoParser(StatementParser):
         "rendimento": "INCOME",
     }
 
-    def parse(self, table) -> ParseResult:
+    def __init__(self) -> None:
         self._ignored: Counter[str] = Counter()
+
+    def parse(self, table) -> ParseResult:
+        self._ignored.clear()
         result = super().parse(table)
         for movement, count in sorted(self._ignored.items()):
             result.warnings.append(f"Ignored {count} '{movement}' row(s): not cash income.")

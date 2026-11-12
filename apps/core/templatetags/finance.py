@@ -6,8 +6,7 @@ import json
 from decimal import Decimal
 
 from django import template
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join
 
 from apps.core.money import quantize_money
 
@@ -77,12 +76,12 @@ def line_chart(points, currency: str = "", width: int = 760, height: int = 240) 
     """Render ``[(date, value), ...]`` as a single-series SVG line chart."""
     points = [(day, Decimal(value)) for day, value in points]
     if len(points) < 2:
-        return mark_safe('<p class="empty">Not enough history to draw a chart yet.</p>')
+        return format_html('<p class="empty">{}</p>', "Not enough history to draw a chart yet.")
 
     left, right, top, bottom = 8, 8, 12, 24
     low = min(value for _, value in points)
     high = max(value for _, value in points)
-    low = Decimal(0) if low >= 0 and low < high / 2 else low
+    low = Decimal(0) if 0 <= low < high / 2 else low
     span = (high - low) or Decimal(1)
     plot_w, plot_h = width - left - right, height - top - bottom
 
@@ -95,11 +94,16 @@ def line_chart(points, currency: str = "", width: int = 760, height: int = 240) 
     path = " ".join(
         f"{'M' if i == 0 else 'L'}{x(i):.1f},{y(value):.1f}" for i, (_, value) in enumerate(points)
     )
-    grid = "".join(
-        f'<line class="grid" x1="{left}" x2="{width - right}" y1="{y(level):.1f}" y2="{y(level):.1f}"/>'
-        f'<text class="tick" x="{left}" y="{y(level) - 4:.1f}">{money(level, currency)}</text>'
-        for level in (low + span * Decimal(step) / 2 for step in (0, 1, 2))
-    )
+    levels = [low + span * Decimal(step) / 2 for step in (0, 1, 2)]
+    grid = format_html_join(
+        "",
+        '<line class="grid" x1="{}" x2="{}" y1="{}" y2="{}"/><text class="tick" x="{}" y="{}">{}</text>',
+        (
+            (left, width - right, f"{y(level):.1f}", f"{y(level):.1f}", left, f"{y(level) - 4:.1f}",
+             money(level, currency))
+            for level in levels
+        ),
+    )  # fmt: skip
     data = json.dumps(
         [
             {
@@ -122,7 +126,7 @@ def line_chart(points, currency: str = "", width: int = 760, height: int = 240) 
         '</svg><div class="tooltip" hidden></div></figure>',
         data, width, height,
         points[0][0].strftime("%d/%m/%Y"), points[-1][0].strftime("%d/%m/%Y"),
-        mark_safe(grid), path, top, top + plot_h,
+        grid, path, top, top + plot_h,
         left, height - 6, points[0][0].strftime("%b %Y"),
         width - right, height - 6, points[-1][0].strftime("%b %Y"),
     )  # fmt: skip

@@ -43,6 +43,20 @@ def quantize_money(value: Decimal) -> Decimal:
     return value.quantize(CENT, rounding=ROUND_HALF_UP)
 
 
+def _decimal_mark(text: str) -> str:
+    """Which separator in ``text`` is the decimal mark: ``","``, ``"."`` or ``""`` (none)."""
+    last_comma, last_dot = text.rfind(","), text.rfind(".")
+    if last_comma >= 0 and last_dot >= 0:
+        return "," if last_comma > last_dot else "."
+    if last_comma >= 0:
+        return ","
+    if last_dot < 0:
+        return ""
+    # A lone dot followed by exactly three digits reads as a thousands separator.
+    is_thousands = text.count(".") > 1 or len(text) - last_dot - 1 == 3
+    return "" if is_thousands else "."
+
+
 def parse_decimal(value: object) -> Decimal:
     """Parse a number that may be formatted the Brazilian or the US way.
 
@@ -70,18 +84,7 @@ def parse_decimal(value: object) -> Decimal:
     if not text:
         raise ValueError(f"Not a number: {value!r}")
 
-    last_comma, last_dot = text.rfind(","), text.rfind(".")
-    if last_comma >= 0 and last_dot >= 0:
-        decimal_mark = "," if last_comma > last_dot else "."
-    elif last_comma >= 0:
-        decimal_mark = ","
-    elif last_dot >= 0:
-        only_one = text.count(".") == 1
-        three_digits_after = len(text) - last_dot - 1 == 3
-        decimal_mark = "" if (not only_one or three_digits_after) else "."
-    else:
-        decimal_mark = ""
-
+    decimal_mark = _decimal_mark(text)
     if decimal_mark:
         whole, _, fraction = text.rpartition(decimal_mark)
         text = re.sub(r"[.,]", "", whole) + "." + fraction

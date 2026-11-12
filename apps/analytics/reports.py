@@ -110,6 +110,55 @@ class _Series:
         return self.values[index - 1] if index else None
 
 
+def _sample_days(start: date, end: date, max_points: int) -> list[date]:
+    """Evenly spaced days from ``start`` to ``end``, always ending on ``end``."""
+    span = (end - start).days + 1
+    step = max(1, span // max_points)
+    days = [start + timedelta(days=offset) for offset in range(0, span, step)]
+    if days[-1] != end:
+        days.append(end)
+    return days
+
+
+def _load_series(queryset) -> dict:
+    """Group ``(key, day, value)`` rows into one ``_Series`` per key."""
+    series: dict = defaultdict(_Series)
+    for key, day, value in queryset.order_by("day"):
+        series[key].add(day, value)
+    return series
+
+
+class _Replay:
+    """Shares held and last trade price per asset, advanced one entry at a time."""
+
+    def __init__(self) -> None:
+        self.quantities: dict[int, Decimal] = defaultdict(lambda: ZERO)
+        self.trade_prices: dict[int, Decimal] = {}
+
+    def apply(self, entry: Transaction) -> None:
+        asset_id = entry.asset_id
+        if entry.kind in (TransactionKind.BUY, TransactionKind.BONUS):
+            self.quantities[asset_id] += entry.quantity
+        elif entry.kind == TransactionKind.SELL:
+            self.quantities[asset_id] -= entry.quantity
+        elif entry.kind == TransactionKind.SPLIT and entry.quantity > 0:
+            self.quantities[asset_id] *= entry.quantity
+            if asset_id in self.trade_prices:
+                self.trade_prices[asset_id] /= entry.quantity
+        if entry.kind in (TransactionKind.BUY, TransactionKind.SELL) and entry.price:
+            self.trade_prices[asset_id] = entry.price
+
+    def held(self) -> list[tuple[int, Decimal]]:
+        return [(asset_id, qty) for asset_id, qty in self.quantities.items() if qty > 0]
+
+
+def _rate_on(series: _Series | None, day: date) -> Decimal | None:
+    """Exchange rate on ``day``; before the first stored rate, the oldest one."""
+    if series is None or not series.values:
+        return None
+    return series.at(day) or series.values[0]
+
+
 def value_history(
     portfolios: Iterable[Portfolio],
     base_currency: str | None = None,
@@ -122,9 +171,8 @@ def value_history(
     used, so the line starts at cost instead of at zero.
     """
     base_currency = base_currency or settings.BASE_CURRENCY
-    portfolios = list(portfolios)
     transactions = list(
-        Transaction.objects.filter(portfolio__in=portfolios)
+        Transaction.objects.filter(portfolio__in=list(portfolios))
         .exclude(kind__in=INCOME_KINDS)
         .select_related("asset")
         .order_by("trade_date", "id")
@@ -132,56 +180,31 @@ def value_history(
     if not transactions:
         return []
 
-    assets = {t.asset_id: t.asset for t in transactions}
-    prices: dict[int, _Series] = defaultdict(_Series)
-    for asset_id, day, close in PriceQuote.objects.filter(asset_id__in=assets).values_list(
-        "asset_id", "day", "close"
-    ):
-        prices[asset_id].add(day, close)
-    rates: dict[str, _Series] = defaultdict(_Series)
-    for base, day, rate in FxRate.objects.filter(quote=base_currency).values_list(
-        "base", "day", "rate"
-    ):
-        rates[base].add(day, rate)
+    currencies = {t.asset_id: t.asset.currency for t in transactions}
+    prices = _load_series(
+        PriceQuote.objects.filter(asset_id__in=currencies).values_list("asset_id", "day", "close")
+    )
+    rates = _load_series(
+        FxRate.objects.filter(quote=base_currency).values_list("base", "day", "rate")
+    )
 
-    start, end = transactions[0].trade_date, timezone.localdate()
-    step = max(1, ((end - start).days + 1) // max_points)
-    days = [start + timedelta(days=offset) for offset in range(0, (end - start).days + 1, step)]
-    if days[-1] != end:
-        days.append(end)
+    def value_of(asset_id: int, quantity: Decimal, day: date) -> Decimal:
+        series = prices.get(asset_id)
+        price = (series.at(day) if series else None) or replay.trade_prices.get(asset_id)
+        currency = currencies[asset_id]
+        rate = Decimal("1") if currency == base_currency else _rate_on(rates.get(currency), day)
+        if price is None or rate is None:
+            return ZERO
+        return quantity * price * rate
 
-    quantities: dict[int, Decimal] = defaultdict(lambda: ZERO)
-    trade_prices: dict[int, Decimal] = {}
-    cursor = 0
+    replay = _Replay()
+    pending = iter(transactions)
+    entry = next(pending, None)
     history = []
-    for day in days:
-        while cursor < len(transactions) and transactions[cursor].trade_date <= day:
-            entry = transactions[cursor]
-            if entry.kind in (TransactionKind.BUY, TransactionKind.BONUS):
-                quantities[entry.asset_id] += entry.quantity
-            elif entry.kind == TransactionKind.SELL:
-                quantities[entry.asset_id] -= entry.quantity
-            elif entry.kind == TransactionKind.SPLIT and entry.quantity > 0:
-                quantities[entry.asset_id] *= entry.quantity
-                if entry.asset_id in trade_prices:
-                    trade_prices[entry.asset_id] /= entry.quantity
-            if entry.kind in (TransactionKind.BUY, TransactionKind.SELL) and entry.price:
-                trade_prices[entry.asset_id] = entry.price
-            cursor += 1
-
-        total = ZERO
-        for asset_id, quantity in quantities.items():
-            if quantity <= 0:
-                continue
-            price = prices[asset_id].at(day) or trade_prices.get(asset_id)
-            if price is None:
-                continue
-            currency = assets[asset_id].currency
-            rate = Decimal("1") if currency == base_currency else rates[currency].at(day)
-            if rate is None:
-                # No rate that early: use the oldest one rather than drop the asset.
-                rate = rates[currency].values[0] if rates[currency].values else None
-            if rate is not None:
-                total += quantity * price * rate
+    for day in _sample_days(transactions[0].trade_date, timezone.localdate(), max_points):
+        while entry is not None and entry.trade_date <= day:
+            replay.apply(entry)
+            entry = next(pending, None)
+        total = sum((value_of(asset_id, qty, day) for asset_id, qty in replay.held()), ZERO)
         history.append((day, total))
     return history

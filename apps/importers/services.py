@@ -112,9 +112,7 @@ def import_statement(
     outcome.skipped = len(parsed.rows) - len(fresh)
     outcome.created = len(fresh)
 
-    known = {
-        (ticker, exchange) for ticker, exchange in Asset.objects.values_list("ticker", "exchange")
-    }
+    known = set(Asset.objects.values_list("ticker", "exchange"))
     outcome.new_assets = sorted(
         {
             row.ticker

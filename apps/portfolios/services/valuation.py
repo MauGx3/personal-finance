@@ -10,7 +10,7 @@ from decimal import Decimal
 
 from django.conf import settings
 
-from apps.assets.models import Asset, AssetClass
+from apps.assets.models import Asset
 from apps.core.money import ZERO
 from apps.data_sources.services import fx_rate, latest_quotes
 from apps.portfolios.models import Holding, Portfolio
@@ -93,6 +93,23 @@ def _slices(totals: dict[str, Decimal], grand_total: Decimal) -> list[Slice]:
     ]
 
 
+def _position_row(holding: Holding, quote, rate: Decimal | None) -> PositionRow:
+    """Value one holding at ``quote`` (or at cost when there is none)."""
+    cost = holding.cost_basis
+    value = holding.quantity * quote.close if quote else cost
+    return PositionRow(
+        holding=holding,
+        asset=holding.asset,
+        quantity=holding.quantity,
+        average_price=holding.average_price,
+        cost=cost,
+        price=quote.close if quote else None,
+        price_day=quote.day if quote else None,
+        value=value,
+        value_base=value * rate if rate is not None else None,
+    )
+
+
 def snapshot(portfolios: Iterable[Portfolio], base_currency: str | None = None) -> Snapshot:
     """Value every holding of ``portfolios`` and aggregate the result."""
     base_currency = base_currency or settings.BASE_CURRENCY
@@ -100,53 +117,36 @@ def snapshot(portfolios: Iterable[Portfolio], base_currency: str | None = None) 
         Holding.objects.filter(portfolio__in=list(portfolios)).select_related("asset", "portfolio")
     )
     quotes = latest_quotes({h.asset_id for h in holdings})
-    rates: dict[str, Decimal | None] = {}
+    rates = {
+        currency: fx_rate(currency, base_currency)
+        for currency in sorted({h.asset.currency for h in holdings})
+    }
     result = Snapshot(base_currency=base_currency)
+    result.missing_fx = [currency for currency, rate in rates.items() if rate is None]
+    result.ledger_errors = [h for h in holdings if h.ledger_error]
     class_totals: dict[str, Decimal] = defaultdict(lambda: ZERO)
     currency_totals: dict[str, Decimal] = defaultdict(lambda: ZERO)
-    class_labels = dict(AssetClass.choices)
 
     for holding in holdings:
         asset = holding.asset
-        if asset.currency not in rates:
-            rates[asset.currency] = fx_rate(asset.currency, base_currency)
-            if rates[asset.currency] is None:
-                result.missing_fx.append(asset.currency)
         rate = rates[asset.currency]
-
-        if holding.ledger_error:
-            result.ledger_errors.append(holding)
         if rate is not None:
             result.realized_gain += holding.realized_gain * rate
             result.income += holding.income * rate
         if holding.quantity <= 0:
             continue
 
-        quote = quotes.get(asset.pk)
-        cost = holding.cost_basis
-        value = holding.quantity * quote.close if quote else cost
-        row = PositionRow(
-            holding=holding,
-            asset=asset,
-            quantity=holding.quantity,
-            average_price=holding.average_price,
-            cost=cost,
-            price=quote.close if quote else None,
-            price_day=quote.day if quote else None,
-            value=value,
-            value_base=value * rate if rate is not None else None,
-        )
+        row = _position_row(holding, quotes.get(asset.pk), rate)
         result.rows.append(row)
-        if quote is None:
+        if not row.priced:
             result.unpriced.append(asset.ticker)
-        elif result.as_of is None or quote.day > result.as_of:
-            result.as_of = quote.day
-        if rate is not None:
+        if row.value_base is not None:
             result.total_value += row.value_base
-            result.total_cost += cost * rate
-            class_totals[class_labels.get(asset.asset_class, asset.asset_class)] += row.value_base
+            result.total_cost += row.cost * rate
+            class_totals[asset.get_asset_class_display()] += row.value_base
             currency_totals[asset.currency] += row.value_base
 
+    result.as_of = max((row.price_day for row in result.rows if row.price_day), default=None)
     for row in result.rows:
         if row.value_base is not None and result.total_value:
             row.weight = row.value_base / result.total_value * HUNDRED

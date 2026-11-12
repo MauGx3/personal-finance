@@ -12,7 +12,7 @@ from .services.holdings import rebuild_holding
 
 
 @receiver(pre_save, sender=Transaction)
-def _remember_previous_asset(sender, instance: Transaction, **kwargs) -> None:
+def _remember_previous_asset(instance: Transaction, **kwargs) -> None:
     instance._previous_key = None
     if instance.pk:
         previous = (
@@ -24,7 +24,7 @@ def _remember_previous_asset(sender, instance: Transaction, **kwargs) -> None:
 
 
 @receiver(post_save, sender=Transaction)
-def _rebuild_after_save(sender, instance: Transaction, **kwargs) -> None:
+def _rebuild_after_save(instance: Transaction, **kwargs) -> None:
     key = (instance.portfolio_id, instance.asset_id)
     rebuild_holding(*key)
     previous = getattr(instance, "_previous_key", None)
@@ -33,5 +33,5 @@ def _rebuild_after_save(sender, instance: Transaction, **kwargs) -> None:
 
 
 @receiver(post_delete, sender=Transaction)
-def _rebuild_after_delete(sender, instance: Transaction, **kwargs) -> None:
+def _rebuild_after_delete(instance: Transaction, **kwargs) -> None:
     rebuild_holding(instance.portfolio_id, instance.asset_id)
