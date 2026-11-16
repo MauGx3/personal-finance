@@ -5,12 +5,12 @@ Provides Django views for the real-time market data dashboard
 and WebSocket status pages.
 """
 
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Graceful import handling for missing models
 try:

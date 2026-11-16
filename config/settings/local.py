@@ -1,9 +1,8 @@
-from .base import *  # noqa: F403
-from .base import INSTALLED_APPS
-from .base import MIDDLEWARE
-from .base import env
 import importlib.util as importlib_util
 import os
+
+from .base import *
+from .base import INSTALLED_APPS, MIDDLEWARE, env
 
 # GENERAL
 # ------------------------------------------------------------------------------

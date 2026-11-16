@@ -2,15 +2,15 @@
 Entry point script for the personal_finance package.
 """
 
-import sys
 import os
+import sys
 
 # Add the src directory to the path so we can import the package
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src"))
 )
 
-import personal_finance  # pylint: disable=wrong-import-position # noqa: E402
+import personal_finance  # pylint: disable=wrong-import-position
 from personal_finance.database import DatabaseManager
 from personal_finance.portfolio import PortfolioManager
 from personal_finance.yahoo_finance import update_all_ticker_prices

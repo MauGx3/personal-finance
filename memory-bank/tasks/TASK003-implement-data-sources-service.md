@@ -50,9 +50,14 @@ from datetime import datetime
 
 PricePoint = dict(symbol=str, price=Decimal, timestamp=datetime)
 
+
 def get_current_price(symbol) -> PricePoint:
     # adapter returns Decimal for price and datetime for timestamp
-    return {"symbol": symbol, "price": Decimal("123.45"), "timestamp": datetime.utcnow()}
+    return {
+        "symbol": symbol,
+        "price": Decimal("123.45"),
+        "timestamp": datetime.utcnow(),
+    }
 ```
 
 ## Acceptance Criteria

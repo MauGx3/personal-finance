@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}
-    {{ dashboard_title }}
+  {{ dashboard_title }}
 {% endblock title %}
 {% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
-    <style>
+  {{ block.super }}
+  <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
+  <style>
 .dashboard-card {
     background: white;
     border-radius: 8px;
@@ -94,157 +94,157 @@
     background-color: #e2e3e5;
     color: #383d41;
 }
-    </style>
+  </style>
 {% endblock css %}
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="h2 mb-4">{{ dashboard_title }}</h1>
-            </div>
-        </div>
-        <!-- Summary Metrics Row -->
-        <div class="row" id="summary-metrics">
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value" id="total-value">$0.00</div>
-                    <div class="metric-label">Total Portfolio Value</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value">{{ total_portfolios }}</div>
-                    <div class="metric-label">Active Portfolios</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value" id="total-positions">0</div>
-                    <div class="metric-label">Total Positions</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value">{{ active_assets }}</div>
-                    <div class="metric-label">Unique Assets</div>
-                </div>
-            </div>
-        </div>
-        <!-- Main Dashboard Content -->
-        <div class="row">
-            <!-- Portfolio List -->
-            <div class="col-lg-4">
-                <div class="dashboard-card">
-                    <h5 class="card-title mb-3">Your Portfolios</h5>
-                    <div class="portfolio-list">
-                        {% for portfolio in portfolios %}
-                            <div class="portfolio-item" data-portfolio-id="{{ portfolio.id }}">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">{{ portfolio.name }}</h6>
-                                        <small class="text-muted">{{ portfolio.description|default:"No description" }}</small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold">${{ portfolio.total_value|floatformat:2 }}</div>
-                                        <a href="{% url 'visualization:portfolio_detail' portfolio.id %}"
-                                           class="btn btn-sm btn-outline-primary mt-1">View Details</a>
-                                    </div>
-                                </div>
-                            </div>
-                        {% empty %}
-                            <div class="text-center text-muted py-4">
-                                <p>No portfolios found.</p>
-                                <a href="#" class="btn btn-primary">Create Your First Portfolio</a>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <!-- Top Performers -->
-                <div class="dashboard-card">
-                    <h5 class="card-title mb-3">Top Performers</h5>
-                    <div id="top-performers">
-                        <div class="loading-spinner">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Charts Area -->
-            <div class="col-lg-8">
-                {% if portfolios %}
-                    <!-- Chart Selection -->
-                    <div class="dashboard-card">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0">Portfolio Analytics</h5>
-                            <div class="btn-group" role="group">
-                                <input type="radio"
-                                       class="btn-check"
-                                       name="chartType"
-                                       id="performance-chart"
-                                       autocomplete="off"
-                                       checked>
-                                <label class="btn btn-outline-primary btn-chart-toggle"
-                                       for="performance-chart">Performance</label>
-                                <input type="radio"
-                                       class="btn-check"
-                                       name="chartType"
-                                       id="allocation-chart"
-                                       autocomplete="off">
-                                <label class="btn btn-outline-primary btn-chart-toggle"
-                                       for="allocation-chart">Allocation</label>
-                                <input type="radio"
-                                       class="btn-check"
-                                       name="chartType"
-                                       id="risk-chart"
-                                       autocomplete="off">
-                                <label class="btn btn-outline-primary btn-chart-toggle" for="risk-chart">Risk Metrics</label>
-                            </div>
-                        </div>
-                        <!-- Portfolio Selection -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <select class="form-select" id="portfolio-selector">
-                                    <option value="">Select a portfolio to analyze</option>
-                                    {% for portfolio in portfolios %}<option value="{{ portfolio.id }}">{{ portfolio.name }}</option>{% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-6" id="date-range-controls" style="display: none;">
-                                <select class="form-select" id="time-period">
-                                    <option value="30">Last 30 Days</option>
-                                    <option value="90">Last 3 Months</option>
-                                    <option value="180">Last 6 Months</option>
-                                    <option value="365" selected>Last Year</option>
-                                    <option value="730">Last 2 Years</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Chart Container -->
-                        <div class="chart-container">
-                            <div id="main-chart" class="w-100">
-                                <div class="text-center text-muted py-5">
-                                    <p>Select a portfolio to view analytics</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% else %}
-                    <!-- No Portfolios Message -->
-                    <div class="dashboard-card text-center py-5">
-                        <h5 class="text-muted mb-3">Welcome to Your Personal Finance Dashboard</h5>
-                        <p class="text-muted mb-4">Get started by creating your first portfolio to track your investments.</p>
-                        <a href="#" class="btn btn-primary btn-lg">Create Portfolio</a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="h2 mb-4">{{ dashboard_title }}</h1>
+      </div>
     </div>
+    <!-- Summary Metrics Row -->
+    <div class="row" id="summary-metrics">
+      <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+          <div class="metric-value" id="total-value">$0.00</div>
+          <div class="metric-label">Total Portfolio Value</div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+          <div class="metric-value">{{ total_portfolios }}</div>
+          <div class="metric-label">Active Portfolios</div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+          <div class="metric-value" id="total-positions">0</div>
+          <div class="metric-label">Total Positions</div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+          <div class="metric-value">{{ active_assets }}</div>
+          <div class="metric-label">Unique Assets</div>
+        </div>
+      </div>
+    </div>
+    <!-- Main Dashboard Content -->
+    <div class="row">
+      <!-- Portfolio List -->
+      <div class="col-lg-4">
+        <div class="dashboard-card">
+          <h5 class="card-title mb-3">Your Portfolios</h5>
+          <div class="portfolio-list">
+            {% for portfolio in portfolios %}
+              <div class="portfolio-item" data-portfolio-id="{{ portfolio.id }}">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="mb-1">{{ portfolio.name }}</h6>
+                    <small class="text-muted">{{ portfolio.description|default:"No description" }}</small>
+                  </div>
+                  <div class="text-end">
+                    <div class="fw-bold">${{ portfolio.total_value|floatformat:2 }}</div>
+                    <a href="{% url 'visualization:portfolio_detail' portfolio.id %}"
+                       class="btn btn-sm btn-outline-primary mt-1">View Details</a>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-center text-muted py-4">
+                <p>No portfolios found.</p>
+                <a href="#" class="btn btn-primary">Create Your First Portfolio</a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <!-- Top Performers -->
+        <div class="dashboard-card">
+          <h5 class="card-title mb-3">Top Performers</h5>
+          <div id="top-performers">
+            <div class="loading-spinner">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Charts Area -->
+      <div class="col-lg-8">
+        {% if portfolios %}
+          <!-- Chart Selection -->
+          <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title mb-0">Portfolio Analytics</h5>
+              <div class="btn-group" role="group">
+                <input type="radio"
+                       class="btn-check"
+                       name="chartType"
+                       id="performance-chart"
+                       autocomplete="off"
+                       checked>
+                <label class="btn btn-outline-primary btn-chart-toggle"
+                       for="performance-chart">Performance</label>
+                <input type="radio"
+                       class="btn-check"
+                       name="chartType"
+                       id="allocation-chart"
+                       autocomplete="off">
+                <label class="btn btn-outline-primary btn-chart-toggle"
+                       for="allocation-chart">Allocation</label>
+                <input type="radio"
+                       class="btn-check"
+                       name="chartType"
+                       id="risk-chart"
+                       autocomplete="off">
+                <label class="btn btn-outline-primary btn-chart-toggle" for="risk-chart">Risk Metrics</label>
+              </div>
+            </div>
+            <!-- Portfolio Selection -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <select class="form-select" id="portfolio-selector">
+                  <option value="">Select a portfolio to analyze</option>
+                  {% for portfolio in portfolios %}<option value="{{ portfolio.id }}">{{ portfolio.name }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6" id="date-range-controls" style="display: none;">
+                <select class="form-select" id="time-period">
+                  <option value="30">Last 30 Days</option>
+                  <option value="90">Last 3 Months</option>
+                  <option value="180">Last 6 Months</option>
+                  <option value="365" selected>Last Year</option>
+                  <option value="730">Last 2 Years</option>
+                </select>
+              </div>
+            </div>
+            <!-- Chart Container -->
+            <div class="chart-container">
+              <div id="main-chart" class="w-100">
+                <div class="text-center text-muted py-5">
+                  <p>Select a portfolio to view analytics</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <!-- No Portfolios Message -->
+          <div class="dashboard-card text-center py-5">
+            <h5 class="text-muted mb-3">Welcome to Your Personal Finance Dashboard</h5>
+            <p class="text-muted mb-4">Get started by creating your first portfolio to track your investments.</p>
+            <a href="#" class="btn btn-primary btn-lg">Create Portfolio</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 {% endblock content %}
 {% block javascript %}
-    {{ block.super }}
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script>
+  {{ block.super }}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
 document.addEventListener('DOMContentLoaded', function() {
     const portfolioSelector = document.getElementById('portfolio-selector');
     const chartTypeInputs = document.querySelectorAll('input[name="chartType"]');
@@ -411,5 +411,5 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 });
-    </script>
+  </script>
 {% endblock javascript %}

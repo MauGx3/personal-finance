@@ -6,15 +6,17 @@ and integration with multiple data sources for real-time feeds.
 """
 
 import asyncio
-from loguru import logger
-from typing import Dict, List, Set, Any, Optional, Callable
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from dataclasses import dataclass
+from typing import Any
 
 from django.conf import settings
-from django.utils import timezone
 from django.core.cache import cache
+from django.utils import timezone
+
+from loguru import logger
 
 try:
     from personal_finance.assets.models import Asset
@@ -63,11 +65,11 @@ class PricePoint:
 
     symbol: str
     price: Decimal
-    change: Optional[Decimal] = None
-    change_percent: Optional[Decimal] = None
-    volume: Optional[int] = None
-    high: Optional[Decimal] = None
-    low: Optional[Decimal] = None
+    change: Decimal | None = None
+    change_percent: Decimal | None = None
+    volume: int | None = None
+    high: Decimal | None = None
+    low: Decimal | None = None
     timestamp: datetime = None
     source: str = "realtime"
 
@@ -75,7 +77,7 @@ class PricePoint:
         if self.timestamp is None:
             self.timestamp = datetime.now()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "symbol": self.symbol,
@@ -124,8 +126,8 @@ class RealtimeService:
         self.update_task = None
 
         # Subscriber management
-        self.subscribers: Dict[
-            str, List[Callable]
+        self.subscribers: dict[
+            str, list[Callable]
         ] = {}  # symbol -> [callbacks]
         self._subscription_lock = asyncio.Lock()
 
@@ -168,7 +170,7 @@ class RealtimeService:
 
         logger.info("RealtimeService stopped")
 
-    async def subscribe(self, symbols: List[str], callback: Callable):
+    async def subscribe(self, symbols: list[str], callback: Callable):
         """
         Subscribe to price updates for given symbols.
 
@@ -184,7 +186,7 @@ class RealtimeService:
 
         logger.info(f"Subscribed to {len(symbols)} symbols: {symbols}")
 
-    async def unsubscribe(self, symbols: List[str], callback: Callable):
+    async def unsubscribe(self, symbols: list[str], callback: Callable):
         """
         Unsubscribe from price updates.
 
@@ -206,7 +208,7 @@ class RealtimeService:
 
         logger.info(f"Unsubscribed from {len(symbols)} symbols: {symbols}")
 
-    async def get_subscribed_symbols(self) -> List[str]:
+    async def get_subscribed_symbols(self) -> list[str]:
         """Get list of currently subscribed symbols."""
         async with self._subscription_lock:
             return list(self.subscribers.keys())
@@ -236,7 +238,7 @@ class RealtimeService:
             batch = symbols[i : i + self.max_batch_size]
             await self._update_batch(batch)
 
-    async def _update_batch(self, symbols: List[str]):
+    async def _update_batch(self, symbols: list[str]):
         """Update prices for a batch of symbols."""
         try:
             price_updates = await self._fetch_prices(symbols)
@@ -248,7 +250,7 @@ class RealtimeService:
         except Exception as e:
             logger.error(f"Error updating batch {symbols}: {e}")
 
-    async def _fetch_prices(self, symbols: List[str]) -> Dict[str, PricePoint]:
+    async def _fetch_prices(self, symbols: list[str]) -> dict[str, PricePoint]:
         """Fetch current prices from data source manager."""
         price_updates = {}
 
@@ -297,8 +299,8 @@ class RealtimeService:
         return price_updates
 
     def _generate_mock_prices(
-        self, symbols: List[str]
-    ) -> Dict[str, PricePoint]:
+        self, symbols: list[str]
+    ) -> dict[str, PricePoint]:
         """Generate mock price data for testing purposes."""
         import random
 
@@ -439,7 +441,7 @@ class PriceFeedService:
             await self._update_asset_batch(batch)
 
     @staticmethod
-    async def _get_portfolio_assets() -> Set[str]:
+    async def _get_portfolio_assets() -> set[str]:
         """Get all asset symbols from subscribed portfolios."""
         # Skip if portfolio models are not available
         if Portfolio is None or Position is None:
@@ -469,7 +471,7 @@ class PriceFeedService:
 
         return assets
 
-    async def _update_asset_batch(self, symbols: List[str]):
+    async def _update_asset_batch(self, symbols: list[str]):
         """Update prices for a batch of asset symbols."""
         try:
             # Get current prices from data sources
@@ -483,8 +485,8 @@ class PriceFeedService:
             logger.error("Error updating asset batch %s: %s", symbols, e)
 
     async def _fetch_price_updates(
-        self, symbols: List[str]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, symbols: list[str]
+    ) -> dict[str, dict[str, Any]]:
         """
         Fetch price updates from data sources.
 
@@ -534,7 +536,7 @@ class PriceFeedService:
         return price_updates
 
     async def _process_price_update(
-        self, symbol: str, price_data: Dict[str, Any]
+        self, symbol: str, price_data: dict[str, Any]
     ):
         """
         Process a price update and broadcast to subscribers.
@@ -557,7 +559,7 @@ class PriceFeedService:
             logger.error("Error processing price update for %s: %s", symbol, e)
 
     @staticmethod
-    async def _update_asset_price(symbol: str, price_data: Dict[str, Any]):
+    async def _update_asset_price(symbol: str, price_data: dict[str, Any]):
         """Update asset price in the database."""
         # Skip if Asset model is not available
         if Asset is None:
@@ -608,7 +610,7 @@ class PriceFeedService:
             logger.error("Error updating asset price for %s: %s", symbol, e)
 
     @staticmethod
-    async def _broadcast_asset_update(symbol: str, price_data: Dict[str, Any]):
+    async def _broadcast_asset_update(symbol: str, price_data: dict[str, Any]):
         """Broadcast asset price update to subscribers."""
         subscribers = connection_manager.get_asset_subscribers(symbol)
 
@@ -637,7 +639,7 @@ class PriceFeedService:
         # This is just preparing the message for broadcast
 
     async def _update_portfolio_values(
-        self, symbol: str, price_data: Dict[str, Any]
+        self, symbol: str, price_data: dict[str, Any]
     ):
         """Update portfolio values affected by the price change."""
         # Skip if portfolio models are not available
@@ -719,9 +721,9 @@ class PriceFeedService:
             logger.debug(
                 "Position model not available, returning zero portfolio value"
             )
-            return Decimal("0")
+            return Decimal(0)
 
-        total_value = Decimal("0")
+        total_value = Decimal(0)
 
         async for position in Position.objects.select_related("asset").filter(
             portfolio=portfolio, quantity__gt=0
@@ -736,7 +738,7 @@ class PriceFeedService:
 
     async def _calculate_daily_change(
         self, portfolio: Portfolio
-    ) -> Dict[str, Decimal]:
+    ) -> dict[str, Decimal]:
         """Calculate daily change for portfolio."""
         # This is a simplified calculation
         # In a real implementation, you'd compare with yesterday's closing value
@@ -744,7 +746,7 @@ class PriceFeedService:
 
         # For now, return placeholder values
         # You would implement proper daily change calculation here
-        return {"amount": Decimal("0"), "percent": Decimal("0")}
+        return {"amount": Decimal(0), "percent": Decimal(0)}
 
     @staticmethod
     async def subscribe_to_asset(connection_id: str, symbol: str):
@@ -817,7 +819,7 @@ async def stop_realtime_service():
         await realtime_service.stop()
 
 
-def subscribe_to_prices(symbols: List[str], callback: Callable):
+def subscribe_to_prices(symbols: list[str], callback: Callable):
     """
     Subscribe to price updates (sync wrapper).
 

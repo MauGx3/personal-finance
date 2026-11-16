@@ -5,13 +5,12 @@ performance analysis, including risk metrics, technical indicators, and
 statistical calculations following modern portfolio theory principles.
 """
 
-from loguru import logger
-from typing import Dict, List, Optional, Tuple, Union
 from datetime import date
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
+from loguru import logger
 from personal_finance.assets.models import Asset
 
 # Graceful import handling for missing models
@@ -23,8 +22,8 @@ except ImportError:
 try:
     from personal_finance.portfolios.models import (
         Portfolio,
-        Position,
         PortfolioSnapshot,
+        Position,
     )
 except ImportError:
     Portfolio = Position = PortfolioSnapshot = None
@@ -49,7 +48,7 @@ class PerformanceAnalytics:
 
     def calculate_portfolio_metrics(
         self, portfolio: Portfolio, start_date: date, end_date: date
-    ) -> Dict[str, Union[float, None]]:
+    ) -> dict[str, float | None]:
         """Calculate comprehensive portfolio performance metrics.
 
         Args:
@@ -192,8 +191,8 @@ class PerformanceAnalytics:
 
     @staticmethod
     def calculate_asset_correlation_matrix(
-        assets: List[Asset], start_date: date, end_date: date
-    ) -> Optional[pd.DataFrame]:
+        assets: list[Asset], start_date: date, end_date: date
+    ) -> pd.DataFrame | None:
         """Calculate correlation matrix for a list of assets.
 
         Args:
@@ -242,7 +241,7 @@ class PerformanceAnalytics:
     @staticmethod
     def calculate_portfolio_allocation(
         portfolio: Portfolio,
-    ) -> Dict[str, Dict[str, float]]:
+    ) -> dict[str, dict[str, float]]:
         """Calculate portfolio allocation by various dimensions.
 
         Args:
@@ -324,7 +323,7 @@ class PerformanceAnalytics:
             }
 
     @staticmethod
-    def _empty_metrics() -> Dict[str, None]:
+    def _empty_metrics() -> dict[str, None]:
         """Return empty metrics dictionary."""
         return {
             "total_return": None,
@@ -398,7 +397,7 @@ class TechnicalIndicators:
     @staticmethod
     def bollinger_bands(
         prices: pd.Series, window: int = 20, num_std: float = 2
-    ) -> Dict[str, pd.Series]:
+    ) -> dict[str, pd.Series]:
         """Calculate Bollinger Bands.
 
         Args:
@@ -420,7 +419,7 @@ class TechnicalIndicators:
     @staticmethod
     def macd(
         prices: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9
-    ) -> Dict[str, pd.Series]:
+    ) -> dict[str, pd.Series]:
         """Calculate MACD (Moving Average Convergence Divergence).
 
         Args:
@@ -487,7 +486,7 @@ class RiskAnalytics:
     @staticmethod
     def maximum_drawdown(
         cumulative_returns: pd.Series,
-    ) -> Tuple[float, date, date]:
+    ) -> tuple[float, date, date]:
         """Calculate maximum drawdown and its duration.
 
         Args:

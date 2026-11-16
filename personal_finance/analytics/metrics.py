@@ -11,13 +11,12 @@ exercised in unit tests without additional fixtures.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
-from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from math import sqrt
 from statistics import mean
-from typing import Sequence
-
 
 DecimalLike = float | int | Decimal
 
@@ -234,7 +233,7 @@ def percentage_change(
     new_dec = _to_decimal(new_value)
     if old_dec == 0:
         return None
-    change = ((new_dec - old_dec) / old_dec) * Decimal("100")
+    change = ((new_dec - old_dec) / old_dec) * Decimal(100)
     return change.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
