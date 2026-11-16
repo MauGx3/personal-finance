@@ -1,17 +1,17 @@
 """Basic validation test for data sources implementation."""
 
 import sys
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
 
 def test_basic_imports():
     """Test that all modules can be imported without errors."""
     try:
         from personal_finance.data_sources import (
-            create_mock_service,
-            PricePoint,
             HistoricalSeries,
+            PricePoint,
+            create_mock_service,
         )
 
         print("✓ All imports successful")

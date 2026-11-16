@@ -4,28 +4,29 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from django.utils import timezone
-from rest_framework import status, viewsets, permissions
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.request import Request
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 
-from ..models import Portfolio, Position, Transaction, PortfolioSnapshot
-from ..serializers import (
-    PortfolioListSerializer,
-    PortfolioDetailSerializer,
-    PortfolioCreateUpdateSerializer,
-    PositionSerializer,
-    PositionCreateUpdateSerializer,
-    TransactionSerializer,
-    TransactionCreateUpdateSerializer,
-    PortfolioSnapshotSerializer,
-    PerformanceMetricsSerializer,
-    AllocationDataSerializer,
-)
 from personal_finance.analytics.services import PerformanceAnalytics
 from personal_finance.assets.models import Asset
+
+from ..models import Portfolio, PortfolioSnapshot, Position, Transaction
+from ..serializers import (
+    AllocationDataSerializer,
+    PerformanceMetricsSerializer,
+    PortfolioCreateUpdateSerializer,
+    PortfolioDetailSerializer,
+    PortfolioListSerializer,
+    PortfolioSnapshotSerializer,
+    PositionCreateUpdateSerializer,
+    PositionSerializer,
+    TransactionCreateUpdateSerializer,
+    TransactionSerializer,
+)
 
 
 class PortfolioViewSet(viewsets.ModelViewSet):
@@ -181,14 +182,14 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                                     position.current_value / total_value * 100
                                 )
                                 if total_value > 0
-                                else Decimal("0"),
+                                else Decimal(0),
                                 "quantity": position.quantity,
                                 "average_cost": position.average_cost,
                                 "current_price": position.asset.current_price
-                                or Decimal("0"),
+                                or Decimal(0),
                                 "unrealized_return": position.unrealized_gain_loss,
                                 "unrealized_return_percentage": position.unrealized_return_percentage
-                                or Decimal("0"),
+                                or Decimal(0),
                             }
                         )
 
@@ -199,8 +200,8 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                     asset_type = position.asset.asset_type
                     if asset_type not in type_groups:
                         type_groups[asset_type] = {
-                            "value": Decimal("0"),
-                            "unrealized_return": Decimal("0"),
+                            "value": Decimal(0),
+                            "unrealized_return": Decimal(0),
                             "count": 0,
                         }
                     type_groups[asset_type]["value"] += position.current_value
@@ -221,12 +222,12 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                             "value": data["value"],
                             "percentage": (data["value"] / total_value * 100)
                             if total_value > 0
-                            else Decimal("0"),
+                            else Decimal(0),
                             "quantity": data["count"],
-                            "average_cost": Decimal("0"),
-                            "current_price": Decimal("0"),
+                            "average_cost": Decimal(0),
+                            "current_price": Decimal(0),
                             "unrealized_return": data["unrealized_return"],
-                            "unrealized_return_percentage": Decimal("0"),
+                            "unrealized_return_percentage": Decimal(0),
                         }
                     )
 
@@ -237,8 +238,8 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                     sector = position.asset.sector or "Unknown"
                     if sector not in sector_groups:
                         sector_groups[sector] = {
-                            "value": Decimal("0"),
-                            "unrealized_return": Decimal("0"),
+                            "value": Decimal(0),
+                            "unrealized_return": Decimal(0),
                             "count": 0,
                         }
                     sector_groups[sector]["value"] += position.current_value
@@ -257,12 +258,12 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                             "value": data["value"],
                             "percentage": (data["value"] / total_value * 100)
                             if total_value > 0
-                            else Decimal("0"),
+                            else Decimal(0),
                             "quantity": data["count"],
-                            "average_cost": Decimal("0"),
-                            "current_price": Decimal("0"),
+                            "average_cost": Decimal(0),
+                            "current_price": Decimal(0),
                             "unrealized_return": data["unrealized_return"],
-                            "unrealized_return_percentage": Decimal("0"),
+                            "unrealized_return_percentage": Decimal(0),
                         }
                     )
 

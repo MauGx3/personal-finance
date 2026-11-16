@@ -1,17 +1,18 @@
 """Tests for visualization views security."""
 
 import json
-from unittest.mock import patch, Mock
-from django.test import TestCase, RequestFactory
+from unittest.mock import Mock, patch
+
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
+from django.test import RequestFactory, TestCase
 
 from personal_finance.visualization.views import (
-    dashboard_summary_api,
-    portfolio_performance_chart_api,
-    portfolio_allocation_chart_api,
-    portfolio_risk_metrics_chart_api,
     asset_price_chart_api,
+    dashboard_summary_api,
+    portfolio_allocation_chart_api,
+    portfolio_performance_chart_api,
+    portfolio_risk_metrics_chart_api,
 )
 
 User = get_user_model()

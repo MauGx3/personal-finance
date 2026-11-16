@@ -121,17 +121,17 @@ def test_annualized_return_and_helpers() -> None:
 
     assert metrics.round_currency(Decimal("123.456")) == Decimal("123.46")
 
-    change = metrics.percentage_change(Decimal("100"), Decimal("105.50"))
+    change = metrics.percentage_change(Decimal(100), Decimal("105.50"))
     assert change == Decimal("5.50")
     assert metrics.percentage_change(0, 10) is None
 
 
 def test_validation_helpers() -> None:
-    assert metrics.validate_positive(Decimal("1")) is True
+    assert metrics.validate_positive(Decimal(1)) is True
     with pytest.raises(ValueError):
         metrics.validate_positive(None)
     with pytest.raises(ValueError):
-        metrics.validate_positive(Decimal("0"))
+        metrics.validate_positive(Decimal(0))
 
     assert metrics.validate_percentage(50.0) is True
     with pytest.raises(ValueError):

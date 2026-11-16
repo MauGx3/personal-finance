@@ -1,10 +1,10 @@
+import os
 import sys
 from pathlib import Path
-import pytest
-import os
-import django
-from django.conf import settings
 
+import django
+import pytest
+from django.conf import settings
 
 # Ensure the repository root is preferred on sys.path so files under
 # `personal_finance/` in the repo root are loaded first. If a `src/`
@@ -65,10 +65,11 @@ def pytest_configure():
     # Some legacy tests reference TestCase without importing it. Make it
     # available as a builtin to avoid NameError during test collection.
     try:
-        from django.test import TestCase
         import builtins
 
-        setattr(builtins, "TestCase", TestCase)
+        from django.test import TestCase
+
+        builtins.TestCase = TestCase
     except Exception:
         # If something goes wrong, don't block test collection here; the
         # underlying error will surface during test execution.
@@ -136,8 +137,9 @@ def holding_factory(portfolio_factory, asset_factory):
     """Factory for creating test holdings."""
 
     def _create_holding(portfolio=None, asset=None, **kwargs):
-        from personal_finance.assets.models import Holding
         from decimal import Decimal
+
+        from personal_finance.assets.models import Holding
 
         if portfolio is None:
             portfolio = portfolio_factory()

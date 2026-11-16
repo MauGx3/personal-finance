@@ -1,13 +1,13 @@
 """URL configuration for backtesting API."""
 
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    StrategyViewSet,
-    BacktestViewSet,
-    BacktestResultViewSet,
     BacktestComparisonView,
+    BacktestResultViewSet,
+    BacktestViewSet,
+    StrategyViewSet,
     quick_backtest,
 )
 

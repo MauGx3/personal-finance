@@ -9,7 +9,9 @@ requirements as the original logging implementation.
 """
 
 import os
+
 from loguru import logger as loguru_logger
+
 from .level import LOG_FORMAT, resolve_level
 
 # Configure loguru to replace standard logging
@@ -95,7 +97,7 @@ def basicConfig(level=None, fmt=None, **_kwargs):
     This module configures loguru at import time; this function remains for
     compatibility and intentionally does nothing.
     """
-    return None
+    return
 
 
 # Constants for compatibility with logging module

@@ -7,7 +7,8 @@ and pushes price updates in real-time using the RealtimeService.
 
 import json
 import uuid
-from typing import Dict, Any, List
+from typing import Any
+
 from loguru import logger
 
 try:
@@ -20,16 +21,16 @@ except ImportError:
     WebSocketServerProtocol = None
     WEBSOCKETS_AVAILABLE = False
 
-from .services import realtime_service, PricePoint
+from .services import PricePoint, realtime_service
 
 
 class WebSocketPriceEndpoint:
     """WebSocket endpoint for price subscriptions."""
 
     def __init__(self):
-        self.connections: Dict[str, WebSocketServerProtocol] = {}
-        self.connection_subscriptions: Dict[
-            str, List[str]
+        self.connections: dict[str, WebSocketServerProtocol] = {}
+        self.connection_subscriptions: dict[
+            str, list[str]
         ] = {}  # connection_id -> [symbols]
 
     async def handle_connection(
@@ -100,7 +101,7 @@ class WebSocketPriceEndpoint:
         self,
         connection_id: str,
         websocket: WebSocketServerProtocol,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
     ):
         """Handle subscription requests."""
         symbols = payload.get("symbols", [])
@@ -135,7 +136,7 @@ class WebSocketPriceEndpoint:
         self,
         connection_id: str,
         websocket: WebSocketServerProtocol,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
     ):
         """Handle unsubscription requests."""
         symbols = payload.get("symbols", [])
@@ -173,7 +174,7 @@ class WebSocketPriceEndpoint:
         await self._send_message(websocket, message)
 
     async def _send_message(
-        self, websocket: WebSocketServerProtocol, message: Dict[str, Any]
+        self, websocket: WebSocketServerProtocol, message: dict[str, Any]
     ):
         """Send a message to a WebSocket connection."""
         try:

@@ -16,15 +16,20 @@ The `personal_finance.data_profiler` module provides:
 ### Basic Validation
 
 ```python
-from personal_finance.data_profiler import validate_profile_data, ProfileDataError
+from personal_finance.data_profiler import (
+    validate_profile_data,
+    ProfileDataError,
+)
 import pandas as pd
 
 # Validate DataFrame before profiling
-financial_df = pd.DataFrame({
-    'transaction_id': ['TXN001', 'TXN002'],
-    'amount': [100.50, 250.75],
-    'account_id': ['ACC001', 'ACC002']
-})
+financial_df = pd.DataFrame(
+    {
+        "transaction_id": ["TXN001", "TXN002"],
+        "amount": [100.50, 250.75],
+        "account_id": ["ACC001", "ACC002"],
+    }
+)
 
 try:
     validate_profile_data(financial_df)
@@ -44,9 +49,9 @@ service = DataProfilerService(enable_sensitive_data_detection=True)
 # Analyze financial data
 analysis = service.analyze_financial_data(financial_df)
 
-print("Financial patterns:", analysis['financial_patterns'])
-print("Data quality:", analysis['data_quality'])
-print("Sensitive data:", analysis['sensitive_data_detected'])
+print("Financial patterns:", analysis["financial_patterns"])
+print("Data quality:", analysis["data_quality"])
+print("Sensitive data:", analysis["sensitive_data_detected"])
 ```
 
 ## Supported Data Formats
@@ -55,23 +60,26 @@ The validation system supports all DataProfiler-compatible formats:
 
 ### 1. Pandas DataFrame (Recommended)
 ```python
-df = pd.DataFrame({
-    'symbol': ['AAPL', 'GOOGL'],
-    'price': [175.50, 2950.25],
-    'volume': [1000000, 800000]
-})
+df = pd.DataFrame(
+    {
+        "symbol": ["AAPL", "GOOGL"],
+        "price": [175.50, 2950.25],
+        "volume": [1000000, 800000],
+    }
+)
 validate_profile_data(df)  # ✓ Valid
 ```
 
 ### 2. Pandas Series
 ```python
-series = pd.Series([100, 200, 300], name='amounts')
+series = pd.Series([100, 200, 300], name="amounts")
 validate_profile_data(series)  # ✓ Valid
 ```
 
 ### 3. NumPy Arrays
 ```python
 import numpy as np
+
 price_array = np.array([[100, 200], [300, 400]])
 validate_profile_data(price_array)  # ✓ Valid
 ```
@@ -79,8 +87,8 @@ validate_profile_data(price_array)  # ✓ Valid
 ### 4. List of Dictionaries (Records Format)
 ```python
 portfolio_records = [
-    {'symbol': 'AAPL', 'quantity': 100, 'price': 150.25},
-    {'symbol': 'GOOGL', 'quantity': 50, 'price': 2800.75}
+    {"symbol": "AAPL", "quantity": 100, "price": 150.25},
+    {"symbol": "GOOGL", "quantity": 50, "price": 2800.75},
 ]
 validate_profile_data(portfolio_records)  # ✓ Valid
 ```
@@ -88,17 +96,17 @@ validate_profile_data(portfolio_records)  # ✓ Valid
 ### 5. Column-Oriented Dictionary
 ```python
 price_data = {
-    'dates': ['2024-01-01', '2024-01-02'],
-    'prices': [100.0, 102.5],
-    'volumes': [1000000, 1200000]
+    "dates": ["2024-01-01", "2024-01-02"],
+    "prices": [100.0, 102.5],
+    "volumes": [1000000, 1200000],
 }
 validate_profile_data(price_data)  # ✓ Valid
 ```
 
 ### 6. File Paths
 ```python
-validate_profile_data('/path/to/financial_data.csv')  # ✓ Valid
-validate_profile_data('portfolio.xlsx')              # ✓ Valid
+validate_profile_data("/path/to/financial_data.csv")  # ✓ Valid
+validate_profile_data("portfolio.xlsx")  # ✓ Valid
 ```
 
 ## Validation Rules
@@ -154,10 +162,12 @@ validate_profile_data(pd.DataFrame())  # Raises: DataFrame cannot be empty
 validate_profile_data(None)  # Raises: profile_data cannot be None
 
 # Inconsistent records
-validate_profile_data([
-    {'name': 'John', 'age': 30},
-    {'name': 'Jane', 'salary': 50000}  # Different keys
-])  # Raises: Inconsistent schema
+validate_profile_data(
+    [
+        {"name": "John", "age": 30},
+        {"name": "Jane", "salary": 50000},  # Different keys
+    ]
+)  # Raises: Inconsistent schema
 
 # Unsupported type
 validate_profile_data(set([1, 2, 3]))  # Raises: Unsupported data type
@@ -171,7 +181,7 @@ The `DataProfilerService` provides financial-specific analysis:
 ```python
 analysis = service.analyze_financial_data(financial_df)
 
-patterns = analysis['financial_patterns']
+patterns = analysis["financial_patterns"]
 # - potential_currency_columns: Columns that look like currency/amounts
 # - potential_date_columns: Columns that look like dates
 # - potential_amount_columns: Numeric columns for financial amounts
@@ -180,7 +190,7 @@ patterns = analysis['financial_patterns']
 
 ### Data Quality Analysis
 ```python
-quality = analysis['data_quality']
+quality = analysis["data_quality"]
 # - missing_data_ratio: Proportion of missing values
 # - duplicate_rows: Number of duplicate rows
 # - empty_columns: Columns with all null values
@@ -190,7 +200,7 @@ quality = analysis['data_quality']
 
 ### Sensitive Data Detection
 ```python
-sensitive_data = analysis['sensitive_data_detected']
+sensitive_data = analysis["sensitive_data_detected"]
 # Detects:
 # - potential_account_number: Numeric strings that look like account numbers
 # - potential_ssn: Patterns matching Social Security Numbers
@@ -205,12 +215,12 @@ The `validate_and_prepare_data` function optimizes data for DataProfiler:
 from personal_finance.data_profiler import validate_and_prepare_data
 
 # Converts list of dicts to DataFrame for better performance
-records = [{'id': 1, 'amount': 100}, {'id': 2, 'amount': 200}]
+records = [{"id": 1, "amount": 100}, {"id": 2, "amount": 200}]
 optimized_data = validate_and_prepare_data(records)
 # Returns: pandas DataFrame
 
 # Converts column-oriented dict to DataFrame
-columns = {'ids': [1, 2], 'amounts': [100, 200]}
+columns = {"ids": [1, 2], "amounts": [100, 200]}
 optimized_data = validate_and_prepare_data(columns)
 # Returns: pandas DataFrame
 ```
@@ -226,13 +236,15 @@ if service.is_available():
     profile = service.create_profile(financial_data)
 
     if profile:
-        print("Profile summary:", profile['summary'])
-        print("Column profiles:", profile['column_profiles'])
-        print("Data types:", profile['data_types'])
-        print("Null analysis:", profile['null_analysis'])
-        print("Sensitive data:", profile['sensitive_data'])
+        print("Profile summary:", profile["summary"])
+        print("Column profiles:", profile["column_profiles"])
+        print("Data types:", profile["data_types"])
+        print("Null analysis:", profile["null_analysis"])
+        print("Sensitive data:", profile["sensitive_data"])
 else:
-    print("DataProfiler not available - install with: pip install dataprofiler")
+    print(
+        "DataProfiler not available - install with: pip install dataprofiler"
+    )
 ```
 
 ### Configuration Options
@@ -244,7 +256,7 @@ service = DataProfilerService(enable_sensitive_data_detection=False)
 profile = service.create_profile(
     data,
     samples_per_update=1000,  # Process in batches
-    min_true_samples=10      # Minimum samples for statistics
+    min_true_samples=10,  # Minimum samples for statistics
 )
 ```
 
@@ -303,21 +315,25 @@ if not service.is_available():
 service = DataProfilerService(enable_sensitive_data_detection=True)
 
 # Check findings
-sensitive_findings = analysis['sensitive_data_detected']
+sensitive_findings = analysis["sensitive_data_detected"]
 for finding in sensitive_findings:
-    if finding['pattern_type'] == 'potential_ssn':
+    if finding["pattern_type"] == "potential_ssn":
         logger.warning(f"SSN detected in column: {finding['column']}")
 ```
 
 ### 5. Monitor Data Quality
 ```python
-quality = analysis['data_quality']
+quality = analysis["data_quality"]
 
-if quality['missing_data_ratio'] > 0.1:
-    logger.warning(f"High missing data ratio: {quality['missing_data_ratio']:.1%}")
+if quality["missing_data_ratio"] > 0.1:
+    logger.warning(
+        f"High missing data ratio: {quality['missing_data_ratio']:.1%}"
+    )
 
-if quality['outlier_candidates']:
-    logger.info(f"Outliers detected in: {[o['column'] for o in quality['outlier_candidates']]}")
+if quality["outlier_candidates"]:
+    logger.info(
+        f"Outliers detected in: {[o['column'] for o in quality['outlier_candidates']]}"
+    )
 ```
 
 ## Performance Considerations
@@ -362,7 +378,8 @@ if quality['outlier_candidates']:
 Enable detailed logging:
 ```python
 import logging
-logging.getLogger('personal_finance.data_profiler').setLevel(logging.DEBUG)
+
+logging.getLogger("personal_finance.data_profiler").setLevel(logging.DEBUG)
 ```
 
 This provides detailed information about:

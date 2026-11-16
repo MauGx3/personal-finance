@@ -1,14 +1,15 @@
 """API views for tax functionality."""
 
-from loguru import logger
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from loguru import logger
 
 # Graceful import handling for missing models
 try:
@@ -17,32 +18,32 @@ except ImportError:
     Portfolio = None
 
 from .models import (
-    TaxYear,
-    TaxLot,
     CapitalGainLoss,
     DividendIncome,
     TaxLossHarvestingOpportunity,
+    TaxLot,
     TaxOptimizationRecommendation,
     TaxReport,
+    TaxYear,
 )
+from .report_service import TaxReportService
 from .serializers import (
-    TaxYearSerializer,
-    TaxLotSerializer,
     CapitalGainLossSerializer,
     DividendIncomeSerializer,
+    LossHarvestingAnalysisSerializer,
+    TaxCalculationRequestSerializer,
     TaxLossHarvestingOpportunitySerializer,
+    TaxLotSerializer,
     TaxOptimizationRecommendationSerializer,
     TaxReportSerializer,
     TaxSummarySerializer,
-    TaxCalculationRequestSerializer,
-    LossHarvestingAnalysisSerializer,
+    TaxYearSerializer,
 )
 from .services import (
     TaxCalculationService,
     TaxLossHarvestingService,
     TaxOptimizationService,
 )
-from .report_service import TaxReportService
 
 User = get_user_model()
 # Using loguru logger imported above
@@ -190,7 +191,7 @@ class TaxLossHarvestingOpportunityViewSet(viewsets.ReadOnlyModelViewSet):
                         opp.potential_loss_amount for opp in opportunities
                     ),
                     "total_estimated_benefit": sum(
-                        opp.tax_benefit_estimate or Decimal("0")
+                        opp.tax_benefit_estimate or Decimal(0)
                         for opp in opportunities
                     ),
                     "opportunities": opportunity_serializer.data,
@@ -199,7 +200,7 @@ class TaxLossHarvestingOpportunityViewSet(viewsets.ReadOnlyModelViewSet):
 
         except Exception as e:
             logger.error(
-                f"Error analyzing loss harvesting opportunities: {str(e)}"
+                f"Error analyzing loss harvesting opportunities: {e!s}"
             )
             return Response(
                 {"error": "Failed to analyze opportunities"},
@@ -276,7 +277,7 @@ class TaxOptimizationRecommendationViewSet(viewsets.ReadOnlyModelViewSet):
                 {
                     "recommendations_count": len(recommendations),
                     "total_potential_savings": sum(
-                        rec.estimated_tax_savings or Decimal("0")
+                        rec.estimated_tax_savings or Decimal(0)
                         for rec in recommendations
                     ),
                     "recommendations": serializer.data,
@@ -285,7 +286,7 @@ class TaxOptimizationRecommendationViewSet(viewsets.ReadOnlyModelViewSet):
 
         except Exception as e:
             logger.error(
-                f"Error generating optimization recommendations: {str(e)}"
+                f"Error generating optimization recommendations: {e!s}"
             )
             return Response(
                 {"error": "Failed to generate recommendations"},
@@ -454,7 +455,7 @@ class TaxAnalyticsViewSet(viewsets.ViewSet):
             net_gains = capital_gains["totals"]["net_capital_gain_loss"]
             total_dividends = dividends["total_dividends"]
 
-            estimated_tax = max(net_gains * Decimal("0.15"), Decimal("0"))
+            estimated_tax = max(net_gains * Decimal("0.15"), Decimal(0))
             estimated_dividend_tax = total_dividends * Decimal("0.15")
 
             summary_data = {
@@ -552,7 +553,7 @@ class TaxAnalyticsViewSet(viewsets.ViewSet):
             except Exception as e:
                 error_count += 1
                 logger.error(
-                    f"Error processing transaction {transaction.id}: {str(e)}"
+                    f"Error processing transaction {transaction.id}: {e!s}"
                 )
 
         return Response(

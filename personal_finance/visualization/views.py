@@ -4,16 +4,17 @@ This module provides Django views for rendering interactive financial dashboards
 using the chart generation utilities and portfolio analytics.
 """
 
-from loguru import logger
-from typing import Dict, Any
 from datetime import timedelta
+from typing import Any
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse, HttpRequest
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import TemplateView
 from django.utils import timezone
+from django.views.generic import TemplateView
+
+from loguru import logger
 
 # Graceful import handling for missing models
 try:
@@ -22,7 +23,7 @@ except ImportError:
     Portfolio = None
 
 from personal_finance.assets.models import Asset
-from personal_finance.visualization.charts import PortfolioCharts, AssetCharts
+from personal_finance.visualization.charts import AssetCharts, PortfolioCharts
 
 # Using loguru logger imported above
 
@@ -32,7 +33,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     template_name = "visualization/dashboard.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add portfolio data to template context.
 
         Returns:
@@ -73,7 +74,7 @@ class PortfolioDetailView(LoginRequiredMixin, TemplateView):
 
     template_name = "visualization/portfolio_detail.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add portfolio-specific data to template context."""
         context = super().get_context_data(**kwargs)
 

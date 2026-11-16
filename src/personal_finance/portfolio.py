@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Any
 
 try:
     import stockdex as sd
@@ -35,7 +35,7 @@ class Portfolio:
 
 
 class PortfolioManager:
-    def __init__(self, db_manager: Optional[DatabaseManager] = None):
+    def __init__(self, db_manager: DatabaseManager | None = None):
         self.db_manager = db_manager or DatabaseManager()
         self.portfolio = {}  # Keep for backward compatibility, but will be deprecated
 
@@ -122,7 +122,7 @@ class PortfolioManager:
             logger.error(f"Error removing position {symbol}: {e}")
             raise
 
-    def get_current_prices(self) -> Dict[str, float]:
+    def get_current_prices(self) -> dict[str, float]:
         """Get current prices for all positions"""
         prices = {}
         positions = self.db_manager.get_portfolio_positions()
@@ -156,7 +156,7 @@ class PortfolioManager:
 
             except Exception as e:
                 logger.error(
-                    f"Error fetching price for {position.symbol}: {str(e)}"
+                    f"Error fetching price for {position.symbol}: {e!s}"
                 )
                 prices[position.symbol] = 0.0
 
@@ -174,7 +174,7 @@ class PortfolioManager:
 
         return total_value
 
-    def get_historical_data(self, period="1y") -> Dict[str, Any]:
+    def get_historical_data(self, period="1y") -> dict[str, Any]:
         """Get historical data for all positions"""
         historical_data = {}
         positions = self.db_manager.get_portfolio_positions()
@@ -211,12 +211,12 @@ class PortfolioManager:
 
             except Exception as e:
                 logger.error(
-                    f"Error fetching historical data for {position.symbol}: {str(e)}"
+                    f"Error fetching historical data for {position.symbol}: {e!s}"
                 )
 
         return historical_data
 
-    def get_positions_summary(self) -> List[Dict]:
+    def get_positions_summary(self) -> list[dict]:
         """Get summary of all positions with current values"""
         positions = self.db_manager.get_portfolio_positions()
         prices = self.get_current_prices()
